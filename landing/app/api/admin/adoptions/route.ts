@@ -1,39 +1,26 @@
-export const dynamic = 'force-dynamic';
-
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/db';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import { authOptions } from '@/lib/auth-options';
+import { Adoption } from '@prisma/client';
 
-const ADMIN_EMAILS = ['admin@quetz.com', 'john@doe.com', 'dgarrido@quetz.org', 'dfgarrido11@gmail.com'];
+export async function GET(req: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session || session.user.role !== 'admin') {
+    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+  }
 
-async function isAdmin(email: string | null | undefined): Promise<boolean> {
-  if (!email) return false;
-  if (ADMIN_EMAILS.includes(email)) return true;
-  const user = await prisma.user.findUnique({
-    where: { email },
-    select: { role: true },
-  });
-  return user?.role === 'admin';
-}
-
-export async function GET() {
   try {
-    const session = await getServerSession(authOptions);
-    if (!await isAdmin(session?.user?.email)) {
-      return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 403 });
-    }
-
     const adoptions = await prisma.adoption.findMany({
-      orderBy: { createdAt: 'desc' },
       include: {
-        user: { select: { name: true, email: true } },
-        tree: { select: { nameEs: true } },
-        farmer: { select: { name: true } },
+        user: true,
+        tree: true,
+        farmer: true,
       },
+      orderBy: { createdAt: 'desc' },
     });
 
-    const formattedAdoptions = adoptions.map(a => ({
+    const formattedAdoptions = adoptions.map((a: Adoption) => ({
       id: a.id,
       userId: a.userId,
       userName: a.user?.name || null,
@@ -51,9 +38,11 @@ export async function GET() {
       createdAt: a.createdAt.toISOString(),
     }));
 
-    return NextResponse.json({ success: true, adoptions: formattedAdoptions });
+    return NextResponse.json(formattedAdoptions);
   } catch (error) {
-    console.error('Adoptions GET error:', error);
-    return NextResponse.json({ success: false, error: 'Error interno' }, { status: 500 });
+    console.error('Error fetching adoptions:', error);
+    return NextResponse.json({ error: 'Error interno' }, { status: 500 });
   }
 }
+
+// Si tienes POST, PUT, etc., mantenlos igual, pero asegúrate de tipar también.
