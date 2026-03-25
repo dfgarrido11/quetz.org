@@ -1,0 +1,303 @@
+generator client {
+    provider = "prisma-client-js"
+    binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
+    output = "/home/ubuntu/quetz_landing/nextjs_space/node_modules/.prisma/client"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model Lead {
+  id        Int      @id @default(autoincrement())
+  nombre    String
+  email     String
+  pais      String
+  createdAt DateTime @default(now())
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  passwordHash  String?
+  country       String?
+  image         String?
+  role          String    @default("user") // "user" | "admin"
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  accounts      Account[]
+  sessions      Session[]
+  adoptions     Adoption[]
+  donations     Donation[]
+  subscriptions Subscription[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Tree {
+  id          String     @id @default(cuid())
+  species     String     @unique // cafe, aguacate, caoba, etc.
+  
+  // Multilingual names
+  nameEs      String
+  nameDe      String?
+  nameEn      String?
+  nameFr      String?
+  nameAr      String?
+  
+  // Multilingual descriptions
+  descEs      String     @db.Text
+  descDe      String?    @db.Text
+  descEn      String?    @db.Text
+  descFr      String?    @db.Text
+  descAr      String?    @db.Text
+  
+  // Multilingual impact texts
+  impactEs    String?
+  impactDe    String?
+  impactEn    String?
+  impactFr    String?
+  impactAr    String?
+  
+  // Impact metrics
+  impactCo2Kg     Float    @default(25)  // kg CO2 captured per year
+  impactFamilies  Float    @default(0.1) // families benefited per tree
+  priceBaseEur    Float    @default(25)  // base price in EUR
+  
+  // Media
+  image       String
+  iconUrl     String?
+  
+  // Status
+  active      Boolean    @default(true)
+  
+  adoptions   Adoption[]
+}
+
+model Farmer {
+  id          String     @id @default(cuid())
+  name        String
+  photoUrl    String?
+  location    String?
+  
+  // Multilingual stories
+  storyEs     String?    @db.Text
+  storyDe     String?    @db.Text
+  storyEn     String?    @db.Text
+  storyFr     String?    @db.Text
+  storyAr     String?    @db.Text
+  
+  // Payments history as JSON
+  payments    Json?      // [{date, amountEur, concept}]
+  
+  active      Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  
+  adoptions   Adoption[]
+}
+
+model Adoption {
+  id          String    @id @default(cuid())
+  userId      String
+  treeId      String
+  farmerId    String?   // Assigned farmer
+  
+  quantity    Int       @default(1)
+  amount      Float     @default(0)
+  currency    String    @default("EUR")
+  
+  // Income tracking
+  incomeType           String   @default("subscription") // subscription
+  socialFundPercentage Float    @default(0.3)  // 30%
+  socialFundAmount     Float    @default(0)
+  
+  // Status
+  status              String   @default("pending") // pending, paid, active, completed, cancelled
+  subscriptionStatus  String   @default("pending") // pending, active, cancelled, expired
+  
+  // Progress tracking
+  progress     Int       @default(0)  // 0-100
+  plantedAt    DateTime?
+  cancelledAt  DateTime?
+  nextUpdateAt DateTime?
+  lastPhotoUrl String?
+  
+  createdAt   DateTime  @default(now())
+  
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tree        Tree      @relation(fields: [treeId], references: [id], onDelete: Cascade)
+  farmer      Farmer?   @relation(fields: [farmerId], references: [id])
+}
+
+model Donation {
+  id        String   @id @default(cuid())
+  userId    String
+  amount    Float
+  currency  String   @default("EUR")
+  purpose   String   @default("school") // school, general
+  status    String   @default("pending") // pending, paid
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Stats {
+  id              String   @id @default("main")
+  totalIncome     Float    @default(0)
+  socialFund      Float    @default(0)
+  treesAdopted    Int      @default(0)
+  treesPlanted    Int      @default(0)
+  familiesHelped  Int      @default(0)
+  co2CapturedKg   Float    @default(0)
+  schoolFunding   Float    @default(0)
+  schoolProgress  Float    @default(0) // 0-100 percentage
+  updatedAt       DateTime @updatedAt
+}
+
+model SchoolProject {
+  id              String   @id @default("zacapa")
+  name            String   @default("Escuela Jumuzna")
+  description     String?  @db.Text
+  goalEur         Float    @default(50000)
+  raisedEur       Float    @default(0)
+  phase           String   @default("terreno") // terreno, cimientos, paredes, techo, terminada
+  history         Json?    // [{date, text, photoUrl}]
+  updatedAt       DateTime @updatedAt
+}
+
+// ========== FASE 2: GIFTS & CSR ==========
+
+model Gift {
+  id              String    @id @default(cuid())
+  code            String    @unique // Código único para redención
+  
+  // Plan details
+  planId          String    // cafe, bosquePequeno, bosqueGrande
+  planName        String
+  treesPerMonth   Int       @default(1)
+  durationMonths  Int       @default(12)
+  amountEur       Float
+  
+  // Sender info
+  senderUserId    String?   // Usuario que compra (null si es invitado)
+  senderEmail     String?
+  
+  // Recipient info
+  recipientName   String
+  recipientEmail  String
+  
+  // Gift details
+  occasion        String    @default("otro") // cumpleanos, navidad, sanValentin, otro
+  message         String?   @db.Text
+  scheduledAt     DateTime? // Fecha programada de envío (null = inmediato)
+  sentAt          DateTime? // Cuándo se envió el email
+  
+  // Status
+  status          String    @default("pending") // pending, paid, sent, activated, expired
+  activatedAt     DateTime?
+  activatedByUserId String?
+  
+  // Stripe
+  stripeSessionId String?
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model CorporateLead {
+  id              String   @id @default(cuid())
+  
+  // Company info
+  companyName     String
+  country         String
+  employeeCount   String?  // Aproximado como string "50-100"
+  
+  // Contact info
+  contactName     String
+  contactEmail    String
+  contactPhone    String?
+  
+  // Request details
+  message         String?  @db.Text
+  treesPerEmployee Int?
+  
+  // Status
+  status          String   @default("new") // new, contacted, proposal_sent, active, rejected
+  notes           String?  @db.Text
+  
+  // Follow-up tracking
+  welcomeEmailSent  Boolean  @default(false)
+  followUpSent      Boolean  @default(false)
+  followUpAt        DateTime? // when the 48h follow-up was sent
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// ========== FASE 3: SUBSCRIPTIONS ==========
+
+model Subscription {
+  id                    String    @id @default(cuid())
+  userId                String
+  
+  // Plan details
+  planId                String    // cafe, bosquePequeno, bosqueGrande
+  planName              String
+  treesPerMonth         Int       @default(1)
+  priceEurMonth         Float
+  
+  // Stripe IDs
+  stripeCustomerId      String?
+  stripeSubscriptionId  String?   @unique
+  stripePriceId         String?
+  
+  // Status
+  status                String    @default("pending") // pending, active, paused, cancelled, expired
+  currentPeriodStart    DateTime?
+  currentPeriodEnd      DateTime?
+  cancelAtPeriodEnd     Boolean   @default(false)
+  cancelledAt           DateTime?
+  
+  // Totals
+  totalTreesDelivered   Int       @default(0)
+  totalAmountPaid       Float     @default(0)
+  
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

@@ -1,0 +1,124 @@
+generator client {
+    provider = "prisma-client-js"
+    binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
+    output = "/home/ubuntu/quetz_dashboard/nextjs_space/node_modules/.prisma/client"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String   @id @default(cuid())
+  email              String   @unique
+  password           String
+  name               String?
+  profilePhoto       String?
+  subscriptionStart  DateTime @default(now())
+  subscriptionTier   String   @default("standard")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  trees              Tree[]
+  guardianAssignment UserGuardianAssignment?
+  sentMessages       Message[] @relation("SentMessages")
+  receivedMessages   Message[] @relation("ReceivedMessages")
+  userBadges         UserBadge[]
+  impactMetrics      ImpactMetrics?
+}
+
+model Tree {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String
+  plantedDate DateTime
+  locationGps String
+  photoUrl    String?
+  growthStage String   @default("seed")
+  co2Captured Float    @default(0)
+  species     String   @default("Ceiba")
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
+model Guardian {
+  id        String   @id @default(cuid())
+  name      String
+  photoUrl  String?
+  location  String
+  bio       String
+  videoUrl  String?
+  createdAt DateTime @default(now())
+  assignments UserGuardianAssignment[]
+  updates   GuardianUpdate[]
+}
+
+model GuardianUpdate {
+  id         String   @id @default(cuid())
+  guardianId String
+  content    String
+  photoUrl   String?
+  createdAt  DateTime @default(now())
+  guardian   Guardian @relation(fields: [guardianId], references: [id])
+
+  @@index([guardianId])
+}
+
+model UserGuardianAssignment {
+  id         String   @id @default(cuid())
+  userId     String   @unique
+  guardianId String
+  assignedAt DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id])
+  guardian   Guardian @relation(fields: [guardianId], references: [id])
+
+  @@index([guardianId])
+}
+
+model Message {
+  id            String   @id @default(cuid())
+  senderId      String
+  receiverId    String
+  content       String
+  isFromGuardian Boolean @default(false)
+  createdAt     DateTime @default(now())
+  sender        User     @relation("SentMessages", fields: [senderId], references: [id])
+  receiver      User     @relation("ReceivedMessages", fields: [receiverId], references: [id])
+
+  @@index([senderId])
+  @@index([receiverId])
+}
+
+model Badge {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String
+  icon        String
+  criteria    String
+  createdAt   DateTime @default(now())
+  userBadges  UserBadge[]
+}
+
+model UserBadge {
+  id        String   @id @default(cuid())
+  userId    String
+  badgeId   String
+  earnedAt  DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  badge     Badge    @relation(fields: [badgeId], references: [id])
+
+  @@unique([userId, badgeId])
+  @@index([userId])
+}
+
+model ImpactMetrics {
+  id               String @id @default(cuid())
+  userId           String @unique
+  totalTrees       Int    @default(0)
+  totalCo2Tons     Float  @default(0)
+  schoolSqm        Float  @default(0)
+  childrenBenefited Int   @default(0)
+  user             User   @relation(fields: [userId], references: [id])
+}
