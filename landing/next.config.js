@@ -1,15 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   typescript: {
-    // Ignorar errores de tipo durante la construcción
+    // !! WARN: Esto ignora errores de tipo durante la construcción (solo para desbloquear)
     ignoreBuildErrors: true,
   },
   eslint: {
-    // Ignorar errores de lint durante la construcción
     ignoreDuringBuilds: true,
   },
-  // Otras configuraciones existentes (si las hay)
-  // Ejemplo: output: 'standalone', etc.
+  // Si tenías otras configuraciones (imágenes, etc.), añádelas aquí.
 };
 
 module.exports = nextConfig;
