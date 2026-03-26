@@ -29,5 +29,3 @@ yarn-error.log*
 .abacus.donotdelete
 
 # Imágenes grandes (se subirán por separado)
-landing/public/photos/
-landing/public/trees/
