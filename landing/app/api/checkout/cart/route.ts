@@ -13,19 +13,18 @@ export async function POST(req: NextRequest) {
     const lineItems = items.map((item: any) => ({
       price_data: {
         currency: "eur",
-        product_data: { name: item.name },
-        unit_amount: Math.round(item.price * 100),
-        recurring: item.recurring ? { interval: "month" } : undefined,
+        product_data: { name: item.name || item.planName || "Árbol quetz" },
+        unit_amount: Math.round((item.pricePerUnit || item.price || 0) * 100),
+        ...(item.recurring ? { recurring: { interval: "month" } } : {}),
       },
       quantity: item.quantity || 1,
     }))
 
     const session = await stripe.checkout.sessions.create({
-      mode: items.some((i: any) => i.recurring) ? "subscription" : "payment",
+      mode: items.some((i: any) => i.recurring || i.planId) ? "subscription" : "payment",
       line_items: lineItems,
       success_url: `${process.env.NEXTAUTH_URL}/mi-bosque?success=true`,
       cancel_url: `${process.env.NEXTAUTH_URL}/carrito`,
-      customer_email: body.email || undefined,
     })
 
     return NextResponse.json({ url: session.url })
