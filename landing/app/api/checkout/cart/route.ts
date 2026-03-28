@@ -10,18 +10,22 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const { items } = body
 
-    const lineItems = items.map((item: any) => ({
-      price_data: {
+    const isSubscription = items.some((i: any) => i.planId || i.recurring || i.type === 'subscription')
+
+    const lineItems = items.map((item: any) => {
+      const priceData: any = {
         currency: "eur",
-        product_data: { name: item.name || item.planName || "Árbol quetz" },
-        unit_amount: Math.round((item.pricePerUnit || item.price || 0) * 100),
-        ...(item.recurring ? { recurring: { interval: "month" } } : {}),
-      },
-      quantity: item.quantity || 1,
-    }))
+        product_data: { name: item.name || item.planName || "Árbol quetz.org" },
+        unit_amount: Math.round((item.pricePerUnit || item.price || 5) * 100),
+      }
+      if (isSubscription) {
+        priceData.recurring = { interval: "month" }
+      }
+      return { price_data: priceData, quantity: item.quantity || 1 }
+    })
 
     const session = await stripe.checkout.sessions.create({
-      mode: items.some((i: any) => i.recurring || i.planId) ? "subscription" : "payment",
+      mode: isSubscription ? "subscription" : "payment",
       line_items: lineItems,
       success_url: `${process.env.NEXTAUTH_URL}/mi-bosque?success=true`,
       cancel_url: `${process.env.NEXTAUTH_URL}/carrito`,
