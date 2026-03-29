@@ -71,7 +71,7 @@ const PRODUCTS: Product[] = [
       { name: 'Negro', hex: '#1a1a1a' },
     ],
     description: 'Algodón 100% orgánico. Lleva el bosque contigo a cualquier lugar.',
-    mockupUrl: 'https://files.cdn.printful.com/o/upload/product-catalog-img/60/6040cec14e05d_unisex-staple-t-shirt-white-front-6305a5e6dfd78.jpg',
+    mockupUrl: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&q=80',
   },
   {
     id: 'hoodie',
@@ -91,7 +91,7 @@ const PRODUCTS: Product[] = [
       { name: 'Negro', hex: '#1a1a1a' },
     ],
     description: 'Interior suave, exterior con propósito. Cálido como el bosque maya.',
-    mockupUrl: 'https://files.cdn.printful.com/o/upload/product-catalog-img/64/6414d6e7c3c5a_unisex-eco-hoodie-bottle-green-front-6414d77f4fbe3.jpg',
+    mockupUrl: 'https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=400&q=80',
   },
   {
     id: 'taza',
@@ -109,7 +109,7 @@ const PRODUCTS: Product[] = [
       { name: 'Verde menta', hex: '#95d5b2' },
     ],
     description: 'Cerámica resistente al lavavajillas. Cada sorbo planta un árbol.',
-    mockupUrl: 'https://files.cdn.printful.com/o/upload/product-catalog-img/3d/3db8f6c3cb8d9_white-glossy-mug-11oz-front-view-6305a5e6e08b4.jpg',
+    mockupUrl: 'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?w=400&q=80',
   },
   {
     id: 'totebag',
@@ -128,7 +128,7 @@ const PRODUCTS: Product[] = [
       { name: 'Verde', hex: '#2d6a4f' },
     ],
     description: 'Algodón orgánico. Cero plástico, máximo impacto en Guatemala.',
-    mockupUrl: 'https://files.cdn.printful.com/o/upload/product-catalog-img/74/74da87bbfae32_AOP-tote-bag_front_mockup.jpg',
+    mockupUrl: 'https://images.unsplash.com/photo-1597484661643-2f5fef640dd1?w=400&q=80',
   },
   {
     id: 'gorra',
@@ -147,7 +147,7 @@ const PRODUCTS: Product[] = [
       { name: 'Negro', hex: '#1a1a1a' },
     ],
     description: 'Logo bordado. Protección solar con estilo y propósito.',
-    mockupUrl: 'https://files.cdn.printful.com/o/upload/product-catalog-img/1f/1f87e0e4c8afe_classic-dad-hat-black-front-6305a5e5f00b2.jpg',
+    mockupUrl: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=400&q=80',
   },
   {
     id: 'cuaderno-bambu',
@@ -164,7 +164,7 @@ const PRODUCTS: Product[] = [
       { name: 'Bambú natural', hex: '#C8A96E' },
     ],
     description: 'Tapa de bambú sostenible. 192 páginas de papel reciclado.',
-    mockupUrl: 'https://files.cdn.printful.com/o/upload/product-catalog-img/28/2890b0edb8069_premium-matte-paper-poster-in-a-frame_6_preview_6305a5e5f1b86.jpg',
+    mockupUrl: 'https://images.unsplash.com/photo-1531346878377-a5be20888e57?w=400&q=80',
   },
   {
     id: 'camiseta-ninos',
@@ -183,7 +183,7 @@ const PRODUCTS: Product[] = [
       { name: 'Verde menta', hex: '#95d5b2' },
     ],
     description: 'Los niños también pueden cambiar el mundo. 100% algodón orgánico.',
-    mockupUrl: 'https://files.cdn.printful.com/o/upload/product-catalog-img/60/6040cec14e05d_unisex-staple-t-shirt-white-front-6305a5e6dfd78.jpg',
+    mockupUrl: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&q=80',
   },
 ]
 
