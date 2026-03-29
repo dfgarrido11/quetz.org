@@ -7,23 +7,22 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   ShoppingBag,
   TreePine,
-  RotateCw,
   X,
   Plus,
   Minus,
-  ChevronRight,
   Leaf,
   QrCode,
-  Shirt,
   CreditCard,
   CheckCircle,
   ArrowLeft,
   Sparkles,
   Package,
+  ChevronRight,
+  Star,
 } from 'lucide-react'
 import { useLanguage } from '@/lib/language-context'
 
-// ─── Types ───────────────────────────────────────────────────────────────────
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface ProductColor { name: string; hex: string }
 
@@ -40,6 +39,9 @@ interface Product {
   sizes: string[]
   colors: ProductColor[]
   description: string
+  badge?: string
+  mockupUrl: string
+  hoverUrl?: string
 }
 
 interface CartItem extends Product {
@@ -48,7 +50,7 @@ interface CartItem extends Product {
   selectedColor: ProductColor
 }
 
-// ─── Static catalog (mirrors /api/gelato/products) ───────────────────────────
+// ─── Product catalog ──────────────────────────────────────────────────────────
 
 const PRODUCTS: Product[] = [
   {
@@ -61,6 +63,7 @@ const PRODUCTS: Product[] = [
     phrase: 'Adopté un árbol en Zacapa 🌱',
     mascot: 'quetzito-aventurero',
     ref: 'camiseta',
+    badge: 'Quetz Pick',
     sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
     colors: [
       { name: 'Blanco', hex: '#FFFFFF' },
@@ -68,6 +71,7 @@ const PRODUCTS: Product[] = [
       { name: 'Negro', hex: '#1a1a1a' },
     ],
     description: 'Algodón 100% orgánico. Lleva el bosque contigo a cualquier lugar.',
+    mockupUrl: 'https://files.cdn.printful.com/o/upload/product-catalog-img/60/6040cec14e05d_unisex-staple-t-shirt-white-front-6305a5e6dfd78.jpg',
   },
   {
     id: 'hoodie',
@@ -79,6 +83,7 @@ const PRODUCTS: Product[] = [
     phrase: 'Mi bosque de Guatemala 🌿',
     mascot: 'quetzito-heroe',
     ref: 'hoodie',
+    badge: 'Bestseller',
     sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
     colors: [
       { name: 'Verde musgo', hex: '#1b4332' },
@@ -86,6 +91,7 @@ const PRODUCTS: Product[] = [
       { name: 'Negro', hex: '#1a1a1a' },
     ],
     description: 'Interior suave, exterior con propósito. Cálido como el bosque maya.',
+    mockupUrl: 'https://files.cdn.printful.com/o/upload/product-catalog-img/64/6414d6e7c3c5a_unisex-eco-hoodie-bottle-green-front-6414d77f4fbe3.jpg',
   },
   {
     id: 'taza',
@@ -103,6 +109,7 @@ const PRODUCTS: Product[] = [
       { name: 'Verde menta', hex: '#95d5b2' },
     ],
     description: 'Cerámica resistente al lavavajillas. Cada sorbo planta un árbol.',
+    mockupUrl: 'https://files.cdn.printful.com/o/upload/product-catalog-img/3d/3db8f6c3cb8d9_white-glossy-mug-11oz-front-view-6305a5e6e08b4.jpg',
   },
   {
     id: 'totebag',
@@ -114,12 +121,14 @@ const PRODUCTS: Product[] = [
     phrase: 'Raíces que cambian vidas 💚',
     mascot: 'quetzito-aventurero',
     ref: 'totebag',
+    badge: 'Eco',
     sizes: ['Único'],
     colors: [
       { name: 'Natural', hex: '#F5F0E8' },
       { name: 'Verde', hex: '#2d6a4f' },
     ],
     description: 'Algodón orgánico. Cero plástico, máximo impacto en Guatemala.',
+    mockupUrl: 'https://files.cdn.printful.com/o/upload/product-catalog-img/74/74da87bbfae32_AOP-tote-bag_front_mockup.jpg',
   },
   {
     id: 'gorra',
@@ -138,6 +147,7 @@ const PRODUCTS: Product[] = [
       { name: 'Negro', hex: '#1a1a1a' },
     ],
     description: 'Logo bordado. Protección solar con estilo y propósito.',
+    mockupUrl: 'https://files.cdn.printful.com/o/upload/product-catalog-img/1f/1f87e0e4c8afe_classic-dad-hat-black-front-6305a5e5f00b2.jpg',
   },
   {
     id: 'cuaderno-bambu',
@@ -154,6 +164,7 @@ const PRODUCTS: Product[] = [
       { name: 'Bambú natural', hex: '#C8A96E' },
     ],
     description: 'Tapa de bambú sostenible. 192 páginas de papel reciclado.',
+    mockupUrl: 'https://files.cdn.printful.com/o/upload/product-catalog-img/28/2890b0edb8069_premium-matte-paper-poster-in-a-frame_6_preview_6305a5e5f1b86.jpg',
   },
   {
     id: 'camiseta-ninos',
@@ -165,114 +176,47 @@ const PRODUCTS: Product[] = [
     phrase: 'Futuro guardián del bosque',
     mascot: 'quetzito-aventurero',
     ref: 'camiseta-ninos',
+    badge: 'Kids',
     sizes: ['3-4', '5-6', '7-8', '9-10', '11-12', '13-14'],
     colors: [
       { name: 'Blanco', hex: '#FFFFFF' },
       { name: 'Verde menta', hex: '#95d5b2' },
     ],
     description: 'Los niños también pueden cambiar el mundo. 100% algodón orgánico.',
+    mockupUrl: 'https://files.cdn.printful.com/o/upload/product-catalog-img/60/6040cec14e05d_unisex-staple-t-shirt-white-front-6305a5e6dfd78.jpg',
   },
 ]
 
 const CATEGORIES = ['todos', 'ropa', 'hogar', 'accesorios']
 
-// ─── Real product mockup images ──────────────────────────────────────────────
-
-const PRODUCT_IMAGES: Record<string, string> = {
-  'camiseta-adulto': 'https://files.cdn.printful.com/o/upload/product-catalog-img/60/6040cec14e05d_unisex-staple-t-shirt-white-front-6305a5e6dfd78.jpg',
-  'hoodie': 'https://files.cdn.printful.com/o/upload/product-catalog-img/64/6414d6e7c3c5a_unisex-eco-hoodie-bottle-green-front-6414d77f4fbe3.jpg',
-  'taza': 'https://files.cdn.printful.com/o/upload/product-catalog-img/3d/3db8f6c3cb8d9_white-glossy-mug-11oz-front-view-6305a5e6e08b4.jpg',
-  'totebag': 'https://files.cdn.printful.com/o/upload/product-catalog-img/74/74da87bbfae32_AOP-tote-bag_front_mockup.jpg',
-  'gorra': 'https://files.cdn.printful.com/o/upload/product-catalog-img/1f/1f87e0e4c8afe_classic-dad-hat-black-front-6305a5e5f00b2.jpg',
-  'camiseta-ninos': 'https://files.cdn.printful.com/o/upload/product-catalog-img/60/6040cec14e05d_unisex-staple-t-shirt-white-front-6305a5e6dfd78.jpg',
-  'cuaderno-bambu': '',
+const CATEGORY_LABELS: Record<string, string> = {
+  todos: 'Todos los productos',
+  ropa: 'Ropa',
+  hogar: 'Hogar & Oficina',
+  accesorios: 'Accesorios',
 }
 
-// ─── Product Mockup SVG shapes (used only in cart thumbnail) ─────────────────
-
-function ProductShape({ productId, color }: { productId: string; color: string }) {
-  if (productId === 'taza') {
-    return (
-      <svg viewBox="0 0 120 100" className="w-full h-full">
-        <rect x="10" y="15" width="80" height="70" rx="8" fill={color} stroke="#1b4332" strokeWidth="2" />
-        <path d="M90 30 Q110 30 110 50 Q110 70 90 70" fill="none" stroke="#1b4332" strokeWidth="3" strokeLinecap="round"/>
-        <rect x="10" y="15" width="80" height="12" rx="4" fill={color === '#FFFFFF' ? '#e8f5e9' : '#0f3d24'} opacity="0.4" />
-      </svg>
-    )
-  }
-  if (productId === 'totebag') {
-    return (
-      <svg viewBox="0 0 120 130" className="w-full h-full">
-        <path d="M20 40 L15 120 Q15 125 20 125 L100 125 Q105 125 105 120 L100 40 Z" fill={color} stroke="#1b4332" strokeWidth="2"/>
-        <path d="M40 40 Q40 15 60 15 Q80 15 80 40" fill="none" stroke="#1b4332" strokeWidth="3" strokeLinecap="round"/>
-        <line x1="15" y1="55" x2="105" y2="55" stroke="#1b4332" strokeWidth="1.5" strokeDasharray="4,3" opacity="0.4"/>
-      </svg>
-    )
-  }
-  if (productId === 'gorra') {
-    return (
-      <svg viewBox="0 0 130 80" className="w-full h-full">
-        <path d="M20 55 Q20 20 65 20 Q110 20 110 55" fill={color} stroke="#1b4332" strokeWidth="2"/>
-        <rect x="5" y="52" width="120" height="14" rx="7" fill={color} stroke="#1b4332" strokeWidth="2"/>
-        <path d="M5 59 Q65 70 125 59" fill="none" stroke="#1b4332" strokeWidth="1.5" opacity="0.4"/>
-        <rect x="57" y="20" width="16" height="8" rx="4" fill={color === '#FFFFFF' ? '#e8f5e9' : '#0f3d24'} opacity="0.6"/>
-      </svg>
-    )
-  }
-  if (productId === 'cuaderno-bambu') {
-    return (
-      <svg viewBox="0 0 90 120" className="w-full h-full">
-        <rect x="10" y="5" width="70" height="110" rx="4" fill={color} stroke="#1b4332" strokeWidth="2"/>
-        <rect x="10" y="5" width="12" height="110" rx="2" fill="#A0784A"/>
-        <line x1="28" y1="25" x2="72" y2="25" stroke="#1b4332" strokeWidth="1.5" opacity="0.5"/>
-        <line x1="28" y1="35" x2="72" y2="35" stroke="#1b4332" strokeWidth="1" opacity="0.3"/>
-        <line x1="28" y1="45" x2="72" y2="45" stroke="#1b4332" strokeWidth="1" opacity="0.3"/>
-        <line x1="28" y1="55" x2="60" y2="55" stroke="#1b4332" strokeWidth="1" opacity="0.3"/>
-      </svg>
-    )
-  }
-  // T-shirt (default for camiseta, hoodie, camiseta-ninos)
-  return (
-    <svg viewBox="0 0 140 130" className="w-full h-full">
-      <path
-        d="M30 10 L10 40 L30 50 L30 120 Q30 125 35 125 L105 125 Q110 125 110 120 L110 50 L130 40 L110 10 L90 25 Q70 35 50 25 Z"
-        fill={color}
-        stroke="#1b4332"
-        strokeWidth="2.5"
-        strokeLinejoin="round"
-      />
-      {productId === 'hoodie' && (
-        <>
-          <path d="M55 10 Q70 18 85 10 L80 35 Q70 40 60 35 Z" fill={color === '#FFFFFF' ? '#d1fae5' : '#0f3d24'} opacity="0.5"/>
-          <path d="M30 50 L110 50" stroke="#1b4332" strokeWidth="1.5" opacity="0.3"/>
-          <circle cx="70" cy="60" r="3" fill="#1b4332" opacity="0.4"/>
-        </>
-      )}
-    </svg>
-  )
+const BADGE_STYLES: Record<string, string> = {
+  'Bestseller': 'bg-[#1b4332] text-white',
+  'Quetz Pick': 'bg-[#95d5b2] text-[#1b4332]',
+  'Eco': 'bg-emerald-100 text-emerald-800',
+  'Kids': 'bg-sky-100 text-sky-800',
+  'Nuevo': 'bg-orange-100 text-orange-800',
 }
 
-// ─── Product Card — front & back ─────────────────────────────────────────────
+// ─── Product Card ─────────────────────────────────────────────────────────────
 
-function ProductCard({
-  product,
-  onAddToCart,
-}: {
-  product: Product
-  onAddToCart: (item: CartItem) => void
-}) {
-  const [flipped, setFlipped] = useState(false)
+function ProductCard({ product, onAddToCart }: { product: Product; onAddToCart: (item: CartItem) => void }) {
   const [selectedSize, setSelectedSize] = useState(product.sizes[product.sizes.length > 2 ? 2 : 0])
   const [selectedColor, setSelectedColor] = useState<ProductColor>(product.colors[0])
   const [added, setAdded] = useState(false)
+  const [showBack, setShowBack] = useState(false)
   const [qrSrc, setQrSrc] = useState('')
 
-  const qrUrl = `https://www.quetz.org?ref=${product.ref}`
-
   useEffect(() => {
-    const encoded = encodeURIComponent(qrUrl)
-    setQrSrc(`/api/qr?url=${encoded}&size=180`)
-  }, [qrUrl])
+    const qrUrl = encodeURIComponent(`https://www.quetz.org?ref=${product.ref}`)
+    setQrSrc(`/api/qr?url=${qrUrl}&size=180`)
+  }, [product.ref])
 
   const handleAdd = () => {
     onAddToCart({ ...product, quantity: 1, selectedSize, selectedColor })
@@ -280,190 +224,132 @@ function ProductCard({
     setTimeout(() => setAdded(false), 2000)
   }
 
-  // Determine if color is light (needs dark text)
-  const isLight = (hex: string) => {
-    const r = parseInt(hex.slice(1, 3), 16)
-    const g = parseInt(hex.slice(3, 5), 16)
-    const b = parseInt(hex.slice(5, 7), 16)
-    return r * 0.299 + g * 0.587 + b * 0.114 > 160
-  }
-
-  const textOnColor = isLight(selectedColor.hex) ? '#1b4332' : '#f0fdf4'
-
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden flex flex-col group"
+      className="group bg-white border border-gray-100 rounded-2xl overflow-hidden hover:shadow-xl hover:border-gray-200 transition-all duration-300 flex flex-col"
     >
-      {/* Product visual area with flip */}
-      <div className="relative h-72 bg-gradient-to-br from-[#f0fdf4] to-[#dcfce7] overflow-hidden">
-        {/* Trees badge */}
-        <div className="absolute top-3 left-3 z-10 bg-[#1b4332] text-white text-xs font-semibold px-2.5 py-1 rounded-full flex items-center gap-1">
-          <TreePine className="w-3 h-3" />
-          {product.trees} árbol{product.trees > 1 ? 'es' : ''}
+      {/* ── Image area ── */}
+      <div className="relative bg-gray-50 overflow-hidden" style={{ paddingBottom: '100%' }}>
+        <div className="absolute inset-0">
+          {/* Badge */}
+          {product.badge && (
+            <div className={`absolute top-3 left-3 z-10 text-xs font-bold px-2.5 py-1 rounded-full ${BADGE_STYLES[product.badge] ?? 'bg-gray-100 text-gray-700'}`}>
+              {product.badge === 'Bestseller' && <Star className="w-3 h-3 inline mr-1" />}
+              {product.badge}
+            </div>
+          )}
+
+          {/* Trees badge */}
+          <div className="absolute top-3 right-3 z-10 bg-[#dcfce7] text-[#1b4332] text-[11px] font-semibold px-2 py-1 rounded-full flex items-center gap-1">
+            <TreePine className="w-3 h-3" />
+            {product.trees} árbol{product.trees > 1 ? 'es' : ''}
+          </div>
+
+          {/* QR back overlay — appears on hover */}
+          <AnimatePresence>
+            {showBack && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="absolute inset-0 z-20 bg-[#1b4332] flex flex-col items-center justify-center gap-3 p-6"
+              >
+                <div className="bg-white rounded-2xl p-3 shadow-lg">
+                  {qrSrc ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={qrSrc} alt="QR quetz.org" width={120} height={120} className="rounded-lg" />
+                  ) : (
+                    <div className="w-[120px] h-[120px] flex items-center justify-center">
+                      <QrCode className="w-12 h-12 text-gray-300 animate-pulse" />
+                    </div>
+                  )}
+                </div>
+                <div className="text-center">
+                  <p className="text-white font-bold text-sm leading-tight">Diseño del reverso</p>
+                  <p className="text-[#95d5b2] text-xs mt-1">Escanea y adopta tu árbol 🌱</p>
+                  <p className="text-white/50 text-[10px] font-mono mt-1">quetz.org?ref={product.ref}</p>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Image src="/logo-quetz-oficial.png" alt="QUETZ" width={20} height={20} className="brightness-0 invert opacity-60" />
+                  <span className="text-white/60 text-[10px]">QUETZ.ORG</span>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Product mockup image */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={product.mockupUrl}
+            alt={product.name}
+            className="absolute inset-0 w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-500"
+          />
+
+          {/* QR hover button — bottom */}
+          <button
+            onMouseEnter={() => setShowBack(true)}
+            onMouseLeave={() => setShowBack(false)}
+            onClick={() => setShowBack(v => !v)}
+            className="absolute bottom-0 left-0 right-0 z-10 flex items-center justify-center gap-1.5 py-2 bg-white/90 backdrop-blur-sm text-[#1b4332] text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-[#f0fdf4]"
+          >
+            <QrCode className="w-3.5 h-3.5" />
+            Ver diseño trasero con QR
+          </button>
         </div>
-
-        {/* QR / flip button — bottom bar, visible */}
-        <button
-          onClick={() => setFlipped(!flipped)}
-          className={`absolute bottom-0 left-0 right-0 z-10 flex items-center justify-center gap-2 py-2 text-xs font-bold transition-all ${
-            flipped
-              ? 'bg-[#95d5b2] text-[#1b4332]'
-              : 'bg-[#1b4332]/80 text-white hover:bg-[#1b4332]'
-          }`}
-        >
-          {flipped ? (
-            <><RotateCw className="w-3.5 h-3.5" /> Ver frente del producto</>
-          ) : (
-            <><QrCode className="w-3.5 h-3.5" /> Ver diseño trasero con QR</>
-          )}
-        </button>
-
-        <AnimatePresence mode="wait">
-          {!flipped ? (
-            /* FRENTE */
-            <motion.div
-              key="front"
-              initial={{ rotateY: 90, opacity: 0 }}
-              animate={{ rotateY: 0, opacity: 1 }}
-              exit={{ rotateY: -90, opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="absolute inset-0 flex items-center justify-center p-4 pb-8"
-            >
-              {/* Real product mockup image */}
-              <div className="relative w-full h-full">
-                {PRODUCT_IMAGES[product.id] ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={PRODUCT_IMAGES[product.id]}
-                    alt={product.name}
-                    className="w-full h-full object-contain drop-shadow-xl group-hover:scale-105 transition-transform duration-500"
-                  />
-                ) : (
-                  <div className="absolute inset-0">
-                    <ProductShape productId={product.id} color={selectedColor.hex} />
-                  </div>
-                )}
-                {/* Quetzito — upper-right corner */}
-                <div className="absolute top-0 right-0 w-16 h-16 drop-shadow-lg">
-                  <Image
-                    src={`/mascot/${product.mascot}.png`}
-                    alt="Quetzito"
-                    fill
-                    className="object-contain"
-                    sizes="64px"
-                  />
-                </div>
-              </div>
-              {/* Phrase pill at bottom */}
-              <div className="absolute bottom-8 left-0 right-0 flex justify-center px-3">
-                <span className="bg-white/90 backdrop-blur-sm text-[#1b4332] text-[11px] font-semibold px-3 py-1 rounded-full shadow-sm text-center leading-tight max-w-[85%]">
-                  {product.phrase}
-                </span>
-              </div>
-            </motion.div>
-          ) : (
-            /* REVERSO */
-            <motion.div
-              key="back"
-              initial={{ rotateY: -90, opacity: 0 }}
-              animate={{ rotateY: 0, opacity: 1 }}
-              exit={{ rotateY: 90, opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-[#1b4332] to-[#2d6a4f] p-4"
-            >
-              {/* QR code */}
-              <div className="bg-white rounded-xl p-2 shadow-lg">
-                {qrSrc ? (
-                  <Image
-                    src={qrSrc}
-                    alt={`QR quetz.org?ref=${product.ref}`}
-                    width={100}
-                    height={100}
-                    className="rounded-lg"
-                    unoptimized
-                  />
-                ) : (
-                  <div className="w-[100px] h-[100px] flex items-center justify-center">
-                    <QrCode className="w-8 h-8 text-gray-300 animate-pulse" />
-                  </div>
-                )}
-              </div>
-
-              {/* Text */}
-              <p className="text-white text-xs font-bold text-center leading-tight">
-                Escanea y adopta tu árbol 🌱
-              </p>
-
-              {/* Logo + URL */}
-              <div className="flex items-center gap-1.5 mt-1">
-                <div className="relative w-5 h-5">
-                  <Image
-                    src="/logo-quetz-oficial.png"
-                    alt="QUETZ"
-                    fill
-                    className="object-contain brightness-0 invert"
-                    sizes="20px"
-                  />
-                </div>
-                <span className="text-[#95d5b2] text-[10px] font-mono">quetz.org?ref={product.ref}</span>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
 
-      {/* Product info */}
+      {/* ── Product info ── */}
       <div className="p-4 flex flex-col gap-3 flex-1">
         <div>
-          <h3 className="font-bold text-gray-900 text-sm leading-snug">{product.name}</h3>
-          <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{product.description}</p>
+          <h3 className="font-bold text-gray-900 text-[15px] leading-snug">{product.name}</h3>
+          <p className="text-xs text-gray-400 mt-0.5 line-clamp-1">{product.description}</p>
         </div>
 
-        {/* Price + trees */}
-        <div className="flex items-center justify-between">
-          <span className="text-xl font-bold text-[#1b4332]">{product.price.toFixed(2)}€</span>
-          <span className="text-xs text-[#2d6a4f] bg-[#dcfce7] px-2 py-0.5 rounded-full font-medium">
-            🌱 {product.trees} árbol{product.trees > 1 ? 'es' : ''} plantado{product.trees > 1 ? 's' : ''}
-          </span>
+        {/* Price */}
+        <div className="flex items-baseline gap-2">
+          <span className="text-2xl font-black text-gray-900">{product.price.toFixed(2)}€</span>
+          <span className="text-xs text-gray-400">+ envío</span>
         </div>
 
         {/* Color selector */}
         {product.colors.length > 1 && (
-          <div>
-            <p className="text-[10px] text-gray-400 uppercase tracking-wide mb-1.5">Color: {selectedColor.name}</p>
-            <div className="flex gap-2">
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] text-gray-400 uppercase tracking-wide w-12 shrink-0">Color</span>
+            <div className="flex gap-1.5">
               {product.colors.map((c) => (
                 <button
                   key={c.name}
                   onClick={() => setSelectedColor(c)}
                   title={c.name}
-                  className={`w-6 h-6 rounded-full border-2 transition-all ${
+                  className={`w-5 h-5 rounded-full border-2 transition-all ${
                     selectedColor.name === c.name
-                      ? 'border-[#1b4332] scale-110 shadow-md'
+                      ? 'border-[#1b4332] scale-125 shadow-sm'
                       : 'border-gray-200 hover:border-gray-400'
                   }`}
                   style={{ backgroundColor: c.hex }}
                 />
               ))}
+              <span className="text-[11px] text-gray-500 ml-1 self-center">{selectedColor.name}</span>
             </div>
           </div>
         )}
 
         {/* Size selector */}
         {product.sizes.length > 1 && (
-          <div>
-            <p className="text-[10px] text-gray-400 uppercase tracking-wide mb-1.5">Talla / Tamaño</p>
-            <div className="flex flex-wrap gap-1.5">
+          <div className="flex items-start gap-2">
+            <span className="text-[11px] text-gray-400 uppercase tracking-wide w-12 shrink-0 pt-1">Talla</span>
+            <div className="flex flex-wrap gap-1">
               {product.sizes.map((s) => (
                 <button
                   key={s}
                   onClick={() => setSelectedSize(s)}
-                  className={`px-2.5 py-1 text-xs font-medium rounded-lg border transition-all ${
+                  className={`px-2 py-0.5 text-xs font-medium rounded border transition-all ${
                     selectedSize === s
                       ? 'bg-[#1b4332] text-white border-[#1b4332]'
-                      : 'bg-white text-gray-600 border-gray-200 hover:border-[#2d6a4f]'
+                      : 'bg-white text-gray-500 border-gray-200 hover:border-[#1b4332] hover:text-[#1b4332]'
                   }`}
                 >
                   {s}
@@ -473,26 +359,28 @@ function ProductCard({
           </div>
         )}
 
+        {/* Trees impact */}
+        <div className="flex items-center gap-1.5 bg-[#f0fdf4] rounded-lg px-3 py-2">
+          <TreePine className="w-4 h-4 text-[#1b4332] shrink-0" />
+          <span className="text-xs text-[#1b4332] font-medium">
+            Esta compra planta <strong>{product.trees} árbol{product.trees > 1 ? 'es' : ''}</strong> en Zacapa 🇬🇹
+          </span>
+        </div>
+
         {/* Add to cart */}
         <motion.button
           onClick={handleAdd}
           whileTap={{ scale: 0.97 }}
-          className={`mt-auto w-full py-2.5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all ${
+          className={`mt-auto w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all ${
             added
               ? 'bg-[#95d5b2] text-[#1b4332]'
               : 'bg-[#1b4332] text-white hover:bg-[#2d6a4f]'
           }`}
         >
           {added ? (
-            <>
-              <CheckCircle className="w-4 h-4" />
-              ¡Añadido!
-            </>
+            <><CheckCircle className="w-4 h-4" /> ¡Añadido al carrito!</>
           ) : (
-            <>
-              <ShoppingBag className="w-4 h-4" />
-              Añadir al carrito
-            </>
+            <><ShoppingBag className="w-4 h-4" /> Añadir al carrito</>
           )}
         </motion.button>
       </div>
@@ -528,66 +416,51 @@ function CartSidebar({
       transition={{ type: 'spring', damping: 25, stiffness: 200 }}
       className="fixed top-0 right-0 h-full w-full max-w-sm bg-white shadow-2xl z-50 flex flex-col"
     >
-      <div className="flex items-center justify-between p-4 border-b bg-[#1b4332] text-white">
-        <div className="flex items-center gap-2">
-          <ShoppingBag className="w-5 h-5" />
-          <span className="font-bold">Tu pedido ({items.reduce((s, i) => s + i.quantity, 0)})</span>
+      <div className="flex items-center justify-between p-5 border-b">
+        <div>
+          <h2 className="font-black text-gray-900 text-lg">Tu pedido</h2>
+          <p className="text-sm text-gray-400">{items.reduce((s, i) => s + i.quantity, 0)} producto{items.reduce((s, i) => s + i.quantity, 0) !== 1 ? 's' : ''}</p>
         </div>
-        <button onClick={onClose} className="p-1 hover:bg-white/20 rounded-full transition-colors">
-          <X className="w-5 h-5" />
+        <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+          <X className="w-5 h-5 text-gray-500" />
         </button>
       </div>
 
-      {/* Trees impact */}
       {totalTrees > 0 && (
-        <div className="mx-4 mt-3 bg-[#dcfce7] rounded-xl p-3 flex items-center gap-2">
+        <div className="mx-4 mt-4 bg-[#f0fdf4] border border-[#bbf7d0] rounded-xl p-3 flex items-center gap-2">
           <TreePine className="w-5 h-5 text-[#1b4332] shrink-0" />
           <p className="text-sm text-[#1b4332] font-medium">
-            Este pedido planta <strong>{totalTrees} árbol{totalTrees > 1 ? 'es' : ''}</strong> en Zacapa 🇬🇹
+            Este pedido planta <strong>{totalTrees} árbol{totalTrees > 1 ? 'es' : ''}</strong> reales en Guatemala 🌱
           </p>
         </div>
       )}
 
-      {/* Items */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+      <div className="flex-1 overflow-y-auto p-4 space-y-3 mt-2">
         {items.length === 0 && (
-          <div className="text-center py-12 text-gray-400">
-            <ShoppingBag className="w-12 h-12 mx-auto mb-3 opacity-30" />
-            <p>Tu carrito está vacío</p>
+          <div className="text-center py-16 text-gray-400">
+            <ShoppingBag className="w-12 h-12 mx-auto mb-3 opacity-20" />
+            <p className="font-medium">Tu carrito está vacío</p>
+            <p className="text-sm mt-1">Añade productos para plantar árboles 🌳</p>
           </div>
         )}
         {items.map((item) => (
           <div key={`${item.id}-${item.selectedSize}`} className="flex gap-3 bg-gray-50 rounded-xl p-3">
-            <div className="relative w-12 h-12 bg-white rounded-lg overflow-hidden shrink-0 border border-gray-100">
-              <div className="absolute inset-0">
-                <ProductShape productId={item.id} color={item.selectedColor.hex} />
-              </div>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="relative w-7 h-7">
-                  <Image
-                    src={`/mascot/${item.mascot}.png`}
-                    alt=""
-                    fill
-                    className="object-contain"
-                    sizes="28px"
-                  />
-                </div>
-              </div>
+            <div className="w-16 h-16 bg-white rounded-lg overflow-hidden shrink-0 border border-gray-100 flex items-center justify-center">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={item.mockupUrl} alt={item.name} className="w-full h-full object-contain p-1" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold text-gray-800 line-clamp-1">{item.name}</p>
-              <p className="text-[10px] text-gray-400">
-                {item.selectedSize} · {item.selectedColor.name}
-              </p>
-              <div className="flex items-center justify-between mt-1.5">
+              <p className="text-sm font-bold text-gray-800 line-clamp-1">{item.name}</p>
+              <p className="text-xs text-gray-400 mt-0.5">{item.selectedSize} · {item.selectedColor.name}</p>
+              <div className="flex items-center justify-between mt-2">
                 <div className="flex items-center gap-1.5">
                   <button
                     onClick={() => onUpdateQty(item.id, item.selectedSize, -1)}
-                    className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300"
+                    className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 text-gray-600"
                   >
                     <Minus className="w-3 h-3" />
                   </button>
-                  <span className="text-sm font-bold w-4 text-center">{item.quantity}</span>
+                  <span className="text-sm font-bold w-5 text-center">{item.quantity}</span>
                   <button
                     onClick={() => onUpdateQty(item.id, item.selectedSize, 1)}
                     className="w-6 h-6 rounded-full bg-[#1b4332] text-white flex items-center justify-center hover:bg-[#2d6a4f]"
@@ -595,44 +468,35 @@ function CartSidebar({
                     <Plus className="w-3 h-3" />
                   </button>
                 </div>
-                <span className="text-sm font-bold text-[#1b4332]">
-                  {(item.price * item.quantity).toFixed(2)}€
-                </span>
+                <span className="text-sm font-black text-gray-900">{(item.price * item.quantity).toFixed(2)}€</span>
               </div>
             </div>
-            <button
-              onClick={() => onRemove(item.id, item.selectedSize)}
-              className="shrink-0 p-1 text-gray-300 hover:text-red-400 transition-colors"
-            >
+            <button onClick={() => onRemove(item.id, item.selectedSize)} className="shrink-0 p-1 text-gray-300 hover:text-red-400">
               <X className="w-4 h-4" />
             </button>
           </div>
         ))}
       </div>
 
-      {/* Footer */}
       {items.length > 0 && (
-        <div className="p-4 border-t space-y-3">
+        <div className="p-5 border-t space-y-4">
           <div className="flex justify-between items-center">
-            <span className="text-gray-600">Subtotal</span>
-            <span className="font-bold text-lg">{total.toFixed(2)}€</span>
+            <span className="text-gray-500 font-medium">Subtotal</span>
+            <span className="font-black text-xl text-gray-900">{total.toFixed(2)}€</span>
           </div>
           <p className="text-xs text-gray-400 flex items-center gap-1">
             <Leaf className="w-3 h-3 text-[#2d6a4f]" />
-            Envío calculado al finalizar. Producido por Gelato, enviado globalmente.
+            Producido por Gelato, enviado globalmente. Envío calculado al pagar.
           </p>
           <button
             onClick={onCheckout}
             disabled={loading}
-            className="w-full bg-[#1b4332] text-white py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-[#2d6a4f] transition-colors disabled:opacity-60"
+            className="w-full bg-[#1b4332] text-white py-4 rounded-xl font-black text-base flex items-center justify-center gap-2 hover:bg-[#2d6a4f] transition-colors disabled:opacity-60"
           >
             {loading ? (
               <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
             ) : (
-              <>
-                <CreditCard className="w-5 h-5" />
-                Pagar con Stripe
-              </>
+              <><CreditCard className="w-5 h-5" /> Pagar con Stripe</>
             )}
           </button>
         </div>
@@ -651,7 +515,6 @@ export default function ShopPage() {
   const [checkoutLoading, setCheckoutLoading] = useState(false)
   const [success, setSuccess] = useState(false)
 
-  // Check for Stripe success redirect
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search)
@@ -659,10 +522,7 @@ export default function ShopPage() {
     }
   }, [])
 
-  const filtered = category === 'todos'
-    ? PRODUCTS
-    : PRODUCTS.filter((p) => p.category === category)
-
+  const filtered = category === 'todos' ? PRODUCTS : PRODUCTS.filter((p) => p.category === category)
   const totalCartItems = cart.reduce((s, i) => s + i.quantity, 0)
 
   const addToCart = useCallback((item: CartItem) => {
@@ -670,9 +530,7 @@ export default function ShopPage() {
       const key = `${item.id}-${item.selectedSize}`
       const existing = prev.find((i) => `${i.id}-${i.selectedSize}` === key)
       if (existing) {
-        return prev.map((i) =>
-          `${i.id}-${i.selectedSize}` === key ? { ...i, quantity: i.quantity + 1 } : i
-        )
+        return prev.map((i) => `${i.id}-${i.selectedSize}` === key ? { ...i, quantity: i.quantity + 1 } : i)
       }
       return [...prev, item]
     })
@@ -725,7 +583,7 @@ export default function ShopPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#f0fdf4] to-white">
+    <div className="min-h-screen bg-white">
 
       {/* ── Stripe success banner ── */}
       <AnimatePresence>
@@ -746,61 +604,90 @@ export default function ShopPage() {
       </AnimatePresence>
 
       {/* ── Hero ── */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-[#1b4332] via-[#2d6a4f] to-[#40916c] text-white pt-24 pb-16 px-4">
-        {/* Background decorative circles */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2 pointer-events-none" />
+      <section className="relative overflow-hidden bg-gradient-to-br from-[#1b4332] via-[#2d6a4f] to-[#40916c] text-white pt-24 pb-20 px-4">
+        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 20% 50%, #95d5b2 0%, transparent 50%), radial-gradient(circle at 80% 20%, #40916c 0%, transparent 40%)' }} />
 
-        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center gap-8">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-10 relative">
           {/* Text */}
           <div className="flex-1 text-center md:text-left">
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-full text-sm mb-4">
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-full text-sm mb-5">
               <Sparkles className="w-4 h-4 text-[#95d5b2]" />
-              Tienda oficial QUETZ
+              Tienda oficial QUETZ · Producido por Gelato
             </div>
-            <h1 className="text-4xl md:text-5xl font-extrabold leading-tight mb-3">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-black leading-[1.1] mb-4">
               Tienda quetz.org<br />
               <span className="text-[#95d5b2]">Cada compra planta árboles</span>
             </h1>
-            <p className="text-white/80 text-lg mb-6">
-              Cada producto planta árboles reales en Zacapa, Guatemala.<br />
-              Diseñado con nuestros Quetzitos. Producido globalmente por Gelato.
+            <p className="text-white/75 text-lg mb-8 max-w-lg">
+              Diseños exclusivos con nuestros Quetzitos. Cada producto incluye QR para adoptar árboles reales en Zacapa, Guatemala.
             </p>
-            <div className="flex flex-wrap gap-3 justify-center md:justify-start text-sm">
-              <div className="flex items-center gap-1.5 bg-white/10 px-3 py-1.5 rounded-full">
-                <TreePine className="w-4 h-4 text-[#95d5b2]" /> Árboles reales
-              </div>
-              <div className="flex items-center gap-1.5 bg-white/10 px-3 py-1.5 rounded-full">
-                <Package className="w-4 h-4 text-[#95d5b2]" /> Envío global
-              </div>
-              <div className="flex items-center gap-1.5 bg-white/10 px-3 py-1.5 rounded-full">
-                <Leaf className="w-4 h-4 text-[#95d5b2]" /> Materiales ecológicos
-              </div>
+            <div className="flex flex-wrap gap-3 justify-center md:justify-start">
+              {[
+                { icon: TreePine, text: 'Árboles reales plantados' },
+                { icon: Package, text: 'Envío global por Gelato' },
+                { icon: Leaf, text: 'Materiales ecológicos' },
+              ].map(({ icon: Icon, text }) => (
+                <div key={text} className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full text-sm">
+                  <Icon className="w-4 h-4 text-[#95d5b2]" />
+                  {text}
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* Mascot */}
-          <div className="relative w-56 h-56 md:w-72 md:h-72 shrink-0">
-            <div className="absolute inset-0 bg-white/10 rounded-full" />
-            <div className="absolute inset-4 bg-white/10 rounded-full" />
+          {/* Mascot — solo en hero */}
+          <div className="relative w-64 h-64 md:w-80 md:h-80 shrink-0">
+            <div className="absolute inset-0 bg-white/5 rounded-full" />
+            <div className="absolute inset-6 bg-white/5 rounded-full" />
             <Image
               src="/mascot/quetzito-aventurero.png"
               alt="Quetzito aventurero"
               fill
-              className="object-contain drop-shadow-2xl z-10 relative"
+              className="object-contain drop-shadow-2xl relative z-10"
               priority
-              sizes="(max-width: 768px) 224px, 288px"
+              sizes="(max-width: 768px) 256px, 320px"
             />
           </div>
         </div>
       </section>
 
-      {/* ── Floating cart button ── */}
+      {/* ── Category nav — Gelato style ── */}
+      <div className="sticky top-0 z-30 bg-white border-b border-gray-100 shadow-sm">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="flex items-center gap-0 overflow-x-auto">
+            {CATEGORIES.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setCategory(cat)}
+                className={`relative px-5 py-4 text-sm font-semibold whitespace-nowrap transition-colors ${
+                  category === cat
+                    ? 'text-[#1b4332]'
+                    : 'text-gray-500 hover:text-gray-800'
+                }`}
+              >
+                {CATEGORY_LABELS[cat]}
+                {category === cat && (
+                  <motion.div
+                    layoutId="cat-underline"
+                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#1b4332] rounded-full"
+                  />
+                )}
+              </button>
+            ))}
+            <div className="ml-auto text-xs text-gray-400 whitespace-nowrap shrink-0 pr-4">
+              {filtered.length} producto{filtered.length !== 1 ? 's' : ''}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Floating cart ── */}
       <button
         onClick={() => setCartOpen(true)}
-        className="fixed bottom-6 right-6 z-40 bg-[#1b4332] text-white rounded-full p-4 shadow-xl hover:bg-[#2d6a4f] transition-colors flex items-center gap-2"
+        className="fixed bottom-6 right-6 z-40 bg-[#1b4332] text-white rounded-full px-5 py-3.5 shadow-xl hover:bg-[#2d6a4f] transition-all flex items-center gap-2.5 font-semibold"
       >
         <ShoppingBag className="w-5 h-5" />
+        <span className="text-sm">Carrito</span>
         {totalCartItems > 0 && (
           <span className="bg-[#95d5b2] text-[#1b4332] text-xs font-black rounded-full w-5 h-5 flex items-center justify-center">
             {totalCartItems > 9 ? '9+' : totalCartItems}
@@ -808,62 +695,39 @@ export default function ShopPage() {
         )}
       </button>
 
-      {/* ── Category tabs ── */}
-      <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-sm border-b shadow-sm">
-        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-2 overflow-x-auto">
-          {CATEGORIES.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setCategory(cat)}
-              className={`px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${
-                category === cat
-                  ? 'bg-[#1b4332] text-white shadow-md'
-                  : 'bg-gray-100 text-gray-600 hover:bg-[#dcfce7] hover:text-[#1b4332]'
-              }`}
-            >
-              {cat.charAt(0).toUpperCase() + cat.slice(1)}
-            </button>
-          ))}
-          <div className="ml-auto text-xs text-gray-400 whitespace-nowrap shrink-0">
-            {filtered.length} producto{filtered.length !== 1 ? 's' : ''}
-          </div>
-        </div>
-      </div>
-
       {/* ── Product grid ── */}
-      <main className="max-w-5xl mx-auto px-4 py-10">
+      <main className="max-w-6xl mx-auto px-4 py-10">
         <motion.div
           layout
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"
         >
           <AnimatePresence mode="popLayout">
             {filtered.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onAddToCart={addToCart}
-              />
+              <ProductCard key={product.id} product={product} onAddToCart={addToCart} />
             ))}
           </AnimatePresence>
         </motion.div>
       </main>
 
       {/* ── How it works ── */}
-      <section className="bg-[#1b4332] text-white py-12 px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-2xl font-bold mb-8">¿Cómo funciona? 🌱</h2>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <section className="border-t border-gray-100 bg-gray-50 py-14 px-4">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-2xl font-black text-gray-900 text-center mb-2">¿Cómo funciona?</h2>
+          <p className="text-gray-500 text-center mb-10">De tu carrito a un árbol en Zacapa, Guatemala</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
-              { icon: ShoppingBag, step: '1', text: 'Eliges tu producto favorito' },
-              { icon: CreditCard, step: '2', text: 'Pagas con Stripe de forma segura' },
-              { icon: TreePine, step: '3', text: 'Plantamos árboles en Zacapa 🇬🇹' },
-              { icon: Package, step: '4', text: 'Gelato produce y envía globalmente' },
-            ].map(({ icon: Icon, step, text }) => (
-              <div key={step} className="flex flex-col items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
-                  <Icon className="w-6 h-6 text-[#95d5b2]" />
+              { icon: ShoppingBag, step: '01', text: 'Eliges tu producto', sub: 'Ropa, hogar o accesorios' },
+              { icon: CreditCard, step: '02', text: 'Pago seguro', sub: 'Stripe · SSL · 100% seguro' },
+              { icon: TreePine, step: '03', text: 'Plantamos árboles', sub: 'Zacapa, Guatemala 🇬🇹' },
+              { icon: Package, step: '04', text: 'Gelato produce & envía', sub: 'Entrega en todo el mundo' },
+            ].map(({ icon: Icon, step, text, sub }) => (
+              <div key={step} className="text-center">
+                <div className="w-12 h-12 rounded-2xl bg-[#1b4332] flex items-center justify-center mx-auto mb-3">
+                  <Icon className="w-5 h-5 text-[#95d5b2]" />
                 </div>
-                <p className="text-sm text-white/80">{text}</p>
+                <div className="text-xs text-gray-400 font-mono mb-1">{step}</div>
+                <p className="font-bold text-gray-900 text-sm">{text}</p>
+                <p className="text-xs text-gray-400 mt-0.5">{sub}</p>
               </div>
             ))}
           </div>
@@ -871,41 +735,43 @@ export default function ShopPage() {
       </section>
 
       {/* ── QR explanation ── */}
-      <section className="py-10 px-4 bg-[#f0fdf4]">
-        <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-8">
-          <div className="shrink-0">
-            <div className="w-32 h-32 bg-white rounded-2xl shadow-lg flex items-center justify-center p-3">
-              <QrCode className="w-20 h-20 text-[#2d6a4f]" />
-            </div>
+      <section className="py-14 px-4">
+        <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-10">
+          <div className="shrink-0 w-28 h-28 bg-[#f0fdf4] rounded-3xl flex items-center justify-center shadow-inner">
+            <QrCode className="w-14 h-14 text-[#1b4332]" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-[#1b4332] mb-2">QR en el reverso de cada producto</h2>
-            <p className="text-gray-600 mb-3">
-              Cada producto lleva un QR único en el reverso que lleva a <strong>quetz.org?ref=producto</strong>.
-              Cuando alguien escanea tu camiseta y adopta un árbol, queda registrado como tu referido.
+            <h2 className="text-xl font-black text-gray-900 mb-2">QR exclusivo en el reverso</h2>
+            <p className="text-gray-500 text-sm leading-relaxed mb-4">
+              Cada producto lleva un QR único impreso en el reverso que enlaza a{' '}
+              <strong className="text-[#1b4332]">quetz.org?ref=producto</strong>. Cuando alguien escanea tu camiseta y adopta un árbol, queda registrado como tu referido — multiplicando tu impacto.
             </p>
-            <div className="flex gap-4 text-sm text-[#2d6a4f]">
+            <div className="flex flex-wrap gap-4 text-sm text-[#2d6a4f]">
               <div className="flex items-center gap-1.5">
                 <ChevronRight className="w-4 h-4" />
                 Rastrea tus referidos
               </div>
               <div className="flex items-center gap-1.5">
                 <ChevronRight className="w-4 h-4" />
-                Multiplica el impacto
+                Multiplica el impacto ambiental
+              </div>
+              <div className="flex items-center gap-1.5">
+                <ChevronRight className="w-4 h-4" />
+                Único en cada producto
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── Back to site ── */}
-      <div className="py-6 px-4 text-center">
+      {/* ── Footer nav ── */}
+      <div className="py-6 px-4 text-center border-t border-gray-100">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-[#2d6a4f] hover:text-[#1b4332] font-medium transition-colors"
+          className="inline-flex items-center gap-2 text-[#2d6a4f] hover:text-[#1b4332] font-medium text-sm transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          Volver al bosque
+          Volver al inicio
         </Link>
       </div>
 
@@ -917,7 +783,7 @@ export default function ShopPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/40 z-40 backdrop-blur-sm"
+              className="fixed inset-0 bg-black/30 z-40 backdrop-blur-sm"
               onClick={() => setCartOpen(false)}
             />
             <CartSidebar
