@@ -11,12 +11,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'No items provided' }, { status: 400 })
     }
 
+    // Calculate total trees for the order
+    const totalTrees = items.reduce((sum: number, item: any) => sum + (item.trees || 0) * (item.quantity || 1), 0)
+
     const lineItems = items.map((item: any) => ({
       price_data: {
         currency: 'eur',
         product_data: {
           name: item.name,
-          description: `${item.trees} árbol${item.trees > 1 ? 'es' : ''} plantado${item.trees > 1 ? 's' : ''} con esta compra 🌱`,
+          description: `🌱 Incluye ${item.trees} árbol${item.trees > 1 ? 'es' : ''} adoptado${item.trees > 1 ? 's' : ''} en Zacapa, Guatemala`,
           images: item.imageUrl ? [item.imageUrl] : [],
           metadata: {
             productId: item.id,
@@ -24,6 +27,8 @@ export async function POST(req: NextRequest) {
             trees: String(item.trees),
             size: item.size || '',
             color: item.color || '',
+            gelatoProductUid: item.gelatoProductUid || '',
+            mascot: item.mascot || '',
           },
         },
         unit_amount: Math.round(item.price * 100),
@@ -39,18 +44,37 @@ export async function POST(req: NextRequest) {
       cancel_url: `${process.env.NEXTAUTH_URL}/shop?cancelled=true`,
       metadata: {
         type: 'shop',
-        items: JSON.stringify(items.map((i: any) => ({ id: i.id, qty: i.quantity, size: i.size, color: i.color }))),
+        totalTrees: String(totalTrees),
+        items: JSON.stringify(items.map((i: any) => ({
+          id: i.id,
+          qty: i.quantity,
+          size: i.size,
+          color: i.color,
+          trees: i.trees,
+          gelatoProductUid: i.gelatoProductUid,
+          mascot: i.mascot,
+        }))),
       },
       payment_intent_data: {
         metadata: {
           type: 'shop_purchase',
           source: 'quetz_shop',
+          totalTrees: String(totalTrees),
         },
+      },
+      // Collect shipping address for Gelato fulfillment
+      shipping_address_collection: {
+        allowed_countries: [
+          'DE', 'AT', 'CH', 'ES', 'FR', 'IT', 'NL', 'BE', 'LU', 'PT',
+          'GB', 'IE', 'DK', 'SE', 'NO', 'FI', 'PL', 'CZ', 'US', 'CA',
+          'MX', 'GT', 'CR', 'PA', 'CO', 'AR', 'CL', 'BR', 'PE', 'EC',
+        ],
       },
     })
 
     return NextResponse.json({ url: session.url })
   } catch (error: any) {
+    console.error('[Checkout/Shop] Error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
