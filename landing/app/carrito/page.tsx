@@ -32,12 +32,12 @@ const ALL_TREE_SPECIES = [
   { id: 'cafe', name: 'Café', image: '/trees/cafe.jpg' },
   { id: 'aguacate', name: 'Aguacate', image: '/trees/aguacate.jpg' },
   { id: 'caoba', name: 'Caoba', image: '/trees/caoba.jpg' },
-  { id: 'rambutan', name: 'Rambután', image: '/trees/rambutan.jpg' },
+  { id: 'mango', name: 'Mango', image: '/trees/mango.jpg' },
   { id: 'cacao', name: 'Cacao', image: '/trees/cacao.jpg' },
   { id: 'cedro', name: 'Cedro', image: '/trees/cedro.jpg' },
   { id: 'naranja', name: 'Naranja', image: '/trees/naranja.jpg' },
   { id: 'limon', name: 'Limón', image: '/trees/limon.jpg' },
-  { id: 'cactus', name: 'Cactus', image: '/trees/cactus.jpg' },
+  { id: 'pino', name: 'Pino', image: '/trees/pino.jpg' },
 ];
 
 // Plan Café solo permite Pino o Ciprés
