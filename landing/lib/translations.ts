@@ -22,6 +22,7 @@ export const translations: Record<Language, Record<string, string>> = {
     
     // Header
     'header.myForest': 'Mi Bosque',
+    'header.shop': 'Tienda',
     'header.enter': 'Entrar',
     'header.adopt': 'Adoptar',
     
@@ -410,6 +411,7 @@ export const translations: Record<Language, Record<string, string>> = {
     
     // Header
     'header.myForest': 'Mein Wald',
+    'header.shop': 'Shop',
     'header.enter': 'Anmelden',
     'header.adopt': 'Jetzt adoptieren',
     
@@ -793,6 +795,7 @@ export const translations: Record<Language, Record<string, string>> = {
     
     // Header
     'header.myForest': 'My Forest',
+    'header.shop': 'Shop',
     'header.enter': 'Log In',
     'header.adopt': 'Adopt',
     
@@ -1188,6 +1191,7 @@ export const translations: Record<Language, Record<string, string>> = {
     
     // Header
     'header.myForest': 'Ma Forêt',
+    'header.shop': 'Boutique',
     'header.enter': 'Connexion',
     'header.adopt': 'Adopter',
     
@@ -1583,6 +1587,7 @@ export const translations: Record<Language, Record<string, string>> = {
     
     // Header
     'header.myForest': 'غابتي',
+    'header.shop': 'المتجر',
     'header.enter': 'تسجيل الدخول',
     'header.adopt': 'تبنَّ شجرة',
     
