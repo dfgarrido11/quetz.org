@@ -35,12 +35,12 @@ export default function TreesSection({ onSelectTree, isGiftMode = false }: Trees
     { id: 'cafe', name: t('trees.cafe.name'), description: t('trees.cafe.desc'), image: '/trees/cafe.jpg' },
     { id: 'aguacate', name: t('trees.aguacate.name'), description: t('trees.aguacate.desc'), image: '/trees/aguacate.jpg' },
     { id: 'caoba', name: t('trees.caoba.name'), description: t('trees.caoba.desc'), image: '/trees/caoba.jpg' },
-    { id: 'rambutan', name: t('trees.rambutan.name'), description: t('trees.rambutan.desc'), image: '/trees/rambutan.jpg' },
+    { id: 'mango', name: t('trees.rambutan.name'), description: t('trees.rambutan.desc'), image: '/trees/mango.jpg' },
     { id: 'cacao', name: t('trees.cacao.name'), description: t('trees.cacao.desc'), image: '/trees/cacao.jpg' },
     { id: 'cedro', name: t('trees.cedro.name'), description: t('trees.cedro.desc'), image: '/trees/cedro.jpg' },
     { id: 'naranja', name: t('trees.naranja.name'), description: t('trees.naranja.desc'), image: '/trees/naranja.jpg' },
     { id: 'limon', name: t('trees.limon.name'), description: t('trees.limon.desc'), image: '/trees/limon.jpg' },
-    { id: 'cactus', name: t('trees.cactus.name'), description: t('trees.cactus.desc'), image: '/trees/cactus.jpg' },
+    { id: 'pino', name: t('trees.cactus.name'), description: t('trees.cactus.desc'), image: '/trees/pino.jpg' },
   ];
 
   // Impact data for each tree
@@ -48,12 +48,12 @@ export default function TreesSection({ onSelectTree, isGiftMode = false }: Trees
     cafe: t('trees.cafe.impact'),
     aguacate: t('trees.aguacate.impact'),
     caoba: t('trees.caoba.impact'),
-    rambutan: t('trees.rambutan.impact'),
+    mango: t('trees.rambutan.impact'),
     cacao: t('trees.cacao.impact'),
     cedro: t('trees.cedro.impact'),
     naranja: t('trees.naranja.impact'),
     limon: t('trees.limon.impact'),
-    cactus: t('trees.cactus.impact'),
+    pino: t('trees.cactus.impact'),
   };
 
   return (

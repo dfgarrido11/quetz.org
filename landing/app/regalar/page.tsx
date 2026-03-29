@@ -25,12 +25,12 @@ const TREES = [
   { id: 'cafe', name: 'Café', image: '/trees/cafe.jpg', impact: '22 kg CO₂/año' },
   { id: 'aguacate', name: 'Aguacate', image: '/trees/aguacate.jpg', impact: '25 kg CO₂/año' },
   { id: 'caoba', name: 'Caoba', image: '/trees/caoba.jpg', impact: '35 kg CO₂/año' },
-  { id: 'rambutan', name: 'Rambután', image: '/trees/rambutan.jpg', impact: '20 kg CO₂/año' },
+  { id: 'mango', name: 'Mango', image: '/trees/mango.jpg', impact: '20 kg CO₂/año' },
   { id: 'cacao', name: 'Cacao', image: '/trees/cacao.jpg', impact: '28 kg CO₂/año' },
   { id: 'cedro', name: 'Cedro', image: '/trees/cedro.jpg', impact: '32 kg CO₂/año' },
   { id: 'naranja', name: 'Naranja', image: '/trees/naranja.jpg', impact: '18 kg CO₂/año' },
   { id: 'limon', name: 'Limón', image: '/trees/limon.jpg', impact: '18 kg CO₂/año' },
-  { id: 'cactus', name: 'Cactus', image: '/trees/cactus.jpg', impact: '5 kg CO₂/año' },
+  { id: 'pino', name: 'Pino', image: '/trees/pino.jpg', impact: '5 kg CO₂/año' },
 ];
 
 function RegalarContent() {
