@@ -165,7 +165,7 @@ export default function PlansSection({ onSelectPlan }: PlansSectionProps) {
                         }`}
                       >
                         <ShoppingCart className="w-5 h-5" />
-                        <span>➕ Añadir al carrito</span>
+                        <span>{t('trees.addToCart')}</span>
                       </motion.button>
                     )}
                   </AnimatePresence>
