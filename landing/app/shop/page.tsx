@@ -176,7 +176,19 @@ const PRODUCTS: Product[] = [
 
 const CATEGORIES = ['todos', 'ropa', 'hogar', 'accesorios']
 
-// ─── Product Mockup SVG shapes ────────────────────────────────────────────────
+// ─── Real product mockup images ──────────────────────────────────────────────
+
+const PRODUCT_IMAGES: Record<string, string> = {
+  'camiseta-adulto': 'https://files.cdn.printful.com/o/upload/product-catalog-img/60/6040cec14e05d_unisex-staple-t-shirt-white-front-6305a5e6dfd78.jpg',
+  'hoodie': 'https://files.cdn.printful.com/o/upload/product-catalog-img/64/6414d6e7c3c5a_unisex-eco-hoodie-bottle-green-front-6414d77f4fbe3.jpg',
+  'taza': 'https://files.cdn.printful.com/o/upload/product-catalog-img/3d/3db8f6c3cb8d9_white-glossy-mug-11oz-front-view-6305a5e6e08b4.jpg',
+  'totebag': 'https://files.cdn.printful.com/o/upload/product-catalog-img/74/74da87bbfae32_AOP-tote-bag_front_mockup.jpg',
+  'gorra': 'https://files.cdn.printful.com/o/upload/product-catalog-img/1f/1f87e0e4c8afe_classic-dad-hat-black-front-6305a5e5f00b2.jpg',
+  'camiseta-ninos': 'https://files.cdn.printful.com/o/upload/product-catalog-img/60/6040cec14e05d_unisex-staple-t-shirt-white-front-6305a5e6dfd78.jpg',
+  'cuaderno-bambu': '',
+}
+
+// ─── Product Mockup SVG shapes (used only in cart thumbnail) ─────────────────
 
 function ProductShape({ productId, color }: { productId: string; color: string }) {
   if (productId === 'taza') {
@@ -282,24 +294,31 @@ function ProductCard({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden flex flex-col"
+      className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden flex flex-col group"
     >
       {/* Product visual area with flip */}
-      <div className="relative h-64 bg-gradient-to-br from-[#f0fdf4] to-[#dcfce7]">
-        {/* Flip button */}
-        <button
-          onClick={() => setFlipped(!flipped)}
-          className="absolute top-3 right-3 z-10 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-md hover:bg-[#95d5b2]/30 transition-colors"
-          title={flipped ? 'Ver frente' : 'Ver reverso'}
-        >
-          <RotateCw className="w-4 h-4 text-[#1b4332]" />
-        </button>
-
+      <div className="relative h-72 bg-gradient-to-br from-[#f0fdf4] to-[#dcfce7] overflow-hidden">
         {/* Trees badge */}
         <div className="absolute top-3 left-3 z-10 bg-[#1b4332] text-white text-xs font-semibold px-2.5 py-1 rounded-full flex items-center gap-1">
           <TreePine className="w-3 h-3" />
           {product.trees} árbol{product.trees > 1 ? 'es' : ''}
         </div>
+
+        {/* QR / flip button — bottom bar, visible */}
+        <button
+          onClick={() => setFlipped(!flipped)}
+          className={`absolute bottom-0 left-0 right-0 z-10 flex items-center justify-center gap-2 py-2 text-xs font-bold transition-all ${
+            flipped
+              ? 'bg-[#95d5b2] text-[#1b4332]'
+              : 'bg-[#1b4332]/80 text-white hover:bg-[#1b4332]'
+          }`}
+        >
+          {flipped ? (
+            <><RotateCw className="w-3.5 h-3.5" /> Ver frente del producto</>
+          ) : (
+            <><QrCode className="w-3.5 h-3.5" /> Ver diseño trasero con QR</>
+          )}
+        </button>
 
         <AnimatePresence mode="wait">
           {!flipped ? (
@@ -310,28 +329,39 @@ function ProductCard({
               animate={{ rotateY: 0, opacity: 1 }}
               exit={{ rotateY: -90, opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="absolute inset-0 flex flex-col items-center justify-center p-4 gap-2"
+              className="absolute inset-0 flex items-center justify-center p-4 pb-8"
             >
-              {/* Product shape with mascot overlay */}
-              <div className="relative w-36 h-36 flex items-center justify-center">
-                <div className="absolute inset-0">
-                  <ProductShape productId={product.id} color={selectedColor.hex} />
-                </div>
-                {/* Mascot centered on product */}
-                <div className="relative z-10 w-16 h-16 mt-2">
+              {/* Real product mockup image */}
+              <div className="relative w-full h-full">
+                {PRODUCT_IMAGES[product.id] ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={PRODUCT_IMAGES[product.id]}
+                    alt={product.name}
+                    className="w-full h-full object-contain drop-shadow-xl group-hover:scale-105 transition-transform duration-500"
+                  />
+                ) : (
+                  <div className="absolute inset-0">
+                    <ProductShape productId={product.id} color={selectedColor.hex} />
+                  </div>
+                )}
+                {/* Quetzito — upper-right corner */}
+                <div className="absolute top-0 right-0 w-16 h-16 drop-shadow-lg">
                   <Image
                     src={`/mascot/${product.mascot}.png`}
-                    alt="Quetzito mascota"
+                    alt="Quetzito"
                     fill
-                    className="object-contain drop-shadow-md"
+                    className="object-contain"
                     sizes="64px"
                   />
                 </div>
               </div>
-              {/* Phrase */}
-              <p className="text-[#1b4332] text-xs font-semibold text-center leading-tight max-w-[160px]">
-                {product.phrase}
-              </p>
+              {/* Phrase pill at bottom */}
+              <div className="absolute bottom-8 left-0 right-0 flex justify-center px-3">
+                <span className="bg-white/90 backdrop-blur-sm text-[#1b4332] text-[11px] font-semibold px-3 py-1 rounded-full shadow-sm text-center leading-tight max-w-[85%]">
+                  {product.phrase}
+                </span>
+              </div>
             </motion.div>
           ) : (
             /* REVERSO */
@@ -729,8 +759,8 @@ export default function ShopPage() {
               Tienda oficial QUETZ
             </div>
             <h1 className="text-4xl md:text-5xl font-extrabold leading-tight mb-3">
-              Viste el bosque.<br />
-              <span className="text-[#95d5b2]">Cambia el mundo.</span>
+              Tienda quetz.org<br />
+              <span className="text-[#95d5b2]">Cada compra planta árboles</span>
             </h1>
             <p className="text-white/80 text-lg mb-6">
               Cada producto planta árboles reales en Zacapa, Guatemala.<br />
