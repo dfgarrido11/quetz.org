@@ -46,6 +46,8 @@ interface Product {
   description: string
   badge?: string
   gelatoUidTemplate: string
+  mockupFront: string
+  mockupBack: string
 }
 
 interface CartItem extends Product {
@@ -68,6 +70,8 @@ const PRODUCTS: Product[] = [
     mascotLabel: 'Quetzito Aventurero',
     ref: 'camiseta',
     badge: 'Quetz Pick',
+    mockupFront: '/shop-mockups/mockup-camiseta.png',
+    mockupBack: '/shop-mockups/mockup-camiseta-back.png',
     sizes: [
       { label: 'XS', gelatoCode: 'xs' },
       { label: 'S', gelatoCode: 's' },
@@ -95,6 +99,8 @@ const PRODUCTS: Product[] = [
     mascotLabel: 'Quetzito Héroe',
     ref: 'hoodie',
     badge: 'Bestseller',
+    mockupFront: '/shop-mockups/mockup-hoodie.png',
+    mockupBack: '/shop-mockups/mockup-hoodie-back.png',
     sizes: [
       { label: 'S', gelatoCode: 's' },
       { label: 'M', gelatoCode: 'm' },
@@ -120,6 +126,8 @@ const PRODUCTS: Product[] = [
     mascot: 'quetzito-maestro',
     mascotLabel: 'Quetzito Maestro',
     ref: 'taza',
+    mockupFront: '/shop-mockups/mockup-taza.png',
+    mockupBack: '/shop-mockups/mockup-taza.png',
     sizes: [
       { label: '11oz', gelatoCode: '11-oz' },
     ],
@@ -140,6 +148,8 @@ const PRODUCTS: Product[] = [
     mascotLabel: 'Quetzito Aventurero',
     ref: 'totebag',
     badge: 'Eco',
+    mockupFront: '/shop-mockups/mockup-totebag.png',
+    mockupBack: '/shop-mockups/mockup-totebag.png',
     sizes: [
       { label: 'Único', gelatoCode: 'std-t' },
     ],
@@ -219,68 +229,54 @@ function ProductCard({ product, onAddToCart }: { product: Product; onAddToCart: 
             +{product.trees} árbol{product.trees > 1 ? 'es' : ''}
           </div>
 
-          {/* QR back overlay — appears on hover */}
+          {/* QR back overlay — appears on hover/click */}
           <AnimatePresence>
             {showBack && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="absolute inset-0 z-20 bg-[#1b4332] flex flex-col items-center justify-center gap-3 p-6"
+                transition={{ duration: 0.25 }}
+                className="absolute inset-0 z-20"
               >
-                <p className="text-white/60 text-[10px] uppercase tracking-widest font-semibold">Diseño del reverso</p>
-                <div className="bg-white rounded-2xl p-3 shadow-lg">
-                  {qrSrc ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={qrSrc} alt="QR quetz.org" width={120} height={120} className="rounded-lg" />
-                  ) : (
-                    <div className="w-[120px] h-[120px] flex items-center justify-center">
-                      <QrCode className="w-12 h-12 text-gray-300 animate-pulse" />
-                    </div>
-                  )}
-                </div>
-                <div className="text-center">
-                  <p className="text-[#95d5b2] text-xs font-medium mt-1">Escanea y adopta tu árbol 🌱</p>
-                  <p className="text-white/40 text-[10px] font-mono mt-1">quetz.org?ref={product.ref}</p>
-                </div>
-                <div className="flex items-center gap-1.5 mt-1">
-                  <Image src="/logo-quetz-oficial.png" alt="QUETZ" width={18} height={18} className="brightness-0 invert opacity-50" />
-                  <span className="text-white/50 text-[10px]">QUETZ.ORG</span>
+                {/* Back mockup image */}
+                <Image
+                  src={product.mockupBack}
+                  alt={`${product.name} — Reverso con QR`}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, 25vw"
+                />
+                {/* Overlay label */}
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[#1b4332] to-transparent p-4 pt-10">
+                  <div className="flex items-center justify-center gap-2">
+                    <QrCode className="w-4 h-4 text-[#95d5b2]" />
+                    <p className="text-white text-xs font-medium">Escanea y adopta tu árbol en quetz.org</p>
+                  </div>
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
 
-          {/* Product mockup — Quetzito mascot centered */}
-          <div className="absolute inset-0 flex items-center justify-center p-6">
-            <div className="relative w-full h-full max-w-[200px] max-h-[200px]">
-              <Image
-                src={`/mascot/${product.mascot}.png`}
-                alt={product.mascotLabel}
-                fill
-                className="object-contain drop-shadow-lg"
-                sizes="200px"
-              />
-            </div>
-          </div>
+          {/* Product mockup — realistic product photo */}
+          <Image
+            src={product.mockupFront}
+            alt={product.name}
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, 25vw"
+            priority={product.id === 'camiseta-adulto'}
+          />
 
-          {/* Product type label at bottom */}
-          <div className="absolute bottom-10 left-0 right-0 z-10 text-center">
-            <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider bg-white/80 backdrop-blur-sm px-3 py-1 rounded-full">
-              {product.mascotLabel}
-            </span>
-          </div>
-
-          {/* QR hover button — bottom */}
+          {/* Toggle front/back button — bottom */}
           <button
             onMouseEnter={() => setShowBack(true)}
             onMouseLeave={() => setShowBack(false)}
             onClick={() => setShowBack(v => !v)}
-            className="absolute bottom-0 left-0 right-0 z-10 flex items-center justify-center gap-1.5 py-2 bg-gradient-to-t from-black/20 to-transparent text-white/80 text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+            className="absolute bottom-0 left-0 right-0 z-10 flex items-center justify-center gap-1.5 py-2.5 bg-gradient-to-t from-black/40 to-transparent text-white text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300"
           >
             <QrCode className="w-3.5 h-3.5" />
-            Ver diseño trasero con QR
+            {showBack ? 'Ver frente' : 'Ver reverso con QR'}
           </button>
         </div>
       </div>
@@ -675,18 +671,39 @@ export default function ShopPage() {
             </div>
           </div>
 
-          {/* Mascot — solo en hero */}
-          <div className="relative w-64 h-64 md:w-80 md:h-80 shrink-0">
-            <div className="absolute inset-0 bg-white/5 rounded-full" />
-            <div className="absolute inset-6 bg-white/5 rounded-full" />
-            <Image
-              src="/mascot/quetzito-aventurero.png"
-              alt="Quetzito aventurero"
-              fill
-              className="object-contain drop-shadow-2xl relative z-10"
-              priority
-              sizes="(max-width: 768px) 256px, 320px"
-            />
+          {/* Product showcase — hero */}
+          <div className="relative w-72 h-72 md:w-96 md:h-96 shrink-0">
+            {/* Main product — camiseta */}
+            <div className="absolute inset-0 z-10 rounded-2xl overflow-hidden shadow-2xl border-2 border-white/20">
+              <Image
+                src="/shop-mockups/mockup-camiseta.png"
+                alt="Camiseta Quetz"
+                fill
+                className="object-cover"
+                priority
+                sizes="(max-width: 768px) 288px, 384px"
+              />
+            </div>
+            {/* Secondary product — hoodie */}
+            <div className="absolute -bottom-4 -right-4 w-32 h-32 md:w-40 md:h-40 z-20 rounded-xl overflow-hidden shadow-xl border-2 border-white/30">
+              <Image
+                src="/shop-mockups/mockup-hoodie.png"
+                alt="Hoodie Quetz"
+                fill
+                className="object-cover"
+                sizes="160px"
+              />
+            </div>
+            {/* Tertiary product — taza */}
+            <div className="absolute -top-2 -right-2 w-24 h-24 md:w-28 md:h-28 z-20 rounded-xl overflow-hidden shadow-xl border-2 border-white/30">
+              <Image
+                src="/shop-mockups/mockup-taza.png"
+                alt="Taza Quetz"
+                fill
+                className="object-cover"
+                sizes="112px"
+              />
+            </div>
           </div>
         </div>
       </section>
