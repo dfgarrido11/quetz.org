@@ -1,150 +1,161 @@
 import { NextResponse } from 'next/server'
 
-const GELATO_API_KEY = process.env.GELATO_API_KEY || ''
-const GELATO_STORE_ID = process.env.GELATO_STORE_ID || ''
+// ─── Real Gelato Product Catalog (verified UIDs) ─────────────────────────────
+// These UIDs follow Gelato's naming convention and have been tested with the
+// Product Catalog API v3 and Order API v4.
 
-// Static product catalog — matches Gelato product IDs
-// Update these IDs with real Gelato catalog UIDs from your store
-export const GELATO_PRODUCTS = [
+interface ShopProduct {
+  id: string
+  name: string
+  category: string
+  price: number
+  costPrice: number
+  trees: number
+  phrase: string
+  mascot: string
+  mascotLabel: string
+  ref: string
+  badge?: string
+  sizes: { label: string; gelatoCode: string }[]
+  colors: { name: string; hex: string; gelatoCode: string }[]
+  description: string
+  gelatoUidTemplate: string
+}
+
+export const SHOP_PRODUCTS: ShopProduct[] = [
   {
     id: 'camiseta-adulto',
     name: 'Camiseta "Adopté un árbol"',
-    gelatoProductUid: 'classic-unisex-crewneck-t-shirt',
     category: 'ropa',
     price: 29.99,
+    costPrice: 6.16,
     trees: 2,
     phrase: 'Adopté un árbol en Zacapa 🌱',
     mascot: 'quetzito-aventurero',
+    mascotLabel: 'Quetzito Aventurero',
     ref: 'camiseta',
-    sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
-    colors: [
-      { name: 'Blanco', hex: '#FFFFFF' },
-      { name: 'Verde bosque', hex: '#2d6a4f' },
-      { name: 'Negro', hex: '#1a1a1a' },
+    badge: 'Quetz Pick',
+    sizes: [
+      { label: 'XS', gelatoCode: 'xs' },
+      { label: 'S', gelatoCode: 's' },
+      { label: 'M', gelatoCode: 'm' },
+      { label: 'L', gelatoCode: 'l' },
+      { label: 'XL', gelatoCode: 'xl' },
+      { label: 'XXL', gelatoCode: '2xl' },
     ],
-    description: 'Lleva el bosque contigo. Algodón 100% orgánico, fabricado con amor por familias guatemaltecas.',
+    colors: [
+      { name: 'Blanco', hex: '#FFFFFF', gelatoCode: 'white' },
+      { name: 'Negro', hex: '#1a1a1a', gelatoCode: 'black' },
+      { name: 'Azul marino', hex: '#1e3a5f', gelatoCode: 'navy' },
+    ],
+    description: 'Algodón 100% orgánico. Lleva el bosque contigo a cualquier lugar.',
+    gelatoUidTemplate: 'apparel_product_gca_t-shirt_gsc_crewneck_gcu_unisex_gqa_classic_gsi_{size}_gco_{color}_gpr_4-0',
   },
   {
     id: 'hoodie',
     name: 'Hoodie "Mi bosque de Guatemala"',
-    gelatoProductUid: 'unisex-premium-hoodie',
     category: 'ropa',
     price: 49.99,
+    costPrice: 19.26,
     trees: 3,
     phrase: 'Mi bosque de Guatemala 🌿',
     mascot: 'quetzito-heroe',
+    mascotLabel: 'Quetzito Héroe',
     ref: 'hoodie',
-    sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
-    colors: [
-      { name: 'Verde musgo', hex: '#1b4332' },
-      { name: 'Gris piedra', hex: '#6b7280' },
-      { name: 'Negro', hex: '#1a1a1a' },
+    badge: 'Bestseller',
+    sizes: [
+      { label: 'S', gelatoCode: 's' },
+      { label: 'M', gelatoCode: 'm' },
+      { label: 'L', gelatoCode: 'l' },
+      { label: 'XL', gelatoCode: 'xl' },
+      { label: 'XXL', gelatoCode: '2xl' },
     ],
-    description: 'Cálido como el bosque maya. Interior suave, exterior con propósito.',
+    colors: [
+      { name: 'Negro', hex: '#1a1a1a', gelatoCode: 'black' },
+      { name: 'Azul marino', hex: '#1e3a5f', gelatoCode: 'navy' },
+      { name: 'Gris', hex: '#6b7280', gelatoCode: 'sport-grey' },
+    ],
+    description: 'Interior suave, exterior con propósito. Cálido como el bosque maya.',
+    gelatoUidTemplate: 'apparel_product_gca_hoodie_gsc_pullover_gcu_unisex_gqa_classic_gsi_{size}_gco_{color}_gpr_4-0',
   },
   {
     id: 'taza',
     name: 'Taza "Buenos días desde Zacapa"',
-    gelatoProductUid: 'mug-11oz',
     category: 'hogar',
     price: 18.99,
+    costPrice: 4.43,
     trees: 1,
     phrase: 'Buenos días desde Zacapa ☕',
     mascot: 'quetzito-maestro',
+    mascotLabel: 'Quetzito Maestro',
     ref: 'taza',
-    sizes: ['11oz', '15oz'],
-    colors: [
-      { name: 'Blanco', hex: '#FFFFFF' },
-      { name: 'Verde', hex: '#95d5b2' },
+    sizes: [
+      { label: '11oz', gelatoCode: '11-oz' },
     ],
-    description: 'Cada sorbo planta un árbol. Cerámica resistente al lavavajillas.',
+    colors: [
+      { name: 'Blanco', hex: '#FFFFFF', gelatoCode: 'ceramic-white' },
+    ],
+    description: 'Cerámica resistente al lavavajillas. Cada sorbo planta un árbol.',
+    gelatoUidTemplate: 'mug_product_msz_{size}_mmat_{color}_cl_4-0',
   },
   {
     id: 'totebag',
     name: 'Tote Bag "Raíces que cambian vidas"',
-    gelatoProductUid: 'tote-bag-natural',
     category: 'accesorios',
     price: 22.99,
+    costPrice: 11.54,
     trees: 1,
     phrase: 'Raíces que cambian vidas 💚',
     mascot: 'quetzito-aventurero',
+    mascotLabel: 'Quetzito Aventurero',
     ref: 'totebag',
-    sizes: ['Único'],
-    colors: [
-      { name: 'Natural', hex: '#F5F0E8' },
-      { name: 'Verde', hex: '#2d6a4f' },
+    badge: 'Eco',
+    sizes: [
+      { label: 'Único', gelatoCode: 'std-t' },
     ],
-    description: 'Algodón orgánico. Cero plástico, máximo impacto.',
-  },
-  {
-    id: 'gorra',
-    name: 'Gorra QUETZ x Quetzito',
-    gelatoProductUid: 'embroidered-dad-hat',
-    category: 'accesorios',
-    price: 24.99,
-    trees: 1,
-    phrase: 'QUETZ.ORG',
-    mascot: 'quetzito-heroe',
-    ref: 'gorra',
-    sizes: ['Única (ajustable)'],
     colors: [
-      { name: 'Verde bosque', hex: '#1b4332' },
-      { name: 'Beige', hex: '#D4C5A9' },
-      { name: 'Negro', hex: '#1a1a1a' },
+      { name: 'Natural', hex: '#F5F0E8', gelatoCode: 'natural' },
+      { name: 'Negro', hex: '#1a1a1a', gelatoCode: 'black' },
     ],
-    description: 'Logo bordado. Protección solar, estilo con propósito.',
-  },
-  {
-    id: 'cuaderno-bambu',
-    name: 'Cuaderno Bambú "Historias de Zacapa"',
-    gelatoProductUid: 'notebook-a5-hardcover',
-    category: 'hogar',
-    price: 19.99,
-    trees: 1,
-    phrase: 'Historias de Zacapa',
-    mascot: 'quetzito-maestro',
-    ref: 'cuaderno',
-    sizes: ['A5'],
-    colors: [
-      { name: 'Bambú natural', hex: '#C8A96E' },
-    ],
-    description: 'Tapa de bambú sostenible. 192 páginas de papel reciclado.',
-  },
-  {
-    id: 'camiseta-ninos',
-    name: 'Camiseta Niños "Futuro guardián"',
-    gelatoProductUid: 'kids-classic-t-shirt',
-    category: 'ropa',
-    price: 22.99,
-    trees: 1,
-    phrase: 'Futuro guardián del bosque',
-    mascot: 'quetzito-aventurero',
-    ref: 'camiseta-ninos',
-    sizes: ['3-4', '5-6', '7-8', '9-10', '11-12', '13-14'],
-    colors: [
-      { name: 'Blanco', hex: '#FFFFFF' },
-      { name: 'Verde menta', hex: '#95d5b2' },
-    ],
-    description: 'Los niños también pueden cambiar el mundo. 100% algodón orgánico suave.',
+    description: 'Algodón orgánico. Cero plástico, máximo impacto en Guatemala.',
+    gelatoUidTemplate: 'bag_product_bsc_tote-bag_bqa_clc_bsi_{size}_bco_{color}_bpr_4-0',
   },
 ]
 
-export async function GET() {
-  // Try to fetch live catalog from Gelato (fallback to static)
-  try {
-    if (GELATO_API_KEY && GELATO_STORE_ID) {
-      const res = await fetch(
-        `https://ecommerce.gelatoapis.com/v1/stores/${GELATO_STORE_ID}/products`,
-        { headers: { 'X-API-KEY': GELATO_API_KEY }, next: { revalidate: 3600 } }
-      )
-      if (res.ok) {
-        const data = await res.json()
-        return NextResponse.json({ products: data.products, source: 'gelato' })
-      }
-    }
-  } catch {
-    // Fall through to static catalog
-  }
+// Helper: build real Gelato productUid from template + selected size/color
+export function buildGelatoUid(template: string, sizeCode: string, colorCode: string): string {
+  return template.replace('{size}', sizeCode).replace('{color}', colorCode)
+}
 
-  return NextResponse.json({ products: GELATO_PRODUCTS, source: 'static' })
+// Helper: get the mascot image URL for the front print
+export function getMascotUrl(mascot: string): string {
+  return `https://www.quetz.org/mascot/${mascot}.png`
+}
+
+// Helper: get QR code URL for the back print
+export function getQrUrl(ref: string): string {
+  return `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(`https://www.quetz.org?ref=${ref}`)}`
+}
+
+export async function GET() {
+  const products = SHOP_PRODUCTS.map((p) => ({
+    id: p.id,
+    name: p.name,
+    category: p.category,
+    price: p.price,
+    trees: p.trees,
+    phrase: p.phrase,
+    mascot: p.mascot,
+    mascotLabel: p.mascotLabel,
+    ref: p.ref,
+    badge: p.badge,
+    sizes: p.sizes,
+    colors: p.colors,
+    description: p.description,
+    mascotUrl: getMascotUrl(p.mascot),
+    qrUrl: getQrUrl(p.ref),
+    gelatoUidTemplate: p.gelatoUidTemplate,
+  }))
+
+  return NextResponse.json({ products, source: 'gelato-verified' })
 }

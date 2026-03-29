@@ -19,171 +19,136 @@ import {
   Package,
   ChevronRight,
   Star,
+  Heart,
+  Globe,
+  Truck,
 } from 'lucide-react'
 import { useLanguage } from '@/lib/language-context'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-interface ProductColor { name: string; hex: string }
+interface ProductColor { name: string; hex: string; gelatoCode: string }
+
+interface ProductSize { label: string; gelatoCode: string }
 
 interface Product {
   id: string
   name: string
-  gelatoProductUid: string
   category: string
   price: number
   trees: number
   phrase: string
   mascot: string
+  mascotLabel: string
   ref: string
-  sizes: string[]
+  sizes: ProductSize[]
   colors: ProductColor[]
   description: string
   badge?: string
-  mockupUrl: string
-  hoverUrl?: string
+  gelatoUidTemplate: string
 }
 
 interface CartItem extends Product {
   quantity: number
-  selectedSize: string
+  selectedSize: ProductSize
   selectedColor: ProductColor
 }
 
-// ─── Product catalog ──────────────────────────────────────────────────────────
+// ─── Real Gelato Product Catalog (verified UIDs) ─────────────────────────────
 
 const PRODUCTS: Product[] = [
   {
     id: 'camiseta-adulto',
     name: 'Camiseta "Adopté un árbol"',
-    gelatoProductUid: 'classic-unisex-crewneck-t-shirt',
     category: 'ropa',
     price: 29.99,
     trees: 2,
     phrase: 'Adopté un árbol en Zacapa 🌱',
     mascot: 'quetzito-aventurero',
+    mascotLabel: 'Quetzito Aventurero',
     ref: 'camiseta',
     badge: 'Quetz Pick',
-    sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
+    sizes: [
+      { label: 'XS', gelatoCode: 'xs' },
+      { label: 'S', gelatoCode: 's' },
+      { label: 'M', gelatoCode: 'm' },
+      { label: 'L', gelatoCode: 'l' },
+      { label: 'XL', gelatoCode: 'xl' },
+      { label: 'XXL', gelatoCode: '2xl' },
+    ],
     colors: [
-      { name: 'Blanco', hex: '#FFFFFF' },
-      { name: 'Verde bosque', hex: '#2d6a4f' },
-      { name: 'Negro', hex: '#1a1a1a' },
+      { name: 'Blanco', hex: '#FFFFFF', gelatoCode: 'white' },
+      { name: 'Negro', hex: '#1a1a1a', gelatoCode: 'black' },
+      { name: 'Azul marino', hex: '#1e3a5f', gelatoCode: 'navy' },
     ],
     description: 'Algodón 100% orgánico. Lleva el bosque contigo a cualquier lugar.',
-    mockupUrl: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&q=80',
+    gelatoUidTemplate: 'apparel_product_gca_t-shirt_gsc_crewneck_gcu_unisex_gqa_classic_gsi_{size}_gco_{color}_gpr_4-0',
   },
   {
     id: 'hoodie',
     name: 'Hoodie "Mi bosque de Guatemala"',
-    gelatoProductUid: 'unisex-premium-hoodie',
     category: 'ropa',
     price: 49.99,
     trees: 3,
     phrase: 'Mi bosque de Guatemala 🌿',
     mascot: 'quetzito-heroe',
+    mascotLabel: 'Quetzito Héroe',
     ref: 'hoodie',
     badge: 'Bestseller',
-    sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
+    sizes: [
+      { label: 'S', gelatoCode: 's' },
+      { label: 'M', gelatoCode: 'm' },
+      { label: 'L', gelatoCode: 'l' },
+      { label: 'XL', gelatoCode: 'xl' },
+      { label: 'XXL', gelatoCode: '2xl' },
+    ],
     colors: [
-      { name: 'Verde musgo', hex: '#1b4332' },
-      { name: 'Gris piedra', hex: '#6b7280' },
-      { name: 'Negro', hex: '#1a1a1a' },
+      { name: 'Negro', hex: '#1a1a1a', gelatoCode: 'black' },
+      { name: 'Azul marino', hex: '#1e3a5f', gelatoCode: 'navy' },
+      { name: 'Gris', hex: '#6b7280', gelatoCode: 'sport-grey' },
     ],
     description: 'Interior suave, exterior con propósito. Cálido como el bosque maya.',
-    mockupUrl: 'https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=400&q=80',
+    gelatoUidTemplate: 'apparel_product_gca_hoodie_gsc_pullover_gcu_unisex_gqa_classic_gsi_{size}_gco_{color}_gpr_4-0',
   },
   {
     id: 'taza',
     name: 'Taza "Buenos días desde Zacapa"',
-    gelatoProductUid: 'mug-11oz',
     category: 'hogar',
     price: 18.99,
     trees: 1,
     phrase: 'Buenos días desde Zacapa ☕',
     mascot: 'quetzito-maestro',
+    mascotLabel: 'Quetzito Maestro',
     ref: 'taza',
-    sizes: ['11oz', '15oz'],
+    sizes: [
+      { label: '11oz', gelatoCode: '11-oz' },
+    ],
     colors: [
-      { name: 'Blanco', hex: '#FFFFFF' },
-      { name: 'Verde menta', hex: '#95d5b2' },
+      { name: 'Blanco', hex: '#FFFFFF', gelatoCode: 'ceramic-white' },
     ],
     description: 'Cerámica resistente al lavavajillas. Cada sorbo planta un árbol.',
-    mockupUrl: 'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?w=400&q=80',
+    gelatoUidTemplate: 'mug_product_msz_{size}_mmat_{color}_cl_4-0',
   },
   {
     id: 'totebag',
     name: 'Tote Bag "Raíces que cambian vidas"',
-    gelatoProductUid: 'tote-bag-natural',
     category: 'accesorios',
     price: 22.99,
     trees: 1,
     phrase: 'Raíces que cambian vidas 💚',
     mascot: 'quetzito-aventurero',
+    mascotLabel: 'Quetzito Aventurero',
     ref: 'totebag',
     badge: 'Eco',
-    sizes: ['Único'],
+    sizes: [
+      { label: 'Único', gelatoCode: 'std-t' },
+    ],
     colors: [
-      { name: 'Natural', hex: '#F5F0E8' },
-      { name: 'Verde', hex: '#2d6a4f' },
+      { name: 'Natural', hex: '#F5F0E8', gelatoCode: 'natural' },
+      { name: 'Negro', hex: '#1a1a1a', gelatoCode: 'black' },
     ],
     description: 'Algodón orgánico. Cero plástico, máximo impacto en Guatemala.',
-    mockupUrl: 'https://images.unsplash.com/photo-1597484661643-2f5fef640dd1?w=400&q=80',
-  },
-  {
-    id: 'gorra',
-    name: 'Gorra QUETZ x Quetzito',
-    gelatoProductUid: 'embroidered-dad-hat',
-    category: 'accesorios',
-    price: 24.99,
-    trees: 1,
-    phrase: 'QUETZ.ORG',
-    mascot: 'quetzito-heroe',
-    ref: 'gorra',
-    sizes: ['Única (ajustable)'],
-    colors: [
-      { name: 'Verde bosque', hex: '#1b4332' },
-      { name: 'Beige', hex: '#D4C5A9' },
-      { name: 'Negro', hex: '#1a1a1a' },
-    ],
-    description: 'Logo bordado. Protección solar con estilo y propósito.',
-    mockupUrl: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=400&q=80',
-  },
-  {
-    id: 'cuaderno-bambu',
-    name: 'Cuaderno Bambú "Historias de Zacapa"',
-    gelatoProductUid: 'notebook-a5-hardcover',
-    category: 'hogar',
-    price: 19.99,
-    trees: 1,
-    phrase: 'Historias de Zacapa',
-    mascot: 'quetzito-maestro',
-    ref: 'cuaderno',
-    sizes: ['A5'],
-    colors: [
-      { name: 'Bambú natural', hex: '#C8A96E' },
-    ],
-    description: 'Tapa de bambú sostenible. 192 páginas de papel reciclado.',
-    mockupUrl: 'https://images.unsplash.com/photo-1531346878377-a5be20888e57?w=400&q=80',
-  },
-  {
-    id: 'camiseta-ninos',
-    name: 'Camiseta Niños "Futuro guardián"',
-    gelatoProductUid: 'kids-classic-t-shirt',
-    category: 'ropa',
-    price: 22.99,
-    trees: 1,
-    phrase: 'Futuro guardián del bosque',
-    mascot: 'quetzito-aventurero',
-    ref: 'camiseta-ninos',
-    badge: 'Kids',
-    sizes: ['3-4', '5-6', '7-8', '9-10', '11-12', '13-14'],
-    colors: [
-      { name: 'Blanco', hex: '#FFFFFF' },
-      { name: 'Verde menta', hex: '#95d5b2' },
-    ],
-    description: 'Los niños también pueden cambiar el mundo. 100% algodón orgánico.',
-    mockupUrl: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&q=80',
+    gelatoUidTemplate: 'bag_product_bsc_tote-bag_bqa_clc_bsi_{size}_bco_{color}_bpr_4-0',
   },
 ]
 
@@ -204,10 +169,17 @@ const BADGE_STYLES: Record<string, string> = {
   'Nuevo': 'bg-orange-100 text-orange-800',
 }
 
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+function buildGelatoUid(template: string, size: string, color: string): string {
+  return template.replace('{size}', size).replace('{color}', color)
+}
+
 // ─── Product Card ─────────────────────────────────────────────────────────────
 
 function ProductCard({ product, onAddToCart }: { product: Product; onAddToCart: (item: CartItem) => void }) {
-  const [selectedSize, setSelectedSize] = useState(product.sizes[product.sizes.length > 2 ? 2 : 0])
+  const defaultSizeIdx = product.sizes.length > 2 ? 2 : 0
+  const [selectedSize, setSelectedSize] = useState<ProductSize>(product.sizes[defaultSizeIdx])
   const [selectedColor, setSelectedColor] = useState<ProductColor>(product.colors[0])
   const [added, setAdded] = useState(false)
   const [showBack, setShowBack] = useState(false)
@@ -231,7 +203,7 @@ function ProductCard({ product, onAddToCart }: { product: Product; onAddToCart: 
       className="group bg-white border border-gray-100 rounded-2xl overflow-hidden hover:shadow-xl hover:border-gray-200 transition-all duration-300 flex flex-col"
     >
       {/* ── Image area ── */}
-      <div className="relative bg-gray-50 overflow-hidden" style={{ paddingBottom: '100%' }}>
+      <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden" style={{ paddingBottom: '110%' }}>
         <div className="absolute inset-0">
           {/* Badge */}
           {product.badge && (
@@ -241,10 +213,10 @@ function ProductCard({ product, onAddToCart }: { product: Product; onAddToCart: 
             </div>
           )}
 
-          {/* Trees badge */}
-          <div className="absolute top-3 right-3 z-10 bg-[#dcfce7] text-[#1b4332] text-[11px] font-semibold px-2 py-1 rounded-full flex items-center gap-1">
-            <TreePine className="w-3 h-3" />
-            {product.trees} árbol{product.trees > 1 ? 'es' : ''}
+          {/* Trees badge — prominent */}
+          <div className="absolute top-3 right-3 z-10 bg-[#dcfce7] text-[#1b4332] text-[11px] font-bold px-2.5 py-1.5 rounded-full flex items-center gap-1 shadow-sm">
+            <TreePine className="w-3.5 h-3.5" />
+            +{product.trees} árbol{product.trees > 1 ? 'es' : ''}
           </div>
 
           {/* QR back overlay — appears on hover */}
@@ -257,6 +229,7 @@ function ProductCard({ product, onAddToCart }: { product: Product; onAddToCart: 
                 transition={{ duration: 0.2 }}
                 className="absolute inset-0 z-20 bg-[#1b4332] flex flex-col items-center justify-center gap-3 p-6"
               >
+                <p className="text-white/60 text-[10px] uppercase tracking-widest font-semibold">Diseño del reverso</p>
                 <div className="bg-white rounded-2xl p-3 shadow-lg">
                   {qrSrc ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -268,32 +241,43 @@ function ProductCard({ product, onAddToCart }: { product: Product; onAddToCart: 
                   )}
                 </div>
                 <div className="text-center">
-                  <p className="text-white font-bold text-sm leading-tight">Diseño del reverso</p>
-                  <p className="text-[#95d5b2] text-xs mt-1">Escanea y adopta tu árbol 🌱</p>
-                  <p className="text-white/50 text-[10px] font-mono mt-1">quetz.org?ref={product.ref}</p>
+                  <p className="text-[#95d5b2] text-xs font-medium mt-1">Escanea y adopta tu árbol 🌱</p>
+                  <p className="text-white/40 text-[10px] font-mono mt-1">quetz.org?ref={product.ref}</p>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <Image src="/logo-quetz-oficial.png" alt="QUETZ" width={20} height={20} className="brightness-0 invert opacity-60" />
-                  <span className="text-white/60 text-[10px]">QUETZ.ORG</span>
+                <div className="flex items-center gap-1.5 mt-1">
+                  <Image src="/logo-quetz-oficial.png" alt="QUETZ" width={18} height={18} className="brightness-0 invert opacity-50" />
+                  <span className="text-white/50 text-[10px]">QUETZ.ORG</span>
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
 
-          {/* Product mockup image */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={product.mockupUrl}
-            alt={product.name}
-            className="absolute inset-0 w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-500"
-          />
+          {/* Product mockup — Quetzito mascot centered */}
+          <div className="absolute inset-0 flex items-center justify-center p-6">
+            <div className="relative w-full h-full max-w-[200px] max-h-[200px]">
+              <Image
+                src={`/mascot/${product.mascot}.png`}
+                alt={product.mascotLabel}
+                fill
+                className="object-contain drop-shadow-lg"
+                sizes="200px"
+              />
+            </div>
+          </div>
+
+          {/* Product type label at bottom */}
+          <div className="absolute bottom-10 left-0 right-0 z-10 text-center">
+            <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider bg-white/80 backdrop-blur-sm px-3 py-1 rounded-full">
+              {product.mascotLabel}
+            </span>
+          </div>
 
           {/* QR hover button — bottom */}
           <button
             onMouseEnter={() => setShowBack(true)}
             onMouseLeave={() => setShowBack(false)}
             onClick={() => setShowBack(v => !v)}
-            className="absolute bottom-0 left-0 right-0 z-10 flex items-center justify-center gap-1.5 py-2 bg-white/90 backdrop-blur-sm text-[#1b4332] text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-[#f0fdf4]"
+            className="absolute bottom-0 left-0 right-0 z-10 flex items-center justify-center gap-1.5 py-2 bg-gradient-to-t from-black/20 to-transparent text-white/80 text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300"
           >
             <QrCode className="w-3.5 h-3.5" />
             Ver diseño trasero con QR
@@ -305,13 +289,26 @@ function ProductCard({ product, onAddToCart }: { product: Product; onAddToCart: 
       <div className="p-4 flex flex-col gap-3 flex-1">
         <div>
           <h3 className="font-bold text-gray-900 text-[15px] leading-snug">{product.name}</h3>
-          <p className="text-xs text-gray-400 mt-0.5 line-clamp-1">{product.description}</p>
+          <p className="text-xs text-gray-400 mt-0.5 line-clamp-2">{product.description}</p>
         </div>
 
         {/* Price */}
         <div className="flex items-baseline gap-2">
           <span className="text-2xl font-black text-gray-900">{product.price.toFixed(2)}€</span>
           <span className="text-xs text-gray-400">+ envío</span>
+        </div>
+
+        {/* ── TREE IMPACT — prominent ── */}
+        <div className="flex items-center gap-2 bg-[#f0fdf4] border border-[#bbf7d0] rounded-xl px-3 py-2.5">
+          <div className="w-8 h-8 bg-[#1b4332] rounded-lg flex items-center justify-center shrink-0">
+            <TreePine className="w-4 h-4 text-[#95d5b2]" />
+          </div>
+          <div>
+            <p className="text-xs font-bold text-[#1b4332]">
+              🌱 Incluye {product.trees} árbol{product.trees > 1 ? 'es' : ''} adoptado{product.trees > 1 ? 's' : ''}
+            </p>
+            <p className="text-[10px] text-[#2d6a4f]/70">Plantados en Zacapa, Guatemala 🇬🇹</p>
+          </div>
         </div>
 
         {/* Color selector */}
@@ -344,28 +341,20 @@ function ProductCard({ product, onAddToCart }: { product: Product; onAddToCart: 
             <div className="flex flex-wrap gap-1">
               {product.sizes.map((s) => (
                 <button
-                  key={s}
+                  key={s.label}
                   onClick={() => setSelectedSize(s)}
                   className={`px-2 py-0.5 text-xs font-medium rounded border transition-all ${
-                    selectedSize === s
+                    selectedSize.label === s.label
                       ? 'bg-[#1b4332] text-white border-[#1b4332]'
                       : 'bg-white text-gray-500 border-gray-200 hover:border-[#1b4332] hover:text-[#1b4332]'
                   }`}
                 >
-                  {s}
+                  {s.label}
                 </button>
               ))}
             </div>
           </div>
         )}
-
-        {/* Trees impact */}
-        <div className="flex items-center gap-1.5 bg-[#f0fdf4] rounded-lg px-3 py-2">
-          <TreePine className="w-4 h-4 text-[#1b4332] shrink-0" />
-          <span className="text-xs text-[#1b4332] font-medium">
-            Esta compra planta <strong>{product.trees} árbol{product.trees > 1 ? 'es' : ''}</strong> en Zacapa 🇬🇹
-          </span>
-        </div>
 
         {/* Add to cart */}
         <motion.button
@@ -426,12 +415,26 @@ function CartSidebar({
         </button>
       </div>
 
+      {/* ── Tree impact summary ── */}
       {totalTrees > 0 && (
-        <div className="mx-4 mt-4 bg-[#f0fdf4] border border-[#bbf7d0] rounded-xl p-3 flex items-center gap-2">
-          <TreePine className="w-5 h-5 text-[#1b4332] shrink-0" />
-          <p className="text-sm text-[#1b4332] font-medium">
-            Este pedido planta <strong>{totalTrees} árbol{totalTrees > 1 ? 'es' : ''}</strong> reales en Guatemala 🌱
-          </p>
+        <div className="mx-4 mt-4 bg-[#f0fdf4] border border-[#bbf7d0] rounded-xl p-3">
+          <div className="flex items-center gap-2 mb-1.5">
+            <div className="w-8 h-8 bg-[#1b4332] rounded-lg flex items-center justify-center shrink-0">
+              <TreePine className="w-4 h-4 text-[#95d5b2]" />
+            </div>
+            <div>
+              <p className="text-sm text-[#1b4332] font-bold">
+                🌱 {totalTrees} árbol{totalTrees > 1 ? 'es' : ''} adoptado{totalTrees > 1 ? 's' : ''}
+              </p>
+              <p className="text-[10px] text-[#2d6a4f]/70">Serán plantados en Zacapa, Guatemala</p>
+            </div>
+          </div>
+          <div className="flex gap-1 mt-2">
+            {Array.from({ length: Math.min(totalTrees, 12) }).map((_, i) => (
+              <div key={i} className="text-sm">🌳</div>
+            ))}
+            {totalTrees > 12 && <span className="text-[10px] text-[#2d6a4f] self-center">+{totalTrees - 12} más</span>}
+          </div>
         </div>
       )}
 
@@ -444,25 +447,31 @@ function CartSidebar({
           </div>
         )}
         {items.map((item) => (
-          <div key={`${item.id}-${item.selectedSize}`} className="flex gap-3 bg-gray-50 rounded-xl p-3">
-            <div className="w-16 h-16 bg-white rounded-lg overflow-hidden shrink-0 border border-gray-100 flex items-center justify-center">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={item.mockupUrl} alt={item.name} className="w-full h-full object-contain p-1" />
+          <div key={`${item.id}-${item.selectedSize.label}`} className="flex gap-3 bg-gray-50 rounded-xl p-3">
+            <div className="w-16 h-16 bg-white rounded-lg overflow-hidden shrink-0 border border-gray-100 flex items-center justify-center p-1">
+              <Image
+                src={`/mascot/${item.mascot}.png`}
+                alt={item.name}
+                width={56}
+                height={56}
+                className="object-contain"
+              />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-bold text-gray-800 line-clamp-1">{item.name}</p>
-              <p className="text-xs text-gray-400 mt-0.5">{item.selectedSize} · {item.selectedColor.name}</p>
-              <div className="flex items-center justify-between mt-2">
+              <p className="text-xs text-gray-400 mt-0.5">{item.selectedSize.label} · {item.selectedColor.name}</p>
+              <p className="text-[10px] text-[#2d6a4f] font-medium mt-0.5">🌱 +{item.trees * item.quantity} árbol{item.trees * item.quantity > 1 ? 'es' : ''}</p>
+              <div className="flex items-center justify-between mt-1.5">
                 <div className="flex items-center gap-1.5">
                   <button
-                    onClick={() => onUpdateQty(item.id, item.selectedSize, -1)}
+                    onClick={() => onUpdateQty(item.id, item.selectedSize.label, -1)}
                     className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 text-gray-600"
                   >
                     <Minus className="w-3 h-3" />
                   </button>
                   <span className="text-sm font-bold w-5 text-center">{item.quantity}</span>
                   <button
-                    onClick={() => onUpdateQty(item.id, item.selectedSize, 1)}
+                    onClick={() => onUpdateQty(item.id, item.selectedSize.label, 1)}
                     className="w-6 h-6 rounded-full bg-[#1b4332] text-white flex items-center justify-center hover:bg-[#2d6a4f]"
                   >
                     <Plus className="w-3 h-3" />
@@ -471,7 +480,7 @@ function CartSidebar({
                 <span className="text-sm font-black text-gray-900">{(item.price * item.quantity).toFixed(2)}€</span>
               </div>
             </div>
-            <button onClick={() => onRemove(item.id, item.selectedSize)} className="shrink-0 p-1 text-gray-300 hover:text-red-400">
+            <button onClick={() => onRemove(item.id, item.selectedSize.label)} className="shrink-0 p-1 text-gray-300 hover:text-red-400">
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -499,6 +508,9 @@ function CartSidebar({
               <><CreditCard className="w-5 h-5" /> Pagar con Stripe</>
             )}
           </button>
+          <p className="text-[10px] text-center text-gray-400">
+            🔒 Pago 100% seguro · SSL · Stripe
+          </p>
         </div>
       )}
     </motion.div>
@@ -524,13 +536,14 @@ export default function ShopPage() {
 
   const filtered = category === 'todos' ? PRODUCTS : PRODUCTS.filter((p) => p.category === category)
   const totalCartItems = cart.reduce((s, i) => s + i.quantity, 0)
+  const totalCartTrees = cart.reduce((s, i) => s + i.trees * i.quantity, 0)
 
   const addToCart = useCallback((item: CartItem) => {
     setCart((prev) => {
-      const key = `${item.id}-${item.selectedSize}`
-      const existing = prev.find((i) => `${i.id}-${i.selectedSize}` === key)
+      const key = `${item.id}-${item.selectedSize.label}`
+      const existing = prev.find((i) => `${i.id}-${i.selectedSize.label}` === key)
       if (existing) {
-        return prev.map((i) => `${i.id}-${i.selectedSize}` === key ? { ...i, quantity: i.quantity + 1 } : i)
+        return prev.map((i) => `${i.id}-${i.selectedSize.label}` === key ? { ...i, quantity: i.quantity + 1 } : i)
       }
       return [...prev, item]
     })
@@ -540,13 +553,13 @@ export default function ShopPage() {
   const updateQty = (id: string, size: string, delta: number) => {
     setCart((prev) =>
       prev
-        .map((i) => `${i.id}-${i.selectedSize}` === `${id}-${size}` ? { ...i, quantity: i.quantity + delta } : i)
+        .map((i) => `${i.id}-${i.selectedSize.label}` === `${id}-${size}` ? { ...i, quantity: i.quantity + delta } : i)
         .filter((i) => i.quantity > 0)
     )
   }
 
   const removeItem = (id: string, size: string) => {
-    setCart((prev) => prev.filter((i) => !(i.id === id && i.selectedSize === size)))
+    setCart((prev) => prev.filter((i) => !(i.id === id && i.selectedSize.label === size)))
   }
 
   const handleCheckout = async () => {
@@ -563,9 +576,16 @@ export default function ShopPage() {
             price: i.price,
             trees: i.trees,
             quantity: i.quantity,
-            size: i.selectedSize,
+            size: i.selectedSize.label,
             color: i.selectedColor.name,
             ref: i.ref,
+            gelatoProductUid: buildGelatoUid(
+              i.gelatoUidTemplate,
+              i.selectedSize.gelatoCode,
+              i.selectedColor.gelatoCode
+            ),
+            mascot: i.mascot,
+            imageUrl: `https://www.quetz.org/mascot/${i.mascot}.png`,
           })),
         }),
       })
@@ -592,13 +612,18 @@ export default function ShopPage() {
             initial={{ y: -60, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: -60, opacity: 0 }}
-            className="fixed top-0 left-0 right-0 z-50 bg-[#1b4332] text-white px-4 py-3 flex items-center justify-center gap-3 shadow-lg"
+            className="fixed top-0 left-0 right-0 z-50 bg-[#1b4332] text-white px-4 py-4 flex flex-col items-center justify-center gap-1 shadow-lg"
           >
-            <CheckCircle className="w-5 h-5 text-[#95d5b2]" />
-            <span className="font-semibold">¡Pedido confirmado! Recibirás un email con los detalles. 🌱</span>
-            <button onClick={() => setSuccess(false)} className="ml-4 text-white/60 hover:text-white">
-              <X className="w-4 h-4" />
-            </button>
+            <div className="flex items-center gap-3">
+              <CheckCircle className="w-5 h-5 text-[#95d5b2]" />
+              <span className="font-bold">¡Pedido confirmado! 🎉</span>
+              <button onClick={() => setSuccess(false)} className="ml-4 text-white/60 hover:text-white">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <p className="text-sm text-[#95d5b2]">
+              Recibirás un email de hola@quetz.org con los detalles de tus árboles adoptados 🌱
+            </p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -618,9 +643,24 @@ export default function ShopPage() {
               Tienda quetz.org<br />
               <span className="text-[#95d5b2]">Cada compra planta árboles</span>
             </h1>
-            <p className="text-white/75 text-lg mb-8 max-w-lg">
-              Diseños exclusivos con nuestros Quetzitos. Cada producto incluye QR para adoptar árboles reales en Zacapa, Guatemala.
+            <p className="text-white/75 text-lg mb-6 max-w-lg">
+              Diseños exclusivos con nuestros Quetzitos. Cada producto incluye la adopción de árboles reales en Zacapa, Guatemala.
             </p>
+
+            {/* Impact stats */}
+            <div className="flex flex-wrap gap-4 mb-8 justify-center md:justify-start">
+              {[
+                { value: '1–3', label: 'Árboles por producto', icon: TreePine },
+                { value: '100%', label: 'Algodón orgánico', icon: Leaf },
+                { value: '🌍', label: 'Envío global', icon: Globe },
+              ].map(({ value, label, icon: Icon }) => (
+                <div key={label} className="bg-white/10 backdrop-blur-sm rounded-xl px-4 py-3 text-center min-w-[100px]">
+                  <div className="text-xl font-black text-[#95d5b2]">{value}</div>
+                  <div className="text-[10px] text-white/60 mt-0.5">{label}</div>
+                </div>
+              ))}
+            </div>
+
             <div className="flex flex-wrap gap-3 justify-center md:justify-start">
               {[
                 { icon: TreePine, text: 'Árboles reales plantados' },
@@ -651,7 +691,7 @@ export default function ShopPage() {
         </div>
       </section>
 
-      {/* ── Category nav — Gelato style ── */}
+      {/* ── Category nav ── */}
       <div className="sticky top-0 z-30 bg-white border-b border-gray-100 shadow-sm">
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex items-center gap-0 overflow-x-auto">
@@ -693,6 +733,11 @@ export default function ShopPage() {
             {totalCartItems > 9 ? '9+' : totalCartItems}
           </span>
         )}
+        {totalCartTrees > 0 && (
+          <span className="text-[10px] text-[#95d5b2] font-medium">
+            🌱{totalCartTrees}
+          </span>
+        )}
       </button>
 
       {/* ── Product grid ── */}
@@ -708,6 +753,42 @@ export default function ShopPage() {
           </AnimatePresence>
         </motion.div>
       </main>
+
+      {/* ── Impact section ── */}
+      <section className="border-t border-gray-100 bg-[#f0fdf4] py-14 px-4">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-2xl font-black text-[#1b4332] mb-2">🌱 Impacto por compra de goodies</h2>
+          <p className="text-[#2d6a4f]/70 mb-10">Cada producto incluye automáticamente la adopción de árboles reales</p>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+              { product: 'Camiseta', trees: 2, emoji: '👕' },
+              { product: 'Hoodie', trees: 3, emoji: '🧥' },
+              { product: 'Taza', trees: 1, emoji: '☕' },
+              { product: 'Tote Bag', trees: 1, emoji: '👜' },
+            ].map(({ product, trees, emoji }) => (
+              <div key={product} className="bg-white rounded-2xl p-5 shadow-sm border border-[#bbf7d0]">
+                <div className="text-3xl mb-2">{emoji}</div>
+                <p className="font-bold text-[#1b4332] text-sm">{product}</p>
+                <div className="flex items-center justify-center gap-1 mt-2">
+                  <TreePine className="w-4 h-4 text-[#2d6a4f]" />
+                  <span className="text-lg font-black text-[#1b4332]">{trees}</span>
+                  <span className="text-xs text-[#2d6a4f]/70">árbol{trees > 1 ? 'es' : ''}</span>
+                </div>
+                <p className="text-[10px] text-[#2d6a4f]/50 mt-1">Zacapa, Guatemala</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-8 bg-white rounded-2xl p-6 shadow-sm border border-[#bbf7d0] max-w-lg mx-auto">
+            <p className="text-sm text-[#2d6a4f] leading-relaxed">
+              Al completar tu compra, recibirás un email de <strong>hola@quetz.org</strong> confirmando
+              los árboles que se plantarán en Guatemala gracias a tu compra. Los árboles aparecerán
+              automáticamente en tu dashboard personal.
+            </p>
+          </div>
+        </div>
+      </section>
 
       {/* ── How it works ── */}
       <section className="border-t border-gray-100 bg-gray-50 py-14 px-4">
