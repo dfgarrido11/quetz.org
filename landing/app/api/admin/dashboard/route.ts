@@ -5,6 +5,14 @@ import { prisma } from '@/lib/prisma'
 
 const ADMIN_EMAIL = 'dfgarrido11@gmail.com'
 
+async function safeQuery<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
+  try {
+    return await fn()
+  } catch {
+    return fallback
+  }
+}
+
 export async function GET() {
   const session = await getServerSession(authOptions)
 
@@ -13,40 +21,47 @@ export async function GET() {
   }
 
   try {
-    // Ensure csr_leads raw table exists
-    await prisma.$executeRaw`
-      CREATE TABLE IF NOT EXISTS csr_leads (
-        id SERIAL PRIMARY KEY,
-        company_name VARCHAR(255),
-        contact_name VARCHAR(255),
-        contact_email VARCHAR(255),
-        employees INTEGER,
-        country VARCHAR(100),
-        message TEXT,
-        status VARCHAR(50) DEFAULT 'pending',
-        created_at TIMESTAMP DEFAULT NOW()
-      )
-    `
+    // Ensure csr_leads raw table exists (non-fatal)
+    await safeQuery(
+      () => prisma.$executeRaw`
+        CREATE TABLE IF NOT EXISTS csr_leads (
+          id SERIAL PRIMARY KEY,
+          company_name VARCHAR(255),
+          contact_name VARCHAR(255),
+          contact_email VARCHAR(255),
+          employees INTEGER,
+          country VARCHAR(100),
+          message TEXT,
+          status VARCHAR(50) DEFAULT 'pending',
+          created_at TIMESTAMP DEFAULT NOW()
+        )
+      `,
+      0
+    )
 
     const [stats, schoolProject, corporateLeads, recentAdoptions, totalUsers, activeSubscriptions, pendingAdoptions] =
       await Promise.all([
-        prisma.stats.findUnique({ where: { id: 'main' } }),
-        prisma.schoolProject.findUnique({ where: { id: 'zacapa' } }),
-        prisma.corporateLead.findMany({
-          orderBy: { createdAt: 'desc' },
-          take: 50,
-        }),
-        prisma.adoption.findMany({
-          orderBy: { createdAt: 'desc' },
-          take: 10,
-          include: {
-            user: { select: { name: true, email: true } },
-            tree: { select: { nameEs: true } },
-          },
-        }),
-        prisma.user.count(),
-        prisma.subscription.count({ where: { status: 'active' } }),
-        prisma.adoption.count({ where: { status: 'pending' } }),
+        safeQuery(() => prisma.stats.findUnique({ where: { id: 'main' } }), null),
+        safeQuery(() => prisma.schoolProject.findUnique({ where: { id: 'zacapa' } }), null),
+        safeQuery(
+          () => prisma.corporateLead.findMany({ orderBy: { createdAt: 'desc' }, take: 50 }),
+          []
+        ),
+        safeQuery(
+          () =>
+            prisma.adoption.findMany({
+              orderBy: { createdAt: 'desc' },
+              take: 10,
+              include: {
+                user: { select: { name: true, email: true } },
+                tree: { select: { nameEs: true } },
+              },
+            }),
+          []
+        ),
+        safeQuery(() => prisma.user.count(), 0),
+        safeQuery(() => prisma.subscription.count({ where: { status: 'active' } }), 0),
+        safeQuery(() => prisma.adoption.count({ where: { status: 'pending' } }), 0),
       ])
 
     const schoolGoal = schoolProject?.goalEur ?? 50000
@@ -67,7 +82,7 @@ export async function GET() {
         pendingAdoptions,
         activeSubscriptions,
         totalUsers,
-        corporateLeads: corporateLeads.map((l) => ({
+        corporateLeads: (corporateLeads as any[]).map((l) => ({
           id: l.id,
           companyName: l.companyName,
           country: l.country,
@@ -79,7 +94,7 @@ export async function GET() {
           message: l.message ?? null,
           createdAt: l.createdAt.toISOString(),
         })),
-        recentAdoptions: recentAdoptions.map((a) => ({
+        recentAdoptions: (recentAdoptions as any[]).map((a) => ({
           id: a.id,
           userName: a.user?.name ?? a.user?.email ?? 'Anónimo',
           treeName: a.tree?.nameEs ?? 'Árbol',
@@ -93,6 +108,16 @@ export async function GET() {
     })
   } catch (error: any) {
     console.error('Admin dashboard error:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    // Return zeros instead of error so the UI doesn't break
+    return NextResponse.json({
+      success: true,
+      stats: {
+        totalIncome: 0, socialFund: 0, treesAdopted: 0, treesPlanted: 0,
+        familiesHelped: 0, co2CapturedKg: 0, schoolFunding: 0, schoolProgress: 0,
+        pendingAdoptions: 0, activeSubscriptions: 0, totalUsers: 0,
+        corporateLeads: [], recentAdoptions: [],
+        _error: error.message,
+      },
+    })
   }
 }
