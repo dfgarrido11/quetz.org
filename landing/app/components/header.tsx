@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
-import { Menu, X, User, Leaf, ShoppingCart } from 'lucide-react';
+import { Menu, X, User, Leaf, ShoppingCart, ShoppingBag } from 'lucide-react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '@/lib/language-context';
@@ -36,6 +36,8 @@ export default function Header({ onOpenModal }: HeaderProps) {
     { name: t('school.title').split('.')[0], href: '#escuela' },
     { name: t('transparency.title'), href: '#transparencia' },
   ];
+
+  const shopLabel = t('header.shop') || 'Tienda';
 
   return (
     <header
@@ -75,6 +77,19 @@ export default function Header({ onOpenModal }: HeaderProps) {
               </a>
             )) ?? null}
             
+            {/* Shop Link */}
+            <Link
+              href="/shop"
+              className={`flex items-center gap-1.5 text-sm font-semibold px-3 py-1.5 rounded-full transition-all ${
+                scrolled
+                  ? 'bg-quetz-green text-white hover:bg-green-800'
+                  : 'bg-white/20 text-white hover:bg-white/30'
+              }`}
+            >
+              <ShoppingBag className="w-4 h-4" />
+              {shopLabel}
+            </Link>
+
             {/* Cart Icon */}
             <Link
               href="/carrito"
@@ -148,6 +163,16 @@ export default function Header({ onOpenModal }: HeaderProps) {
             className="md:hidden bg-quetz-cream/95 backdrop-blur-md border-t"
           >
             <div className={`px-4 py-4 space-y-3 ${isRTL ? 'text-right' : 'text-left'}`}>
+              {/* Mobile Shop */}
+              <Link
+                href="/shop"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-2 bg-quetz-green text-white font-semibold py-2.5 px-4 rounded-xl"
+              >
+                <ShoppingBag className="w-5 h-5" />
+                <span>{shopLabel}</span>
+              </Link>
+
               {/* Mobile Cart */}
               <Link
                 href="/carrito"
