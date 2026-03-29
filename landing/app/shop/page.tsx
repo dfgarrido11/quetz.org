@@ -228,7 +228,7 @@ function ProductCard({ product, onAddToCart, t }: { product: Product; onAddToCar
       className="group bg-white border border-gray-100 rounded-2xl overflow-hidden hover:shadow-xl hover:border-gray-200 transition-all duration-300 flex flex-col"
     >
       {/* ── Image area ── */}
-      <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden" style={{ paddingBottom: '110%' }}>
+      <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden" style={{ paddingBottom: '85%' }}>
         <div className="absolute inset-0">
           {/* Badge */}
           {product.badge && (
@@ -295,7 +295,7 @@ function ProductCard({ product, onAddToCart, t }: { product: Product; onAddToCar
       </div>
 
       {/* ── Product info ── */}
-      <div className="p-4 flex flex-col gap-3 flex-1">
+      <div className="p-3 flex flex-col gap-2 flex-1">
         <div>
           <h3 className="font-bold text-gray-900 text-[15px] leading-snug">{productName}</h3>
           <p className="text-xs text-gray-400 mt-0.5 line-clamp-2">{t(product.descKey)}</p>
@@ -303,20 +303,20 @@ function ProductCard({ product, onAddToCart, t }: { product: Product; onAddToCar
 
         {/* Price */}
         <div className="flex items-baseline gap-2">
-          <span className="text-2xl font-black text-gray-900">{product.price.toFixed(2)}€</span>
-          <span className="text-xs text-gray-400">{t('shop.plusShipping')}</span>
+          <span className="text-xl font-black text-gray-900">{product.price.toFixed(2)}€</span>
+          <span className="text-[10px] text-gray-400">{t('shop.plusShipping')}</span>
         </div>
 
-        {/* ── TREE IMPACT — prominent ── */}
-        <div className="flex items-center gap-2 bg-[#f0fdf4] border border-[#bbf7d0] rounded-xl px-3 py-2.5">
-          <div className="w-8 h-8 bg-[#1b4332] rounded-lg flex items-center justify-center shrink-0">
-            <TreePine className="w-4 h-4 text-[#95d5b2]" />
+        {/* ── TREE IMPACT — compact ── */}
+        <div className="flex items-center gap-2 bg-[#f0fdf4] border border-[#bbf7d0] rounded-lg px-2.5 py-2">
+          <div className="w-6 h-6 bg-[#1b4332] rounded-md flex items-center justify-center shrink-0">
+            <TreePine className="w-3 h-3 text-[#95d5b2]" />
           </div>
           <div>
-            <p className="text-xs font-bold text-[#1b4332]">
+            <p className="text-[11px] font-bold text-[#1b4332]">
               🌱 {t('shop.includes')} {product.trees} {adoptedText}
             </p>
-            <p className="text-[10px] text-[#2d6a4f]/70">{t('shop.plantedIn')} 🇬🇹</p>
+            <p className="text-[9px] text-[#2d6a4f]/70">{t('shop.plantedIn')} 🇬🇹</p>
           </div>
         </div>
 
@@ -324,21 +324,21 @@ function ProductCard({ product, onAddToCart, t }: { product: Product; onAddToCar
         {product.colors.length > 1 && (
           <div className="flex items-center gap-2">
             <span className="text-[11px] text-gray-400 uppercase tracking-wide w-12 shrink-0">{t('shop.color')}</span>
-            <div className="flex gap-1.5">
+            <div className="flex gap-1">
               {product.colors.map((c) => (
                 <button
                   key={c.gelatoCode}
                   onClick={() => setSelectedColor(c)}
                   title={t(c.nameKey)}
-                  className={`w-5 h-5 rounded-full border-2 transition-all ${
+                  className={`w-4 h-4 rounded-full border-2 transition-all ${
                     selectedColor.gelatoCode === c.gelatoCode
-                      ? 'border-[#1b4332] scale-125 shadow-sm'
+                      ? 'border-[#1b4332] scale-110 shadow-sm'
                       : 'border-gray-200 hover:border-gray-400'
                   }`}
                   style={{ backgroundColor: c.hex }}
                 />
               ))}
-              <span className="text-[11px] text-gray-500 ml-1 self-center">{t(selectedColor.nameKey)}</span>
+              <span className="text-[10px] text-gray-500 ml-1 self-center">{t(selectedColor.nameKey)}</span>
             </div>
           </div>
         )}
@@ -347,12 +347,12 @@ function ProductCard({ product, onAddToCart, t }: { product: Product; onAddToCar
         {product.sizes.length > 1 && (
           <div className="flex items-start gap-2">
             <span className="text-[11px] text-gray-400 uppercase tracking-wide w-12 shrink-0 pt-1">{t('shop.size')}</span>
-            <div className="flex flex-wrap gap-1">
+            <div className="flex flex-wrap gap-0.5">
               {product.sizes.map((s) => (
                 <button
                   key={s.label}
                   onClick={() => setSelectedSize(s)}
-                  className={`px-2 py-0.5 text-xs font-medium rounded border transition-all ${
+                  className={`px-1.5 py-0.5 text-[10px] font-medium rounded border transition-all ${
                     selectedSize.label === s.label
                       ? 'bg-[#1b4332] text-white border-[#1b4332]'
                       : 'bg-white text-gray-500 border-gray-200 hover:border-[#1b4332] hover:text-[#1b4332]'
@@ -369,7 +369,7 @@ function ProductCard({ product, onAddToCart, t }: { product: Product; onAddToCar
         <motion.button
           onClick={handleAdd}
           whileTap={{ scale: 0.97 }}
-          className={`mt-auto w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all ${
+          className={`mt-auto w-full py-2.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all ${
             added
               ? 'bg-[#95d5b2] text-[#1b4332]'
               : 'bg-[#1b4332] text-white hover:bg-[#2d6a4f]'
