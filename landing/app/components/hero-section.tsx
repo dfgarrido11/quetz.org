@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import Image from 'next/image';
 import { useLanguage } from '@/lib/language-context';
@@ -11,6 +11,7 @@ interface HeroSectionProps {
 
 export default function HeroSection({ onOpenModal }: HeroSectionProps) {
   const { t, isRTL } = useLanguage();
+  const shouldReduceMotion = useReducedMotion();
 
   return (
     <section id="inicio" className={`relative h-screen w-full overflow-hidden ${isRTL ? 'rtl' : 'ltr'}`}>
@@ -99,11 +100,41 @@ export default function HeroSection({ onOpenModal }: HeroSectionProps) {
           transition={{ duration: 0.8, delay: 1.1 }}
           className="absolute bottom-8 left-1/2 -translate-x-1/2"
         >
-          <a href="#arboles" className="animate-bounce block">
+          <a href="#arboles" className="animate-bounce motion-reduce:animate-none block">
             <ChevronDown className="w-8 h-8 text-white/70" />
           </a>
         </motion.div>
       </div>
+
+      {/* Quetzito Aventurero - flotando en el hero */}
+      <motion.div
+        initial={{ opacity: 0, x: isRTL ? -80 : 80 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.9, delay: 1.2 }}
+        className={`absolute hidden lg:block ${isRTL ? 'left-8 xl:left-20' : 'right-8 xl:right-20'} top-1/2 -translate-y-1/2 pointer-events-none z-10`}
+      >
+        <motion.div
+          animate={shouldReduceMotion ? {} : {
+            y: [0, -15, 0],
+            rotate: [-3, 3, -3],
+          }}
+          transition={{
+            duration: 4,
+            repeat: Infinity,
+            ease: 'easeInOut',
+            repeatType: 'mirror' as const,
+          }}
+          className="relative w-40 h-48 xl:w-52 xl:h-64 drop-shadow-2xl"
+        >
+          <Image
+            src="/mascot/quetzito-aventurero.png"
+            alt="Quetzito aventurero"
+            fill
+            className="object-contain"
+            sizes="(max-width: 1280px) 160px, 208px"
+          />
+        </motion.div>
+      </motion.div>
     </section>
   );
 }
