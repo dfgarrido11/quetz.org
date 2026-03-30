@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { NextResponse } from 'next/server'
 
 // ─── Real Gelato Product Catalog (verified UIDs) ─────────────────────────────

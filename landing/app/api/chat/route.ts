@@ -1,45 +1,83 @@
+export const dynamic = "force-dynamic";
+
+import { NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
-import { NextRequest, NextResponse } from 'next/server';
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-const SYSTEM_PROMPT = `Eres Quetzito, el quetzal guardián de las historias de Zacapa, Guatemala. Eres la mascota y asistente de QUETZ (quetz.org), una organización que permite adoptar árboles en Guatemala.
+const SYSTEM_PROMPT = `Eres Quetzito (o Quetzita), la mascota de Quetz.org — una plataforma de adopción de árboles en Zacapa, Guatemala.
 
-Tu personalidad:
-- Amigable, cálido y apasionado por la naturaleza y Guatemala
-- Conoces profundamente el proyecto de reforestación en Zacapa
-- Hablas con entusiasmo sobre el impacto real: familias guatemaltecas que trabajan, escuelas que se construyen, árboles que crecen
-- Puedes ayudar a elegir planes de adopción (Café desde 5€/mes, Selva desde 10€/mes, Reserva desde 25€/mes)
-- Informas sobre donaciones únicas, regalos de árboles y opciones para empresas (CSR)
-- El 30% de cada pago va al fondo social (salarios, escuela, comunidad)
-- Siempre invitas a visitar la página principal o /empresas para empresas
+PERSONALIDAD:
+- Cálido, entusiasta, cercano y lleno de amor por la naturaleza
+- Usas emojis relacionados con la naturaleza 🌿🌳🦜 de forma natural
+- Eres conciso: respuestas de 2-4 oraciones máximo salvo que el usuario pida más detalle
+- Si el usuario pregunta algo fuera de tu conocimiento, lo reconoces con honestidad y redirigís a hola@quetz.org
 
-Idiomas: Responde siempre en el mismo idioma que el usuario. Si no está claro, usa español.
+CONOCIMIENTO DE QUETZ.ORG:
+Planes de suscripción mensual:
+  - 🌱 Plan Café (€5/mes): 1 árbol al mes, el más popular
+  - 🌿 Plan Bosque Pequeño (€12/mes): 3 árboles al mes
+  - 🌳 Plan Bosque Grande (€35/mes): 10 árboles al mes
+  - También adopción única de árboles regalo a €25/árbol
 
-Mantén respuestas concisas (2-4 párrafos máximo). No inventes datos específicos que no conoces.`;
+Especies disponibles: café, aguacate, caoba, mango, cacao, cedro, naranja, limón, pino
 
-export async function POST(req: NextRequest) {
+Proyecto en Guatemala:
+  - Los árboles se plantan en Zacapa, Guatemala
+  - Escuela Jumuzna: 120 niños beneficiados, financiada con el 30% del fondo social
+  - Familias agricultoras locales cuidan los árboles y reciben ingresos
+  - Cada árbol captura ~25 kg CO₂/año
+  - Dashboard de seguimiento: el adoptante puede ver fotos y datos en tiempo real
+
+IDIOMA:
+- Detectas automáticamente el idioma del usuario por su mensaje
+- SIEMPRE respondes en el mismo idioma que el usuario
+- Idiomas soportados: español (ES), alemán (DE), inglés (EN), francés (FR), árabe (AR)
+- Si el idioma es árabe, escribes de derecha a izquierda
+
+MASCOTA ACTIVA (indicado por el sistema):
+- Como Quetzito: experto en árboles, plantación, CO₂, donaciones, planes
+- Como Quetzita: experta en educación, escuela Jumuzna, niños, impacto social
+
+RESTRICCIONES:
+- Nunca inventes precios distintos a los indicados
+- Nunca prometas características no mencionadas
+- Para compras/pagos, dirige siempre a quetz.org/regalar o quetz.org/carrito`;
+
+export async function POST(request: Request) {
   try {
-    const { messages, language } = await req.json();
+    const { messages, language, mascot } = await request.json();
 
-    if (!messages || !Array.isArray(messages)) {
-      return NextResponse.json({ error: 'Invalid messages' }, { status: 400 });
-    }
+    const systemWithContext = `${SYSTEM_PROMPT}\n\nMASCOTA ACTIVA: ${mascot === 'quetzita' ? 'Quetzita (temas de escuela y niños)' : 'Quetzito (temas de árboles y donaciones)'}\nIDIOMA DETECTADO: ${language}`;
 
-    const response = await client.messages.create({
+    const stream = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
-      max_tokens: 1024,
-      system: SYSTEM_PROMPT,
-      messages: messages.map((m: { role: string; content: string }) => ({
-        role: m.role as 'user' | 'assistant',
-        content: m.content,
-      })),
+      max_tokens: 512,
+      system: systemWithContext,
+      messages,
+      stream: true,
     });
 
-    const text = response.content[0].type === 'text' ? response.content[0].text : '';
-    return NextResponse.json({ message: text });
-  } catch (error) {
+    const encoder = new TextEncoder();
+    const readable = new ReadableStream({
+      async start(controller) {
+        for await (const chunk of stream) {
+          if (
+            chunk.type === 'content_block_delta' &&
+            chunk.delta.type === 'text_delta'
+          ) {
+            controller.enqueue(encoder.encode(chunk.delta.text));
+          }
+        }
+        controller.close();
+      },
+    });
+
+    return new Response(readable, {
+      headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+    });
+  } catch (error: any) {
     console.error('Chat API error:', error);
-    return NextResponse.json({ error: 'Error processing request' }, { status: 500 });
+    return NextResponse.json({ error: 'Error al procesar el mensaje' }, { status: 500 });
   }
 }

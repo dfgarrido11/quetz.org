@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { NextRequest, NextResponse } from 'next/server'
 
 const GELATO_API_KEY = process.env.GELATO_API_KEY || ''
