@@ -663,7 +663,7 @@ function ContactSection() {
             </p>
             <div className="space-y-6">
               {[
-                { icon: MapPin, text: "Erkrath, NRW, Deutschland" },
+                { icon: MapPin, text: "Düsseldorf-Unterbach, NRW, Deutschland" },
                 { icon: Globe, text: "www.quetz.org" },
               ].map((item, i) => (
                 <div key={i} className="flex items-center gap-3">
@@ -778,7 +778,7 @@ function Footer() {
             <a href="#" className="text-white/40 hover:text-white/70 transition-colors">AGB</a>
           </div>
           <p className="text-white/30 text-sm">
-            © 2026 quetz.org — Erkrath, Deutschland
+            © 2026 quetz.org — Düsseldorf-Unterbach, Deutschland
           </p>
         </div>
       </div>
