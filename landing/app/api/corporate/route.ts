@@ -1,56 +1,59 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { NextResponse } from 'next/server';
+import nodemailer from 'nodemailer';
 
-export async function POST(req: NextRequest) {
+export async function POST(request: Request) {
+  const transporter = nodemailer.createTransport({
+    host: 'smtp.zoho.eu',
+    port: 587,
+    secure: false, // STARTTLS
+    auth: {
+      user: 'hola@quetz.org',
+      pass: process.env.ZOHO_SMTP_PASSWORD,
+    },
+  });
   try {
-    const body = await req.json()
-    const { companyName, country, contactName, email, phone, employees, message } = body
+    const { companyName, country, contactName, email, phone, employees, message } = await request.json();
 
-    if (!companyName || !contactName || !email) {
-      return NextResponse.json({ error: 'Faltan campos obligatorios' }, { status: 400 })
+    if (!companyName || !contactName || !email || !employees) {
+      return NextResponse.json({ error: 'Faltan campos requeridos' }, { status: 400 });
     }
 
-    // Save to Prisma CorporateLead model
-    const lead = await prisma.corporateLead.create({
-      data: {
-        companyName,
-        country: country || '',
-        contactName,
-        contactEmail: email,
-        contactPhone: phone || null,
-        employeeCount: employees ? String(employees) : null,
-        message: message || null,
-        status: 'new',
-      },
-    })
+    // Notificar al equipo interno
+    await transporter.sendMail({
+      from: '"Quetz" <hola@quetz.org>',
+      to: 'dgarrido@quetz.org',
+      subject: `Nueva solicitud corporativa — ${companyName}`,
+      html: `
+        <h2>Nueva solicitud de propuesta corporativa</h2>
+        <table style="border-collapse:collapse;width:100%">
+          <tr><td style="padding:6px;font-weight:bold">Empresa</td><td style="padding:6px">${companyName}</td></tr>
+          <tr><td style="padding:6px;font-weight:bold">País</td><td style="padding:6px">${country}</td></tr>
+          <tr><td style="padding:6px;font-weight:bold">Contacto</td><td style="padding:6px">${contactName}</td></tr>
+          <tr><td style="padding:6px;font-weight:bold">Email</td><td style="padding:6px">${email}</td></tr>
+          <tr><td style="padding:6px;font-weight:bold">Teléfono</td><td style="padding:6px">${phone || '—'}</td></tr>
+          <tr><td style="padding:6px;font-weight:bold">Empleados</td><td style="padding:6px">${employees}</td></tr>
+          <tr><td style="padding:6px;font-weight:bold">Mensaje</td><td style="padding:6px">${message || '—'}</td></tr>
+        </table>
+      `,
+    });
 
-    // Also insert into raw csr_leads table (ensure it exists)
-    try {
-      await prisma.$executeRaw`
-        CREATE TABLE IF NOT EXISTS csr_leads (
-          id SERIAL PRIMARY KEY,
-          company_name VARCHAR(255),
-          contact_name VARCHAR(255),
-          contact_email VARCHAR(255),
-          employees INTEGER,
-          country VARCHAR(100),
-          message TEXT,
-          status VARCHAR(50) DEFAULT 'pending',
-          created_at TIMESTAMP DEFAULT NOW()
-        )
-      `
-      await prisma.$executeRaw`
-        INSERT INTO csr_leads (company_name, contact_name, contact_email, employees, country, message)
-        VALUES (${companyName}, ${contactName}, ${email}, ${employees ? parseInt(employees) : null}, ${country || ''}, ${message || ''})
-      `
-    } catch (rawErr) {
-      // Non-fatal: CorporateLead already saved
-      console.error('csr_leads insert error (non-fatal):', rawErr)
-    }
+    // Confirmar al cliente
+    await transporter.sendMail({
+      from: '"Quetz" <hola@quetz.org>',
+      to: email,
+      subject: 'Hemos recibido tu solicitud — Quetz',
+      html: `
+        <h2>Hola, ${contactName}</h2>
+        <p>Gracias por tu interés en el programa de sostenibilidad corporativa de Quetz.</p>
+        <p>Hemos recibido tu solicitud para <strong>${companyName}</strong> y nos pondremos en contacto contigo en las próximas 24–48 horas.</p>
+        <br/>
+        <p>El equipo de Quetz</p>
+      `,
+    });
 
-    return NextResponse.json({ success: true, id: lead.id })
-  } catch (error: any) {
-    console.error('Corporate lead error:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Error sending corporate email:', error);
+    return NextResponse.json({ error: 'Error al enviar la solicitud' }, { status: 500 });
   }
 }
