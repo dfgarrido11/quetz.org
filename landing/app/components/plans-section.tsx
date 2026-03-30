@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
+import Image from 'next/image';
 import { Check, Coffee, Trees, TreeDeciduous, Sparkles, ShoppingCart } from 'lucide-react';
 import { useLanguage } from '@/lib/language-context';
 import { useCartStore } from '@/lib/cart-store';
@@ -15,8 +16,10 @@ interface PlansSectionProps {
 export default function PlansSection({ onSelectPlan }: PlansSectionProps) {
   const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.1 });
   const { t, isRTL } = useLanguage();
+  const shouldReduceMotion = useReducedMotion();
   const addItem = useCartStore((state) => state.addItem);
   const [addedPlan, setAddedPlan] = useState<string | null>(null);
+  const [celebratingPlan, setCelebratingPlan] = useState<string | null>(null);
 
   // Base prices in EUR
   const plans = [
@@ -88,8 +91,8 @@ export default function PlansSection({ onSelectPlan }: PlansSectionProps) {
           {plans.map((plan, index) => {
             const Icon = plan.icon;
             return (
+              <div key={plan.id} className="relative">
               <motion.div
-                key={plan.id}
                 initial={{ opacity: 0, y: 40 }}
                 animate={inView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.6, delay: index * 0.15 }}
@@ -156,6 +159,10 @@ export default function PlansSection({ onSelectPlan }: PlansSectionProps) {
                             speciesSelection: [],
                           });
                           setAddedPlan(plan.id);
+                          if (!shouldReduceMotion) {
+                            setCelebratingPlan(plan.id);
+                            setTimeout(() => setCelebratingPlan(null), 1000);
+                          }
                           setTimeout(() => setAddedPlan(null), 1500);
                         }}
                         className={`w-full py-3 px-4 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 ${
@@ -171,6 +178,34 @@ export default function PlansSection({ onSelectPlan }: PlansSectionProps) {
                   </AnimatePresence>
                 </div>
               </motion.div>
+
+              {/* Quetzito celebración al añadir plan al carrito */}
+              <AnimatePresence>
+                {celebratingPlan === plan.id && (
+                  <motion.div
+                    initial={{ scale: 0, opacity: 0, y: 0, rotate: 0 }}
+                    animate={{
+                      scale: [0, 1.3, 1, 1.1, 1],
+                      opacity: [0, 1, 1, 1, 0],
+                      y: [0, -40, -20, -30, -10],
+                      rotate: [0, -20, 20, -10, 5],
+                    }}
+                    transition={{ duration: 1, times: [0, 0.25, 0.5, 0.75, 1] }}
+                    className="absolute inset-0 z-40 pointer-events-none flex items-center justify-center"
+                  >
+                    <div className="relative w-24 h-28 drop-shadow-xl">
+                      <Image
+                        src="/mascot/quetzito-aventurero.png"
+                        alt="¡Celebración!"
+                        fill
+                        className="object-contain"
+                        sizes="96px"
+                      />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+              </div>
             );
           })}
         </div>

@@ -1,12 +1,41 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import Image from 'next/image';
 import { School, Heart } from 'lucide-react';
 import { useLanguage } from '@/lib/language-context';
-import { formatCurrency } from '@/lib/translations';
+import { formatCurrency, Language } from '@/lib/translations';
+
+function CountUpNumber({ target, language }: { target: number; language: Language }) {
+  const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.1 });
+  const [count, setCount] = useState(0);
+  const shouldReduceMotion = useReducedMotion();
+
+  useEffect(() => {
+    if (!inView || shouldReduceMotion) {
+      setCount(target);
+      return;
+    }
+    const duration = 2000;
+    const steps = 60;
+    const increment = target / steps;
+    let current = 0;
+    const timer = setInterval(() => {
+      current += increment;
+      if (current >= target) {
+        setCount(target);
+        clearInterval(timer);
+      } else {
+        setCount(current);
+      }
+    }, duration / steps);
+    return () => clearInterval(timer);
+  }, [target, inView, shouldReduceMotion]);
+
+  return <span ref={ref}>{formatCurrency(count, language, true)}</span>;
+}
 
 interface SchoolSectionProps {
   onOpenDonation: () => void;
@@ -24,6 +53,7 @@ const FALLBACK_GOAL = 50000;
 
 export default function SchoolSection({ onOpenDonation }: SchoolSectionProps) {
   const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.1 });
+  const shouldReduceMotion = useReducedMotion();
   const [schoolData, setSchoolData] = useState<SchoolData>({ 
     raisedEur: FALLBACK_RAISED, 
     goalEur: FALLBACK_GOAL,
@@ -69,6 +99,36 @@ export default function SchoolSection({ onOpenDonation }: SchoolSectionProps) {
         />
         <div className="absolute inset-0 bg-black/60" />
       </div>
+
+      {/* Quetzita Maestra - aparece desde la derecha al hacer scroll */}
+      <motion.div
+        initial={{ opacity: 0, x: isRTL ? -100 : 100 }}
+        animate={inView ? { opacity: 1, x: 0 } : {}}
+        transition={{ duration: 0.8, delay: 0.6 }}
+        className={`hidden lg:block absolute ${isRTL ? 'left-0' : 'right-0'} bottom-0 z-10 pointer-events-none`}
+      >
+        <motion.div
+          animate={shouldReduceMotion ? {} : {
+            y: [0, -10, 0],
+            rotate: [2, -2, 2],
+          }}
+          transition={{
+            duration: 4,
+            repeat: Infinity,
+            ease: 'easeInOut',
+            repeatType: 'mirror' as const,
+          }}
+          className="relative w-32 h-44 xl:w-40 xl:h-52 drop-shadow-2xl"
+        >
+          <Image
+            src="/mascot/quetzito-maestro.png"
+            alt="Quetzita Maestra"
+            fill
+            className="object-contain object-bottom"
+            sizes="160px"
+          />
+        </motion.div>
+      </motion.div>
 
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 text-center">
         <motion.div
@@ -130,7 +190,7 @@ export default function SchoolSection({ onOpenDonation }: SchoolSectionProps) {
               <div>
                 <span className="text-gray-300 text-sm">{t('school.raised')}</span>
                 <span className="text-2xl sm:text-3xl font-bold text-white block">
-                  {formatCurrency(currentAmount, language, true)}
+                  <CountUpNumber target={currentAmount} language={language} />
                 </span>
               </div>
               <div className={isRTL ? 'text-left' : 'text-right'}>

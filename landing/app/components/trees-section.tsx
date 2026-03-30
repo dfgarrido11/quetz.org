@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import Image from 'next/image';
 import { Leaf, Plus, Minus, ShoppingCart, Check } from 'lucide-react';
@@ -23,9 +23,11 @@ interface TreesSectionProps {
 export default function TreesSection({ onSelectTree, isGiftMode = false }: TreesSectionProps) {
   const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.1 });
   const { t, isRTL } = useLanguage();
+  const shouldReduceMotion = useReducedMotion();
   const addItem = useCartStore((state) => state.addItem);
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [addedToCart, setAddedToCart] = useState<Record<string, boolean>>({});
+  const [celebrating, setCelebrating] = useState<Record<string, boolean>>({});
 
   // Base price in EUR
   const BASE_PRICE = 25;
@@ -93,8 +95,8 @@ export default function TreesSection({ onSelectTree, isGiftMode = false }: Trees
             className="w-32 h-40 relative"
           >
             <Image
-              src="/mascot/quetzito-maestro.png"
-              alt="Quetzito Maestro"
+              src="/mascot/quetzito-aventurero.png"
+              alt="Quetzito Aventurero"
               fill
               className="object-contain object-center drop-shadow-xl"
               sizes="128px"
@@ -145,8 +147,8 @@ export default function TreesSection({ onSelectTree, isGiftMode = false }: Trees
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
           {trees?.map?.((tree, index) => (
+            <div key={tree.id} className="relative">
             <motion.div
-              key={tree.id}
               initial={{ opacity: 0, y: 30 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.5, delay: index * 0.1 }}
@@ -236,6 +238,10 @@ export default function TreesSection({ onSelectTree, isGiftMode = false }: Trees
                           isGift: isGiftMode,
                         });
                         setAddedToCart(prev => ({ ...prev, [tree.id]: true }));
+                        if (!shouldReduceMotion) {
+                          setCelebrating(prev => ({ ...prev, [tree.id]: true }));
+                          setTimeout(() => setCelebrating(prev => ({ ...prev, [tree.id]: false })), 1000);
+                        }
                         setTimeout(() => {
                           setAddedToCart(prev => ({ ...prev, [tree.id]: false }));
                           setQuantities(prev => ({ ...prev, [tree.id]: 1 }));
@@ -259,6 +265,34 @@ export default function TreesSection({ onSelectTree, isGiftMode = false }: Trees
                 </button>
               </div>
             </motion.div>
+
+            {/* Quetzito celebración al añadir al carrito */}
+            <AnimatePresence>
+              {celebrating[tree.id] && (
+                <motion.div
+                  initial={{ scale: 0, opacity: 0, y: 0, rotate: 0 }}
+                  animate={{
+                    scale: [0, 1.3, 1, 1.1, 1],
+                    opacity: [0, 1, 1, 1, 0],
+                    y: [0, -40, -20, -30, -10],
+                    rotate: [0, -20, 20, -10, 5],
+                  }}
+                  transition={{ duration: 1, times: [0, 0.25, 0.5, 0.75, 1] }}
+                  className="absolute inset-0 z-30 pointer-events-none flex items-center justify-center"
+                >
+                  <div className="relative w-24 h-28 drop-shadow-xl">
+                    <Image
+                      src="/mascot/quetzito-aventurero.png"
+                      alt="¡Celebración!"
+                      fill
+                      className="object-contain"
+                      sizes="96px"
+                    />
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+            </div>
           ))}
         </div>
       </div>
