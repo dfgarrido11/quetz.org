@@ -1,3 +1,5 @@
+'use client';
+
 /*
  * DESIGN: "Rainforest Canopy" — Immersive Vertical Descent
  * - Full-bleed cinematic sections simulating forest layers
