@@ -37,7 +37,6 @@ const ALL_TREE_SPECIES = [
   { id: 'cedro', name: 'Cedro', image: '/trees/cedro.jpg' },
   { id: 'naranja', name: 'Naranja', image: '/trees/naranja.jpg' },
   { id: 'limon', name: 'Limón', image: '/trees/limon.jpg' },
-  { id: 'pino', name: 'Pino', image: '/trees/pino.jpg' },
 ];
 
 // Plan Café solo permite Pino o Ciprés
