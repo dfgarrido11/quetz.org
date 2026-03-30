@@ -462,7 +462,7 @@ function CartSidebar({
           <div key={`${item.id}-${item.selectedSize.label}`} className="flex gap-3 bg-gray-50 rounded-xl p-3">
             <div className="w-16 h-16 bg-white rounded-lg overflow-hidden shrink-0 border border-gray-100 flex items-center justify-center p-1">
               <Image
-                src={`/mascot/${item.mascot}.png`}
+                src={item.mockupFront}
                 alt={t(item.nameKey)}
                 width={56}
                 height={56}
@@ -601,7 +601,7 @@ export default function ShopPage() {
               i.selectedColor.gelatoCode
             ),
             mascot: i.mascot,
-            imageUrl: `https://www.quetz.org/mascot/${i.mascot}.png`,
+            imageUrl: `https://www.quetz.org${i.mockupFront}`,
           })),
         }),
       })
