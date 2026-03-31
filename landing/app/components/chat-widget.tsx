@@ -408,7 +408,7 @@ export default function ChatWidget() {
               transition={{ delay: 2 }}
               className="absolute right-full mr-3 bottom-3 bg-white text-gray-700 text-xs rounded-xl px-3 py-2 shadow-lg border border-gray-100 whitespace-nowrap pointer-events-none"
             >
-              🌿 ¡Hola! ¿Te ayudo?
+              🌿 {({'es':'¡Hola! ¿Te ayudo?','de':'Hallo! Kann ich helfen?','en':'Hi! Can I help?','fr':'Salut! Je peux aider?','ar':'مرحبا! هل أساعدك؟'} as Record<Lang,string>)[lang]}
             </motion.div>
           )}
         </AnimatePresence>

@@ -80,11 +80,7 @@ export default function Header({ onOpenModal }: HeaderProps) {
             {/* For Companies Link */}
             <Link
               href="/empresas"
-              className={`flex items-center gap-1.5 text-sm font-semibold px-3 py-1.5 rounded-full transition-all ${
-                scrolled
-                  ? 'bg-quetz-blue text-white hover:bg-blue-800'
-                  : 'bg-white/20 text-white hover:bg-white/30 border border-white/40'
-              }`}
+              className={`flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-quetz-green ${scrolled ? 'text-gray-700' : 'text-white'}`}
             >
               <Building2 className="w-4 h-4" />
               {t('header.forCompanies')}
@@ -180,9 +176,9 @@ export default function Header({ onOpenModal }: HeaderProps) {
               <Link
                 href="/empresas"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-2 bg-quetz-blue text-white font-semibold py-2.5 px-4 rounded-xl"
+                className={`flex items-center gap-2 text-gray-700 font-medium py-2 ${isRTL ? 'flex-row-reverse' : ''}`}
               >
-                <Building2 className="w-5 h-5" />
+                <Building2 className="w-4 h-4 text-quetz-green" />
                 <span>{t('header.forCompanies')}</span>
               </Link>
 
