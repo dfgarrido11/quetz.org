@@ -106,7 +106,7 @@ export default function AdoptionModal({ isOpen, onClose, tree }: AdoptionModalPr
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Error al procesar');
+        throw new Error(data.error || t('payment.processingError'));
       }
 
       // Redirect to Stripe Checkout
@@ -116,7 +116,7 @@ export default function AdoptionModal({ isOpen, onClose, tree }: AdoptionModalPr
         throw new Error('No se recibió URL de pago');
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al conectar con el sistema de pago');
+      setError(err instanceof Error ? err.message : t('payment.connectionError'));
       setIsLoading(false);
     }
   };

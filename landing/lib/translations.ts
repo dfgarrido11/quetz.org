@@ -141,7 +141,9 @@ export const translations: Record<Language, Record<string, string>> = {
     'donation.success': '¡Gracias por tu donación!',
     'donation.successMsg': 'En breve recibirás instrucciones para completar el pago',
     'donation.invalidAmount': 'Monto inválido',
-    
+    'payment.processingError': 'Error al procesar',
+    'payment.connectionError': 'Error al conectar con el sistema de pago',
+
     // Payment
     'payment.secureStripe': 'Pago seguro con Stripe',
     'payment.payNow': 'Pagar ahora',
@@ -155,6 +157,9 @@ export const translations: Record<Language, Record<string, string>> = {
     'lead.submit': 'Quiero ser parte',
     'lead.success': '¡Gracias por unirte!',
     'lead.successMsg': 'Te contactaremos pronto.',
+    'lead.toastSuccess': '¡Gracias! Te contactaremos pronto.',
+    'lead.toastError': 'Error al enviar. Intenta de nuevo.',
+    'lead.toastNetworkError': 'Error de red. Intenta de nuevo.',
     
     // Mascot messages
     'mascot.hello': '¡Hola! Soy Quetzito 🌱',
@@ -250,6 +255,9 @@ export const translations: Record<Language, Record<string, string>> = {
     'cart.chooseSpecies': 'Elige tus especies:',
     'cart.isGift': 'Es un regalo',
     'cart.isGiftFor': 'Es para regalar',
+    'cart.giftRecipientRequired': 'Por favor completa los datos del destinatario para todos los regalos',
+    'cart.speciesRequired': 'Por favor selecciona las especies para tus suscripciones',
+    'cart.checkoutError': 'Error al procesar el pago',
     'cart.recipientName': 'Nombre *',
     'cart.recipientEmail': 'Email *',
     'cart.giftMessage': 'Mensaje (opcional)',
@@ -403,6 +411,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'myForest.treesPerMonth': 'árbol(es)/mes',
     'myForest.perMonth': '€/mes',
     'myForest.active': 'Activa',
+    'myForest.giftTo': 'Para',
     'myForest.nextRenewal': 'Próxima renovación:',
 
     // ========== SHOP ==========
@@ -617,7 +626,9 @@ export const translations: Record<Language, Record<string, string>> = {
     'donation.success': 'Danke für deine Spende!',
     'donation.successMsg': 'Du erhältst in Kürze Zahlungsanweisungen',
     'donation.invalidAmount': 'Ungültiger Betrag',
-    
+    'payment.processingError': 'Verarbeitungsfehler',
+    'payment.connectionError': 'Fehler beim Verbinden mit dem Zahlungssystem',
+
     // Payment
     'payment.secureStripe': 'Sichere Zahlung mit Stripe',
     'payment.payNow': 'Jetzt zahlen',
@@ -631,7 +642,10 @@ export const translations: Record<Language, Record<string, string>> = {
     'lead.submit': 'Ich möchte dabei sein',
     'lead.success': 'Danke für deine Anmeldung!',
     'lead.successMsg': 'Wir werden dich bald kontaktieren.',
-    
+    'lead.toastSuccess': 'Danke! Wir werden uns bald melden.',
+    'lead.toastError': 'Fehler beim Senden. Versuche es erneut.',
+    'lead.toastNetworkError': 'Netzwerkfehler. Versuche es erneut.',
+
     // Mascot messages
     'mascot.hello': 'Hallo! Ich bin Quetzito 🌱',
     'mascot.adopt': 'Möchtest du einen Baum adoptieren?',
@@ -727,6 +741,9 @@ export const translations: Record<Language, Record<string, string>> = {
     'cart.chooseSpecies': 'Wähle deine Arten:',
     'cart.isGift': 'Es ist ein Geschenk',
     'cart.isGiftFor': 'Zum Verschenken',
+    'cart.giftRecipientRequired': 'Bitte fülle die Angaben für alle Beschenkten aus',
+    'cart.speciesRequired': 'Bitte wähle die Baumarten für deine Abonnements aus',
+    'cart.checkoutError': 'Fehler bei der Zahlungsverarbeitung',
     'cart.recipientName': 'Name *',
     'cart.recipientEmail': 'E-Mail *',
     'cart.giftMessage': 'Nachricht (optional)',
@@ -874,6 +891,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'myForest.treesPerMonth': 'Baum/Bäume pro Monat',
     'myForest.perMonth': '€/Monat',
     'myForest.active': 'Aktiv',
+    'myForest.giftTo': 'Für',
     'myForest.nextRenewal': 'Nächste Verlängerung:',
 
     // ========== SHOP ==========
@@ -1088,7 +1106,9 @@ export const translations: Record<Language, Record<string, string>> = {
     'donation.success': 'Thank you for your donation!',
     'donation.successMsg': 'You will receive payment instructions soon',
     'donation.invalidAmount': 'Invalid amount',
-    
+    'payment.processingError': 'Processing error',
+    'payment.connectionError': 'Error connecting to the payment system',
+
     // Payment
     'payment.secureStripe': 'Secure payment with Stripe',
     'payment.payNow': 'Pay now',
@@ -1102,7 +1122,10 @@ export const translations: Record<Language, Record<string, string>> = {
     'lead.submit': 'I want to be part',
     'lead.success': 'Thanks for joining!',
     'lead.successMsg': 'We will contact you soon.',
-    
+    'lead.toastSuccess': 'Thank you! We\'ll get back to you soon.',
+    'lead.toastError': 'Error sending. Please try again.',
+    'lead.toastNetworkError': 'Network error. Please try again.',
+
     // Mascot messages
     'mascot.hello': 'Hello! I am Quetzito 🌱',
     'mascot.adopt': 'Would you like to adopt a tree?',
@@ -1198,6 +1221,9 @@ export const translations: Record<Language, Record<string, string>> = {
     'cart.chooseSpecies': 'Choose your species:',
     'cart.isGift': 'It\'s a gift',
     'cart.isGiftFor': 'It\'s a gift for someone',
+    'cart.giftRecipientRequired': 'Please complete recipient data for all gifts',
+    'cart.speciesRequired': 'Please select tree species for your subscriptions',
+    'cart.checkoutError': 'Error processing payment',
     'cart.recipientName': 'Name *',
     'cart.recipientEmail': 'Email *',
     'cart.giftMessage': 'Message (optional)',
@@ -1357,6 +1383,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'myForest.treesPerMonth': 'tree(s)/month',
     'myForest.perMonth': '€/month',
     'myForest.active': 'Active',
+    'myForest.giftTo': 'For',
     'myForest.nextRenewal': 'Next renewal:',
 
     // ========== SHOP ==========
@@ -1601,7 +1628,9 @@ export const translations: Record<Language, Record<string, string>> = {
     'donation.success': 'Merci pour ton don !',
     'donation.successMsg': 'Tu recevras bientôt les instructions de paiement',
     'donation.invalidAmount': 'Montant invalide',
-    
+    'payment.processingError': 'Erreur de traitement',
+    'payment.connectionError': 'Erreur de connexion au système de paiement',
+
     // Payment
     'payment.secureStripe': 'Paiement sécurisé avec Stripe',
     'payment.payNow': 'Payer maintenant',
@@ -1615,7 +1644,10 @@ export const translations: Record<Language, Record<string, string>> = {
     'lead.submit': 'Je veux en faire partie',
     'lead.success': "Merci de t'être inscrit !",
     'lead.successMsg': 'Nous te contacterons bientôt.',
-    
+    'lead.toastSuccess': 'Merci ! Nous te contacterons bientôt.',
+    'lead.toastError': 'Erreur lors de l\'envoi. Réessayez.',
+    'lead.toastNetworkError': 'Erreur réseau. Réessayez.',
+
     // Mascot messages
     'mascot.hello': 'Salut ! Je suis Quetzito 🌱',
     'mascot.adopt': 'Tu veux adopter un arbre ?',
@@ -1711,6 +1743,9 @@ export const translations: Record<Language, Record<string, string>> = {
     'cart.chooseSpecies': 'Choisis tes espèces :',
     'cart.isGift': 'C\'est un cadeau',
     'cart.isGiftFor': 'C\'est pour offrir',
+    'cart.giftRecipientRequired': 'Veuillez compléter les données du destinataire pour tous les cadeaux',
+    'cart.speciesRequired': 'Veuillez sélectionner les espèces pour vos abonnements',
+    'cart.checkoutError': 'Erreur lors du traitement du paiement',
     'cart.recipientName': 'Nom *',
     'cart.recipientEmail': 'Email *',
     'cart.giftMessage': 'Message (optionnel)',
@@ -1870,6 +1905,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'myForest.treesPerMonth': 'arbre(s)/mois',
     'myForest.perMonth': '€/mois',
     'myForest.active': 'Actif',
+    'myForest.giftTo': 'Pour',
     'myForest.nextRenewal': 'Prochain renouvellement :',
     // Gift page extras
     'gift.tagline': 'Le cadeau qui grandit',
@@ -2110,7 +2146,9 @@ export const translations: Record<Language, Record<string, string>> = {
     'donation.success': 'شكراً لتبرعك!',
     'donation.successMsg': 'ستتلقى تعليمات الدفع قريباً',
     'donation.invalidAmount': 'مبلغ غير صالح',
-    
+    'payment.processingError': 'خطأ في المعالجة',
+    'payment.connectionError': 'خطأ في الاتصال بنظام الدفع',
+
     // Payment
     'payment.secureStripe': 'دفع آمن عبر Stripe',
     'payment.payNow': 'ادفع الآن',
@@ -2124,7 +2162,10 @@ export const translations: Record<Language, Record<string, string>> = {
     'lead.submit': 'أريد أن أكون جزءاً',
     'lead.success': 'شكراً لانضمامك!',
     'lead.successMsg': 'سنتواصل معك قريباً.',
-    
+    'lead.toastSuccess': 'شكراً! سنتواصل معك قريباً.',
+    'lead.toastError': 'خطأ في الإرسال. حاول مرة أخرى.',
+    'lead.toastNetworkError': 'خطأ في الشبكة. حاول مرة أخرى.',
+
     // Mascot messages
     'mascot.hello': 'مرحباً! أنا كيتزيتو 🌱',
     'mascot.adopt': 'هل تريد تبني شجرة؟',
@@ -2220,6 +2261,9 @@ export const translations: Record<Language, Record<string, string>> = {
     'cart.chooseSpecies': 'اختر أنواعك:',
     'cart.isGift': 'إنها هدية',
     'cart.isGiftFor': 'هي للإهداء',
+    'cart.giftRecipientRequired': 'يرجى إكمال بيانات المستلم لجميع الهدايا',
+    'cart.speciesRequired': 'يرجى اختيار الأنواع لاشتراكاتك',
+    'cart.checkoutError': 'خطأ في معالجة الدفع',
     'cart.recipientName': 'الاسم *',
     'cart.recipientEmail': 'البريد الإلكتروني *',
     'cart.giftMessage': 'رسالة (اختياري)',
@@ -2379,6 +2423,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'myForest.treesPerMonth': 'شجرة/أشجار شهرياً',
     'myForest.perMonth': '€/شهر',
     'myForest.active': 'نشط',
+    'myForest.giftTo': 'إلى',
     'myForest.nextRenewal': 'التجديد القادم:',
     // Gift page extras
     'gift.tagline': 'الهدية التي تنمو',

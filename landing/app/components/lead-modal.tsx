@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { useLanguage } from "@/lib/language-context";
 
 interface LeadModalProps {
   open: boolean;
@@ -13,6 +14,7 @@ interface LeadModalProps {
 }
 
 export function LeadModal({ open, onOpenChange }: LeadModalProps) {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     nombre: "",
     email: "",
@@ -38,14 +40,14 @@ export function LeadModal({ open, onOpenChange }: LeadModalProps) {
         body: JSON.stringify(formData),
       });
       if (res.ok) {
-        toast.success("¡Gracias! Te contactaremos pronto.");
+        toast.success(t('lead.toastSuccess'));
         onOpenChange(false);
         setFormData({ nombre: "", email: "", pais: "" });
       } else {
-        toast.error("Error al enviar. Intenta de nuevo.");
+        toast.error(t('lead.toastError'));
       }
     } catch {
-      toast.error("Error de red. Intenta de nuevo.");
+      toast.error(t('lead.toastNetworkError'));
     } finally {
       setIsLoading(false);
     }

@@ -93,7 +93,7 @@ export default function CartPage() {
       (item) => !item.giftRecipient?.name || !item.giftRecipient?.email
     );
     if (invalidGifts.length > 0) {
-      setError('Por favor completa los datos del destinatario para todos los regalos');
+      setError(t('cart.giftRecipientRequired'));
       return;
     }
 
@@ -103,7 +103,7 @@ export default function CartPage() {
       return totalSelected !== (item.treesPerMonth || 0);
     });
     if (invalidSubs.length > 0) {
-      setError('Por favor selecciona las especies para tus suscripciones');
+      setError(t('cart.speciesRequired'));
       return;
     }
 
@@ -136,14 +136,14 @@ export default function CartPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Error al procesar el pago');
+        throw new Error(data.error || t('cart.checkoutError'));
       }
 
       if (data.url) {
         window.location.href = data.url;
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al procesar');
+      setError(err instanceof Error ? err.message : t('payment.processingError'));
       setIsCheckingOut(false);
     }
   };

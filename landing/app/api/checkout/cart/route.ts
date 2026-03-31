@@ -28,6 +28,18 @@ export async function POST(req: NextRequest) {
 
     const metadata: Record<string, string> = {}
     if (language) metadata.language = language
+
+    // Pass purchase details for webhook DB record creation
+    const firstItem = items[0]
+    if (firstItem) {
+      if (firstItem.planId) metadata.planId = firstItem.planId
+      if (firstItem.treeId) metadata.treeId = firstItem.treeId
+      if (firstItem.planName || firstItem.treeName) metadata.planName = firstItem.planName || firstItem.treeName || ''
+      if (firstItem.treesPerMonth) metadata.treesPerMonth = String(firstItem.treesPerMonth)
+      const totalQty = items.reduce((s: number, i: any) => s + (i.quantity || 1), 0)
+      metadata.quantity = String(totalQty)
+    }
+
     if (hasGift) {
       metadata.isGift = "true"
       if (recipientName) metadata.recipientName = recipientName

@@ -1113,6 +1113,66 @@ export async function POST(req: NextRequest) {
           console.error("Failed to send welcome email:", mailErr);
         }
       }
+
+      // ── CREATE DB RECORD ──────────────────────────────────────────────────
+      try {
+        if (customerEmail) {
+          let user = await prisma.user.findUnique({ where: { email: customerEmail } });
+          if (!user) {
+            user = await prisma.user.create({
+              data: {
+                email: customerEmail,
+                name: customerName || null,
+              },
+            });
+          }
+
+          const treeId = metadata.treeId;
+          const planId = metadata.planId || metadata.treeId;
+          const qty = parseInt(metadata.quantity || "1", 10);
+
+          if (session.mode === "subscription" && session.subscription) {
+            await prisma.subscription.create({
+              data: {
+                userId: user.id,
+                planId: planId || "cafe",
+                planName: planName || metadata.planName || "Plan",
+                treesPerMonth: parseInt(metadata.treesPerMonth || "1", 10),
+                priceEurMonth: amount,
+                stripeSubscriptionId: String(session.subscription),
+                status: "active",
+              },
+            });
+          } else {
+            // One-time adoption — need a treeId FK
+            let resolvedTreeId = treeId;
+            if (!resolvedTreeId && planId) {
+              const tree = await prisma.tree.findUnique({ where: { species: planId } });
+              resolvedTreeId = tree?.id;
+            }
+            if (!resolvedTreeId) {
+              const fallback = await prisma.tree.findFirst({ where: { active: true } });
+              resolvedTreeId = fallback?.id;
+            }
+            if (resolvedTreeId) {
+              await prisma.adoption.create({
+                data: {
+                  userId: user.id,
+                  treeId: resolvedTreeId,
+                  quantity: qty,
+                  amount,
+                  currency: currency.toUpperCase(),
+                  status: "active",
+                },
+              });
+            } else {
+              console.error("[webhook] No tree found — skipping adoption record");
+            }
+          }
+        }
+      } catch (dbErr) {
+        console.error("[webhook] Failed to create DB record:", dbErr);
+      }
     }
   }
 

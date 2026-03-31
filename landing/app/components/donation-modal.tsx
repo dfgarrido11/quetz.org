@@ -112,7 +112,7 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Error al procesar');
+        throw new Error(data.error || t('payment.processingError'));
       }
 
       // Redirect to Stripe Checkout
@@ -122,7 +122,7 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
         throw new Error('No se recibió URL de pago');
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al conectar con el sistema de pago');
+      setError(err instanceof Error ? err.message : t('payment.connectionError'));
       setIsLoading(false);
     }
   };
