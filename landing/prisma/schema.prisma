@@ -1,6 +1,6 @@
 generator client {
     provider = "prisma-client-js"
-    binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
+    binaryTargets = ["native", "debian-openssl-3.0.x", "linux-musl-openssl-3.0.x", "linux-musl-arm64-openssl-3.0.x"]
     output = "../node_modules/.prisma/client"
 }
 
@@ -12,7 +12,7 @@ datasource db {
 model Lead {
   id        Int      @id @default(autoincrement())
   nombre    String
-  email     String
+  email     String   @unique
   pais      String
   createdAt DateTime @default(now())
 }

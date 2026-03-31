@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 
 export type CartItemType = 'one-time' | 'subscription';
 
@@ -134,6 +134,10 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name: 'quetz-cart',
+      storage: createJSONStorage(() => {
+        if (typeof window === 'undefined') return sessionStorage;
+        return localStorage;
+      }),
     }
   )
 );
