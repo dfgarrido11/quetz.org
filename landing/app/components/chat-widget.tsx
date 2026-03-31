@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, Mic, MicOff, Volume2, VolumeX, MessageCircle } from 'lucide-react';
+import { useLanguage } from '@/lib/language-context';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -65,10 +66,14 @@ function browserLang(): Lang {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function ChatWidget() {
+  const { language: siteLanguage } = useLanguage();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
-  const [lang, setLang] = useState<Lang>('es');
+  const [lang, setLang] = useState<Lang>(() => {
+    const map: Record<string, Lang> = { es: 'es', de: 'de', en: 'en', fr: 'fr', ar: 'ar' };
+    return map[siteLanguage] ?? browserLang();
+  });
   const [mascot, setMascot] = useState<Mascot>('quetzito');
   const [streaming, setStreaming] = useState(false);
   const [listening, setListening] = useState(false);
@@ -79,13 +84,19 @@ export default function ChatWidget() {
   const recognitionRef = useRef<any>(null);
   const synthRef = useRef<SpeechSynthesis | null>(null);
 
-  // Init language + greeting
+  // Sync language with site-level language context
   useEffect(() => {
-    const detected = browserLang();
-    setLang(detected);
-    setMessages([{ role: 'assistant', content: LANG_GREETINGS[detected] }]);
+    if (siteLanguage) {
+      setLang(siteLanguage as Lang);
+    }
+  }, [siteLanguage]);
+
+  // Init greeting + speech synthesis
+  useEffect(() => {
+    const initial = siteLanguage as Lang ?? browserLang();
+    setMessages([{ role: 'assistant', content: LANG_GREETINGS[initial] }]);
     if (typeof window !== 'undefined') synthRef.current = window.speechSynthesis;
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Scroll to bottom on new messages
   useEffect(() => {
