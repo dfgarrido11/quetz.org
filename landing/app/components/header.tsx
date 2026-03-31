@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
-import { Menu, X, User, Leaf, ShoppingCart, ShoppingBag } from 'lucide-react';
+import { Menu, X, User, Leaf, ShoppingCart, ShoppingBag, Building2 } from 'lucide-react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '@/lib/language-context';
@@ -77,6 +77,19 @@ export default function Header({ onOpenModal }: HeaderProps) {
               </a>
             )) ?? null}
             
+            {/* For Companies Link */}
+            <Link
+              href="/empresas"
+              className={`flex items-center gap-1.5 text-sm font-semibold px-3 py-1.5 rounded-full transition-all ${
+                scrolled
+                  ? 'bg-quetz-blue text-white hover:bg-blue-800'
+                  : 'bg-white/20 text-white hover:bg-white/30 border border-white/40'
+              }`}
+            >
+              <Building2 className="w-4 h-4" />
+              {t('header.forCompanies')}
+            </Link>
+
             {/* Shop Link */}
             <Link
               href="/shop"
@@ -163,6 +176,16 @@ export default function Header({ onOpenModal }: HeaderProps) {
             className="md:hidden bg-quetz-cream/95 backdrop-blur-md border-t"
           >
             <div className={`px-4 py-4 space-y-3 ${isRTL ? 'text-right' : 'text-left'}`}>
+              {/* Mobile For Companies */}
+              <Link
+                href="/empresas"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-2 bg-quetz-blue text-white font-semibold py-2.5 px-4 rounded-xl"
+              >
+                <Building2 className="w-5 h-5" />
+                <span>{t('header.forCompanies')}</span>
+              </Link>
+
               {/* Mobile Shop */}
               <Link
                 href="/shop"
