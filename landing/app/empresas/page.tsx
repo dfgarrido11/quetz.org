@@ -1,432 +1,807 @@
 'use client';
 
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Building2, Users, BarChart3, Mail, Send, CheckCircle, Loader2, ArrowLeft, TreePine, Globe, Heart, Camera, Shield, TrendingUp, Leaf, MapPin, Award } from 'lucide-react';
-import { useLanguage } from '@/lib/language-context';
-import Link from 'next/link';
-import Image from 'next/image';
+/*
+ * DESIGN: "Rainforest Canopy" — Immersive Vertical Descent
+ * - Full-bleed cinematic sections simulating forest layers
+ * - Color gradient from bright emerald (canopy) to dark earth (roots)
+ * - Montserrat for headlines, Work Sans for body
+ * - Emotional first, data second
+ * - Target: German CSR decision-makers (Mittelstand)
+ */
 
-const packages = [
-  {
-    id: 'starter',
-    trees: '25–50',
-    pricePerTree: '25€',
-    color: 'from-emerald-500 to-green-600',
-    features: ['perEmployee', 'certificate', 'dashboard', 'quarterlyReport'],
-  },
-  {
-    id: 'growth',
-    trees: '50–200',
-    pricePerTree: '22€',
-    color: 'from-quetz-blue to-indigo-600',
-    popular: true,
-    features: ['perEmployee', 'certificate', 'dashboard', 'monthlyReport', 'brandedPage', 'photoUpdates'],
-  },
-  {
-    id: 'impact',
-    trees: '200+',
-    pricePerTree: '19€',
-    color: 'from-amber-500 to-orange-600',
-    features: ['perEmployee', 'certificate', 'dashboard', 'monthlyReport', 'brandedPage', 'photoUpdates', 'schoolNaming', 'eventDay'],
-  },
-];
+import { useState, useEffect, useRef } from "react";
+import { motion, useInView } from "framer-motion";
+import { TreePine, Users, School, MapPin, BarChart3, Shield, ArrowDown, Check, ChevronRight, Leaf, Globe, Heart } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-export default function EmpresasPage() {
-  const { t, isRTL, language } = useLanguage();
-  const [formData, setFormData] = useState({
-    companyName: '',
-    country: '',
-    contactName: '',
-    email: '',
-    phone: '',
-    employees: '',
-    message: '',
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
+// CDN image URLs
+const IMAGES = {
+  hero: "https://d2xsxph8kpxj0f.cloudfront.net/310419663030501357/hWt6Qa2JAiXm9muvwfCGAp/hero-canopy-KsLbgKCZWapLbdtMVAC26c.webp",
+  workers: "https://d2xsxph8kpxj0f.cloudfront.net/310419663030501357/hWt6Qa2JAiXm9muvwfCGAp/understory-workers-jhLXmGeuAGSeLgeTe97sXg.webp",
+  children: "https://d2xsxph8kpxj0f.cloudfront.net/310419663030501357/hWt6Qa2JAiXm9muvwfCGAp/school-children-FiGg2g9cBma6G5ArjEs5Gy.webp",
+  roots: "https://d2xsxph8kpxj0f.cloudfront.net/310419663030501357/hWt6Qa2JAiXm9muvwfCGAp/forest-floor-roots-4HVX5t3CGzqRnqYzdrThsP.webp",
+  dashboard: "https://d2xsxph8kpxj0f.cloudfront.net/310419663030501357/hWt6Qa2JAiXm9muvwfCGAp/dashboard-mockup-AxefkSuahphtAKpcdH4tBU.webp",
+};
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    try {
-      const res = await fetch('/api/corporate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || t('corporate.sendError'));
+/* ─── Animated Counter ─── */
+function AnimatedCounter({ end, suffix = "", duration = 2000 }: { end: number; suffix?: string; duration?: number }) {
+  const [count, setCount] = useState(0);
+  const ref = useRef<HTMLSpanElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
+
+  useEffect(() => {
+    if (!isInView) return;
+    let start = 0;
+    const step = end / (duration / 16);
+    const timer = setInterval(() => {
+      start += step;
+      if (start >= end) {
+        setCount(end);
+        clearInterval(timer);
+      } else {
+        setCount(Math.floor(start));
       }
-      setIsSuccess(true);
-    } catch (error) {
-      console.error('Error:', error);
-      alert(t('corporate.sendError'));
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+    }, 16);
+    return () => clearInterval(timer);
+  }, [isInView, end, duration]);
 
-  const differentiators = [
-    { icon: Globe, key: 'diff1' },
-    { icon: Heart, key: 'diff2' },
-    { icon: Camera, key: 'diff3' },
-    { icon: Shield, key: 'diff4' },
-  ];
+  return <span ref={ref}>{count.toLocaleString("de-DE")}{suffix}</span>;
+}
 
-  const impactNumbers = [
-    { value: '9', labelKey: 'impactSpecies' },
-    { value: '100%', labelKey: 'impactTransparency' },
-    { value: '30%', labelKey: 'impactSocial' },
-    { value: '25kg', labelKey: 'impactCO2' },
-  ];
-
-  if (isSuccess) {
-    return (
-      <div className="min-h-screen bg-quetz-cream flex items-center justify-center p-4">
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          className="bg-white rounded-2xl shadow-xl p-8 max-w-md text-center"
-        >
-          <div className="w-16 h-16 bg-quetz-green/10 rounded-full flex items-center justify-center mx-auto mb-4">
-            <CheckCircle className="w-8 h-8 text-quetz-green" />
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('corporate.successTitle')}</h2>
-          <p className="text-gray-600 mb-6">{t('corporate.successMsg')}</p>
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 bg-quetz-green text-white font-semibold py-3 px-6 rounded-xl hover:bg-green-700 transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            <span>{t('corporate.back')}</span>
-          </Link>
-        </motion.div>
-      </div>
-    );
-  }
+/* ─── Section Wrapper ─── */
+function FadeInSection({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-80px" });
 
   return (
-    <div className={`min-h-screen bg-quetz-cream ${isRTL ? 'rtl' : 'ltr'}`}>
-      {/* Hero */}
-      <div className="relative bg-gradient-to-br from-quetz-green via-emerald-700 to-green-900 text-white overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-10 left-10 w-40 h-40 border border-white/30 rounded-full" />
-          <div className="absolute bottom-10 right-10 w-60 h-60 border border-white/20 rounded-full" />
-          <div className="absolute top-1/2 left-1/2 w-80 h-80 border border-white/10 rounded-full -translate-x-1/2 -translate-y-1/2" />
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 40 }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.8, delay, ease: "easeOut" }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+/* ─── Navigation ─── */
+function Navbar() {
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handler = () => setScrolled(window.scrollY > 60);
+    window.addEventListener("scroll", handler);
+    return () => window.removeEventListener("scroll", handler);
+  }, []);
+
+  return (
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? "bg-[#081C15]/90 backdrop-blur-md shadow-lg" : "bg-transparent"}`}>
+      <div className="container flex items-center justify-between py-4">
+        <a href="#" className="flex items-center gap-2">
+          <Leaf className="w-7 h-7 text-[#52B788]" />
+          <span className="font-[Montserrat] font-bold text-xl text-white tracking-tight">quetz.org</span>
+        </a>
+        <div className="hidden md:flex items-center gap-8">
+          <a href="#impact" className="text-white/80 hover:text-white text-sm font-medium transition-colors">Impact</a>
+          <a href="#transparenz" className="text-white/80 hover:text-white text-sm font-medium transition-colors">Transparenz</a>
+          <a href="#preise" className="text-white/80 hover:text-white text-sm font-medium transition-colors">Preise</a>
+          <a href="#kontakt" className="text-white/80 hover:text-white text-sm font-medium transition-colors">Kontakt</a>
         </div>
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16 sm:py-24 relative z-10">
-          <Link href="/" className="inline-flex items-center gap-2 text-white/70 hover:text-white mb-8 transition-colors text-sm">
-            <ArrowLeft className="w-4 h-4" />
-            <span>{t('corporate.back')}</span>
-          </Link>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="max-w-3xl"
-          >
-            <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-medium mb-6">
-              <TreePine className="w-4 h-4" />
-              <span>{t('corporate.badge')}</span>
-            </div>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-6 leading-tight">
-              {t('corporate.heroTitle')}
-            </h1>
-            <p className="text-lg sm:text-xl text-white/90 mb-8 max-w-2xl leading-relaxed">
-              {t('corporate.heroSubtitle')}
-            </p>
-            <div className="flex flex-wrap gap-4">
-              <a href="#packages" className="bg-white text-quetz-green font-bold py-3 px-8 rounded-xl hover:bg-gray-100 transition-colors text-lg">
-                {t('corporate.seePricing')}
-              </a>
-              <a href="#form" className="border-2 border-white/50 text-white font-semibold py-3 px-8 rounded-xl hover:bg-white/10 transition-colors text-lg">
-                {t('corporate.requestProposal')}
-              </a>
-            </div>
-          </motion.div>
-        </div>
+        <a href="#kontakt">
+          <Button className="bg-[#52B788] hover:bg-[#40916C] text-white font-[Montserrat] font-semibold text-sm px-6">
+            Jetzt starten
+          </Button>
+        </a>
+      </div>
+    </nav>
+  );
+}
+
+/* ─── HERO: Canopy Layer ─── */
+function HeroSection() {
+  return (
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      {/* Background image */}
+      <div className="absolute inset-0">
+        <img src={IMAGES.hero} alt="Regenwald Guatemala" className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#081C15]/60 via-[#081C15]/40 to-[#081C15]/80" />
       </div>
 
-      {/* Impact Numbers Bar */}
-      <div className="bg-white border-b">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            {impactNumbers.map((item, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 * i }}
-              >
-                <div className="text-2xl sm:text-3xl font-bold text-quetz-green">{item.value}</div>
-                <div className="text-sm text-gray-600 mt-1">{t(`corporate.${item.labelKey}`)}</div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Why QUETZ vs competitors */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16">
+      {/* Content */}
+      <div className="relative z-10 container text-center pt-24">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-12"
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 0.3 }}
         >
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">{t('corporate.whyTitle')}</h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">{t('corporate.whySubtitle')}</p>
+          <p className="text-[#B7E4C7] font-[Montserrat] font-semibold text-sm tracking-[0.2em] uppercase mb-6">
+            Nachhaltigkeitspartner für den deutschen Mittelstand
+          </p>
+          <h1 className="font-[Montserrat] font-900 text-4xl md:text-6xl lg:text-7xl text-white leading-[1.05] max-w-5xl mx-auto mb-6">
+            Aufforstung, die Ihr
+            <span className="block text-[#52B788]">Unternehmen verändert.</span>
+          </h1>
+          <p className="text-white/80 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
+            Jeder Baum schafft einen Arbeitsplatz. Jedes Abo finanziert eine Schule.
+            100% transparent, GPS-getrackt, CSRD-konform.
+          </p>
         </motion.div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {differentiators.map((diff, i) => {
-            const Icon = diff.icon;
-            return (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.1 * i }}
-                className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow border border-gray-100"
-              >
-                <div className="w-12 h-12 bg-quetz-green/10 rounded-xl flex items-center justify-center mb-4">
-                  <Icon className="w-6 h-6 text-quetz-green" />
-                </div>
-                <h3 className="font-bold text-gray-900 mb-2">{t(`corporate.${diff.key}Title`)}</h3>
-                <p className="text-gray-600 text-sm leading-relaxed">{t(`corporate.${diff.key}Text`)}</p>
-              </motion.div>
-            );
-          })}
-        </div>
-      </div>
 
-      {/* Pricing Packages */}
-      <div id="packages" className="bg-white py-16">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">{t('corporate.pricingTitle')}</h2>
-            <p className="text-gray-600 max-w-xl mx-auto">{t('corporate.pricingSubtitle')}</p>
-          </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.8 }}
+          className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16"
+        >
+          <a href="/empresas">
+            <Button size="lg" className="bg-[#52B788] hover:bg-[#40916C] text-white font-[Montserrat] font-bold text-base px-8 py-6 shadow-xl shadow-[#52B788]/20">
+              Jetzt starten
+              <ChevronRight className="ml-2 w-5 h-5" />
+            </Button>
+          </a>
+          <a href="#impact">
+            <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 font-[Montserrat] font-semibold text-base px-8 py-6 bg-transparent">
+              Impact entdecken
+              <ArrowDown className="ml-2 w-5 h-5" />
+            </Button>
+          </a>
+        </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {packages.map((pkg, i) => (
-              <motion.div
-                key={pkg.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.15 * i }}
-                className={`relative rounded-2xl overflow-hidden ${
-                  pkg.popular ? 'ring-2 ring-quetz-blue shadow-xl scale-105' : 'shadow-md'
-                }`}
-              >
-                {pkg.popular && (
-                  <div className="bg-quetz-blue text-white text-center py-2 text-sm font-bold">
-                    {t('corporate.popular')}
-                  </div>
-                )}
-                <div className="bg-white p-6 sm:p-8">
-                  <h3 className="text-xl font-bold text-gray-900 mb-1">{t(`corporate.pkg${pkg.id}Name`)}</h3>
-                  <p className="text-gray-500 text-sm mb-4">{pkg.trees} {t('corporate.trees')}</p>
-                  <div className="flex items-baseline gap-1 mb-6">
-                    <span className="text-4xl font-bold text-gray-900">{pkg.pricePerTree}</span>
-                    <span className="text-gray-500">/ {t('corporate.perTree')}</span>
-                  </div>
-                  <ul className="space-y-3 mb-8">
-                    {pkg.features.map((feat) => (
-                      <li key={feat} className="flex items-start gap-3 text-sm">
-                        <CheckCircle className="w-5 h-5 text-quetz-green flex-shrink-0 mt-0.5" />
-                        <span className="text-gray-700">{t(`corporate.feat${feat}`)}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <a
-                    href="#form"
-                    className={`block w-full text-center py-3 px-6 rounded-xl font-semibold transition-all ${
-                      pkg.popular
-                        ? 'bg-gradient-to-r from-quetz-blue to-indigo-600 text-white hover:shadow-lg'
-                        : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
-                    }`}
-                  >
-                    {t('corporate.requestProposal')}
-                  </a>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* How it works */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16">
+        {/* Stats bar */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-12"
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 1.2 }}
+          className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto"
         >
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">{t('corporate.howItWorks')}</h2>
+          {[
+            { value: 1500000, suffix: "+", label: "Hektar Waldverlust in Guatemala" },
+            { value: 120, suffix: "", label: "Kinder erhalten eine Schule" },
+            { value: 100, suffix: "%", label: "Transparenz per GPS-Tracking" },
+            { value: 22, suffix: " kg", label: "CO₂ pro Baum / Jahr absorbiert" },
+          ].map((stat, i) => (
+            <div key={i} className="text-center">
+              <p className="font-[Montserrat] font-800 text-2xl md:text-3xl text-[#52B788]">
+                <AnimatedCounter end={stat.value} suffix={stat.suffix} />
+              </p>
+              <p className="text-white/60 text-xs md:text-sm mt-1">{stat.label}</p>
+            </div>
+          ))}
         </motion.div>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {[1, 2, 3, 4].map((step) => (
-            <motion.div
-              key={step}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 * step }}
-              className="text-center"
-            >
-              <div className="w-12 h-12 bg-quetz-green text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
-                {step}
+      </div>
+
+      {/* Quetzito flotando */}
+      <motion.img
+        src="/mascot/quetzito-aventurero.png"
+        alt="Quetzito"
+        className="absolute bottom-24 right-8 md:right-24 w-28 md:w-40 z-20 pointer-events-none drop-shadow-2xl"
+        animate={{ y: [0, -18, 0], rotate: [-2, 2, -2] }}
+        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+      />
+
+      {/* Scroll indicator */}
+      <motion.div
+        className="absolute bottom-8 left-1/2 -translate-x-1/2"
+        animate={{ y: [0, 10, 0] }}
+        transition={{ duration: 2, repeat: Infinity }}
+      >
+        <ArrowDown className="w-6 h-6 text-white/40" />
+      </motion.div>
+    </section>
+  );
+}
+
+/* ─── PROBLEM: The Crisis ─── */
+function ProblemSection() {
+  return (
+    <section className="relative py-24 md:py-32 bg-[#1B4332]" id="impact">
+      <div className="container">
+        <FadeInSection>
+          <p className="text-[#B7E4C7] font-[Montserrat] font-semibold text-sm tracking-[0.15em] uppercase mb-4">Das Problem</p>
+          <h2 className="font-[Montserrat] font-800 text-3xl md:text-5xl text-white leading-tight max-w-3xl mb-8">
+            Guatemala hat 17% seiner Waldfläche verloren. 47% der Kinder brechen die Schule ab.
+          </h2>
+          <p className="text-[#B7E4C7]/80 text-lg max-w-2xl mb-16 leading-relaxed">
+            Gleichzeitig suchen deutsche Unternehmen nach glaubwürdigen CSR-Projekten für ihr CSRD-Reporting.
+            Die meisten Anbieter liefern nur CO₂-Zertifikate — ohne echten sozialen Impact.
+          </p>
+        </FadeInSection>
+
+        <div className="grid md:grid-cols-3 gap-8">
+          {[
+            { icon: TreePine, title: "Waldverlust", desc: "Seit 2001 hat Guatemala über 1,5 Millionen Hektar Wald verloren — eine Fläche größer als Schleswig-Holstein.", color: "#52B788" },
+            { icon: School, title: "Bildungskrise", desc: "47% der Kinder in ländlichen Gebieten schließen nicht einmal die Grundschule ab. Es fehlen Schulen und Lehrer.", color: "#E9C46A" },
+            { icon: Shield, title: "Greenwashing", desc: "80% der CO₂-Kompensationsprojekte sind nicht verifizierbar. Unternehmen riskieren Reputationsschäden.", color: "#E76F51" },
+          ].map((item, i) => (
+            <FadeInSection key={i} delay={i * 0.15}>
+              <div className="group">
+                <div className="w-14 h-14 rounded-full flex items-center justify-center mb-5" style={{ backgroundColor: `${item.color}20` }}>
+                  <item.icon className="w-7 h-7" style={{ color: item.color }} />
+                </div>
+                <h3 className="font-[Montserrat] font-bold text-xl text-white mb-3">{item.title}</h3>
+                <p className="text-[#B7E4C7]/70 leading-relaxed">{item.desc}</p>
               </div>
-              <p className="text-gray-700 font-medium">{t(`corporate.step${step}`)}</p>
-            </motion.div>
+            </FadeInSection>
           ))}
         </div>
       </div>
+    </section>
+  );
+}
 
-      {/* Form section */}
-      <div id="form" className="bg-white py-16">
-        <div className="max-w-2xl mx-auto px-4 sm:px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <div className="text-center mb-8">
-              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">{t('corporate.formTitle')}</h2>
-              <p className="text-gray-600">{t('corporate.formSubtitle')}</p>
+/* ─── SOLUTION: Understory Layer ─── */
+function SolutionSection() {
+  return (
+    <section className="relative overflow-hidden">
+      {/* Full-bleed image */}
+      <div className="relative min-h-[70vh] flex items-center">
+        <div className="absolute inset-0">
+          <img src={IMAGES.workers} alt="Aufforstung Guatemala" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#081C15]/90 via-[#081C15]/70 to-transparent" />
+        </div>
+        <div className="relative z-10 container py-24">
+          <FadeInSection>
+            <p className="text-[#52B788] font-[Montserrat] font-semibold text-sm tracking-[0.15em] uppercase mb-4">Die Lösung</p>
+            <h2 className="font-[Montserrat] font-800 text-3xl md:text-5xl text-white leading-tight max-w-2xl mb-8">
+              Ein Baum = Ein Job = Ein Schritt zur Schule.
+            </h2>
+          </FadeInSection>
+
+          <div className="grid sm:grid-cols-2 gap-6 max-w-2xl">
+            {[
+              { icon: TreePine, title: "Aufforstung", desc: "Heimische Baumarten, GPS-getrackt, von lokalen Familien gepflegt." },
+              { icon: Users, title: "Arbeitsplätze", desc: "Jeder Baum schafft faire Arbeit für guatemaltekische Familien." },
+              { icon: School, title: "Schulbau", desc: "Überschüsse finanzieren den Bau einer Schule für 120 Kinder." },
+              { icon: BarChart3, title: "CSRD-konform", desc: "Alle Daten für Ihr Nachhaltigkeitsreporting auf einem Dashboard." },
+            ].map((item, i) => (
+              <FadeInSection key={i} delay={i * 0.1}>
+                <div className="flex gap-4 items-start">
+                  <div className="w-10 h-10 rounded-lg bg-[#52B788]/20 flex items-center justify-center shrink-0 mt-0.5">
+                    <item.icon className="w-5 h-5 text-[#52B788]" />
+                  </div>
+                  <div>
+                    <h3 className="font-[Montserrat] font-bold text-white mb-1">{item.title}</h3>
+                    <p className="text-white/60 text-sm leading-relaxed">{item.desc}</p>
+                  </div>
+                </div>
+              </FadeInSection>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── TRANSPARENCY: Dashboard ─── */
+function TransparencySection() {
+  return (
+    <section className="relative py-24 md:py-32 bg-[#0D2818]" id="transparenz">
+      <div className="container">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <FadeInSection>
+            <p className="text-[#52B788] font-[Montserrat] font-semibold text-sm tracking-[0.15em] uppercase mb-4">Radikale Transparenz</p>
+            <h2 className="font-[Montserrat] font-800 text-3xl md:text-4xl text-white leading-tight mb-6">
+              Sehen Sie genau, wo Ihr Baum wächst.
+            </h2>
+            <p className="text-[#B7E4C7]/70 text-lg leading-relaxed mb-8">
+              Unser digitales Dashboard zeigt Ihnen in Echtzeit: GPS-Standort jedes Baumes,
+              CO₂-Absorption, Fortschritt des Schulbaus und die Familien, die Ihre Bäume pflegen.
+              Keine Blackbox — sondern greifbarer Impact für Ihr Reporting.
+            </p>
+            <div className="space-y-4">
+              {[
+                "GPS-Tracking jedes einzelnen Baumes",
+                "Echtzeit CO₂-Absorptionsdaten",
+                "Fortschritt des Schulbaus live verfolgen",
+                "Exportierbare Berichte für CSRD-Reporting",
+                "Personalisiertes Firmen-Dashboard",
+              ].map((item, i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <div className="w-5 h-5 rounded-full bg-[#52B788]/20 flex items-center justify-center shrink-0">
+                    <Check className="w-3 h-3 text-[#52B788]" />
+                  </div>
+                  <span className="text-white/80 text-sm">{item}</span>
+                </div>
+              ))}
             </div>
-            <form onSubmit={handleSubmit} className="bg-gray-50 rounded-2xl p-6 sm:p-8 space-y-5">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{t('corporate.companyName')}</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.companyName}
-                  onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-quetz-green focus:border-transparent bg-white"
-                  placeholder={t('corporate.companyPlaceholder')}
-                />
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('corporate.country')}</label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.country}
-                    onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-quetz-green focus:border-transparent bg-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('corporate.employees')}</label>
-                  <select
-                    required
-                    value={formData.employees}
-                    onChange={(e) => setFormData({ ...formData, employees: e.target.value })}
-                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-quetz-green focus:border-transparent bg-white"
-                  >
-                    <option value="">{t('corporate.selectEmployees')}</option>
-                    <option value="1-10">1–10</option>
-                    <option value="11-50">11–50</option>
-                    <option value="51-200">51–200</option>
-                    <option value="201-500">201–500</option>
-                    <option value="500+">500+</option>
-                  </select>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('corporate.contactName')}</label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.contactName}
-                    onChange={(e) => setFormData({ ...formData, contactName: e.target.value })}
-                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-quetz-green focus:border-transparent bg-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('corporate.contactEmail')}</label>
-                  <input
-                    type="email"
-                    required
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-quetz-green focus:border-transparent bg-white"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{t('corporate.contactPhone')}</label>
-                <input
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  placeholder={t('corporate.phonePlaceholder')}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-quetz-green focus:border-transparent bg-white"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{t('corporate.message')}</label>
-                <textarea
-                  value={formData.message}
-                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                  rows={3}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-quetz-green focus:border-transparent bg-white"
-                  placeholder={t('corporate.messagePlaceholder')}
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full bg-gradient-to-r from-quetz-green to-emerald-600 text-white font-bold py-4 px-6 rounded-xl hover:shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 text-lg"
-              >
-                {isSubmitting ? (
-                  <><Loader2 className="w-5 h-5 animate-spin" /> {t('corporate.sending')}</>
-                ) : (
-                  <><Send className="w-5 h-5" /> {t('corporate.send')}</>
-                )}
-              </button>
-              <p className="text-sm text-gray-500 text-center">
-                {t('corporate.footer')}
-              </p>
-            </form>
-          </motion.div>
-        </div>
-      </div>
+          </FadeInSection>
 
-      {/* Trust section */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-12 text-center">
-        <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-500">
-          <div className="flex items-center gap-2">
-            <Shield className="w-5 h-5" />
-            <span>Stripe Verified</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Award className="w-5 h-5" />
-            <span>DSGVO Konform</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <MapPin className="w-5 h-5" />
-            <span>Zacapa, Guatemala</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Leaf className="w-5 h-5" />
-            <span>9 {t('corporate.treeSpecies')}</span>
+          <FadeInSection delay={0.2}>
+            <div className="relative">
+              <div className="absolute -inset-4 bg-[#52B788]/10 rounded-2xl blur-xl" />
+              <img
+                src={IMAGES.dashboard}
+                alt="quetz.org Dashboard"
+                className="relative rounded-xl shadow-2xl shadow-black/40 w-full object-contain"
+              />
+            </div>
+          </FadeInSection>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── SCHOOL: Children Layer ─── */
+function SchoolSection() {
+  return (
+    <section className="relative overflow-hidden">
+      <div className="relative min-h-[70vh] flex items-center">
+        <div className="absolute inset-0">
+          <img src={IMAGES.children} alt="Schulkinder Guatemala" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-l from-[#081C15]/90 via-[#081C15]/60 to-transparent" />
+        </div>
+        <div className="relative z-10 container py-24">
+          {/* Quetzito maestro */}
+          <motion.img
+            src="/mascot/quetzito-maestro.png"
+            alt="Quetzito Maestro"
+            className="hidden md:block absolute left-8 bottom-0 w-36 z-20 pointer-events-none drop-shadow-2xl"
+            animate={{ y: [0, -12, 0] }}
+            transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <div className="ml-auto max-w-xl">
+            <FadeInSection>
+              <p className="text-[#E9C46A] font-[Montserrat] font-semibold text-sm tracking-[0.15em] uppercase mb-4">Sozialer Impact</p>
+              <h2 className="font-[Montserrat] font-800 text-3xl md:text-5xl text-white leading-tight mb-6">
+                120 Kinder warten auf ihre Schule.
+              </h2>
+              <p className="text-white/70 text-lg leading-relaxed mb-8">
+                Mit jedem Baum-Abo finanzieren wir den Bau einer Schule in einer ländlichen Gemeinde Guatemalas.
+                Ihre Mitarbeiter können den Fortschritt live verfolgen — ein emotionales Erlebnis,
+                das weit über das übliche CSR-Projekt hinausgeht.
+              </p>
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <p className="font-[Montserrat] font-800 text-3xl text-[#E9C46A]">
+                    <AnimatedCounter end={50000} suffix=" €" />
+                  </p>
+                  <p className="text-white/50 text-sm mt-1">Ziel für den Schulbau</p>
+                </div>
+                <div>
+                  <p className="font-[Montserrat] font-800 text-3xl text-[#E9C46A]">
+                    <AnimatedCounter end={120} />
+                  </p>
+                  <p className="text-white/50 text-sm mt-1">Kinder erhalten Bildung</p>
+                </div>
+              </div>
+            </FadeInSection>
           </div>
         </div>
       </div>
+    </section>
+  );
+}
+
+/* ─── HOW IT WORKS ─── */
+function HowItWorksSection() {
+  const steps = [
+    { num: "01", title: "Abo wählen", desc: "Wählen Sie ein Paket für Ihr Unternehmen — ab 5 Bäume pro Monat." },
+    { num: "02", title: "Bäume werden gepflanzt", desc: "Lokale Familien pflanzen heimische Arten. Jeder Baum wird GPS-getrackt." },
+    { num: "03", title: "Impact verfolgen", desc: "Verfolgen Sie Wachstum, CO₂-Daten und Schulbau-Fortschritt live." },
+    { num: "04", title: "CSRD-Report erhalten", desc: "Exportieren Sie alle Daten direkt für Ihren Nachhaltigkeitsbericht." },
+  ];
+
+  return (
+    <section className="relative py-24 md:py-32 bg-[#2D6A4F]">
+      <div className="container">
+        <FadeInSection>
+          <div className="text-center mb-16">
+            <p className="text-[#B7E4C7] font-[Montserrat] font-semibold text-sm tracking-[0.15em] uppercase mb-4">So funktioniert's</p>
+            <h2 className="font-[Montserrat] font-800 text-3xl md:text-4xl text-white">In 4 Schritten zum messbaren Impact</h2>
+          </div>
+        </FadeInSection>
+
+        <div className="grid md:grid-cols-4 gap-8">
+          {steps.map((step, i) => (
+            <FadeInSection key={i} delay={i * 0.12}>
+              <div className="relative">
+                <span className="font-[Montserrat] font-900 text-6xl text-[#52B788]/20">{step.num}</span>
+                <h3 className="font-[Montserrat] font-bold text-lg text-white mt-2 mb-2">{step.title}</h3>
+                <p className="text-[#B7E4C7]/70 text-sm leading-relaxed">{step.desc}</p>
+                {i < 3 && (
+                  <div className="hidden md:block absolute top-8 -right-4 w-8">
+                    <ChevronRight className="w-6 h-6 text-[#52B788]/30" />
+                  </div>
+                )}
+              </div>
+            </FadeInSection>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── PRICING ─── */
+function PricingSection() {
+  const plans = [
+    {
+      name: "Starter",
+      price: "175",
+      period: "/ Monat",
+      trees: "5 Bäume / Monat",
+      desc: "Perfekt für kleine Teams und den Einstieg in nachhaltiges CSR.",
+      features: [
+        "5 GPS-getrackte Bäume",
+        "Firmen-Dashboard",
+        "Monatlicher Impact-Report",
+        "CSRD-Datenexport",
+        "Quetzito-Maskottchen für Ihre Kommunikation",
+      ],
+      highlight: false,
+    },
+    {
+      name: "Business",
+      price: "625",
+      period: "/ Monat",
+      trees: "20 Bäume / Monat",
+      desc: "Für Unternehmen, die CSR ernst nehmen und Mitarbeiter einbinden.",
+      features: [
+        "20 GPS-getrackte Bäume",
+        "Personalisiertes Firmen-Dashboard",
+        "Wöchentliche Updates & Fotos",
+        "Mitarbeiter-Engagement-Toolkit",
+        "Dedizierter Ansprechpartner",
+        "Ihr Logo auf der Schulwand",
+      ],
+      highlight: true,
+    },
+    {
+      name: "Enterprise",
+      price: "Individuell",
+      period: "",
+      trees: "50+ Bäume / Monat",
+      desc: "Maßgeschneiderte Lösungen für große Organisationen.",
+      features: [
+        "50+ GPS-getrackte Bäume",
+        "White-Label Dashboard",
+        "Vor-Ort-Besuche in Guatemala",
+        "Vollständige CSRD-Integration",
+        "PR & Medien-Paket",
+        "Exklusiver Schulpate",
+      ],
+      highlight: false,
+    },
+  ];
+
+  return (
+    <section className="relative py-24 md:py-32 bg-[#1B4332]" id="preise">
+      <div className="container">
+        <FadeInSection>
+          <div className="text-center mb-16">
+            <p className="text-[#52B788] font-[Montserrat] font-semibold text-sm tracking-[0.15em] uppercase mb-4">Preise</p>
+            <h2 className="font-[Montserrat] font-800 text-3xl md:text-4xl text-white mb-4">
+              Investieren Sie in echten Impact
+            </h2>
+            <p className="text-[#B7E4C7]/60 max-w-xl mx-auto">
+              Jeder Baum kostet €35/Monat. Davon fließen €5 direkt in den Schulbau.
+            </p>
+          </div>
+        </FadeInSection>
+
+        <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          {plans.map((plan, i) => (
+            <FadeInSection key={i} delay={i * 0.12}>
+              <div className={`relative p-8 rounded-2xl h-full flex flex-col ${plan.highlight
+                ? "bg-[#52B788]/15 border-2 border-[#52B788]/40"
+                : "bg-[#0D2818]/60 border border-[#52B788]/10"
+              }`}>
+                {plan.highlight && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#52B788] text-[#081C15] font-[Montserrat] font-bold text-xs px-4 py-1 rounded-full">
+                    Beliebteste Wahl
+                  </div>
+                )}
+                <h3 className="font-[Montserrat] font-bold text-xl text-white mb-1">{plan.name}</h3>
+                <p className="text-[#52B788] text-sm font-medium mb-4">{plan.trees}</p>
+                <div className="mb-4">
+                  <span className="font-[Montserrat] font-900 text-4xl text-white">€{plan.price}</span>
+                  <span className="text-white/40 text-sm">{plan.period}</span>
+                </div>
+                <p className="text-white/50 text-sm mb-6 leading-relaxed">{plan.desc}</p>
+                <div className="space-y-3 mb-8 flex-1">
+                  {plan.features.map((f, j) => (
+                    <div key={j} className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-[#52B788] mt-0.5 shrink-0" />
+                      <span className="text-white/70 text-sm">{f}</span>
+                    </div>
+                  ))}
+                </div>
+                <a href="#kontakt">
+                  <Button className={`w-full font-[Montserrat] font-semibold ${plan.highlight
+                    ? "bg-[#52B788] hover:bg-[#40916C] text-white"
+                    : "bg-white/10 hover:bg-white/20 text-white"
+                  }`}>
+                    Jetzt starten
+                  </Button>
+                </a>
+              </div>
+            </FadeInSection>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── EMPLOYER BRANDING ─── */
+function EmployerBrandingSection() {
+  return (
+    <section className="relative py-24 md:py-32 bg-[#0D2818]">
+      <div className="container">
+        <div className="grid lg:grid-cols-2 gap-16 items-center">
+          <FadeInSection>
+            <p className="text-[#E9C46A] font-[Montserrat] font-semibold text-sm tracking-[0.15em] uppercase mb-4">Employer Branding</p>
+            <h2 className="font-[Montserrat] font-800 text-3xl md:text-4xl text-white leading-tight mb-6">
+              Jeder Mitarbeiter bekommt seinen eigenen Baum.
+            </h2>
+            <p className="text-[#B7E4C7]/70 text-lg leading-relaxed mb-8">
+              Stellen Sie sich vor: Jeder Mitarbeiter von Ihrem Unternehmen erhält ein eigenes,
+              GPS-getracktes Bäumchen. Sie können online zusehen, wie es wächst, und wissen gleichzeitig,
+              dass ihr Baum einen lokalen Arbeitsplatz schafft.
+            </p>
+            <div className="grid grid-cols-3 gap-6">
+              {[
+                { icon: Heart, value: "87%", label: "höhere Mitarbeiterbindung" },
+                { icon: Globe, value: "3x", label: "mehr Social-Media-Reichweite" },
+                { icon: Leaf, value: "100%", label: "CSRD-konforme Daten" },
+              ].map((stat, i) => (
+                <div key={i} className="text-center">
+                  <stat.icon className="w-6 h-6 text-[#E9C46A] mx-auto mb-2" />
+                  <p className="font-[Montserrat] font-800 text-2xl text-white">{stat.value}</p>
+                  <p className="text-white/40 text-xs mt-1">{stat.label}</p>
+                </div>
+              ))}
+            </div>
+          </FadeInSection>
+
+          <FadeInSection delay={0.2}>
+            <div className="relative">
+              <div className="absolute -inset-4 bg-[#E9C46A]/5 rounded-2xl blur-xl" />
+              <img
+                src={IMAGES.roots}
+                alt="Wurzeln des Regenwaldes"
+                className="relative rounded-xl shadow-2xl shadow-black/40 w-full object-contain"
+              />
+            </div>
+          </FadeInSection>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── CO2 CALCULATOR ─── */
+function CalculatorSection() {
+  const [trees, setTrees] = useState(20);
+  const co2PerTree = 22;
+  const costPerTree = 35;
+  const schoolContribution = 5;
+
+  return (
+    <section className="relative py-24 md:py-32 bg-[#1B4332]">
+      <div className="container">
+        <FadeInSection>
+          <div className="text-center mb-12">
+            <p className="text-[#52B788] font-[Montserrat] font-semibold text-sm tracking-[0.15em] uppercase mb-4">Impact-Rechner</p>
+            <h2 className="font-[Montserrat] font-800 text-3xl md:text-4xl text-white mb-4">
+              Berechnen Sie Ihren Impact
+            </h2>
+          </div>
+        </FadeInSection>
+
+        <FadeInSection delay={0.15}>
+          <div className="max-w-3xl mx-auto bg-[#0D2818]/80 border border-[#52B788]/20 rounded-2xl p-8 md:p-12">
+            <div className="mb-8">
+              <label className="text-white/80 text-sm font-medium mb-3 block">
+                Anzahl Bäume pro Monat: <span className="text-[#52B788] font-[Montserrat] font-bold text-lg">{trees}</span>
+              </label>
+              <input
+                type="range"
+                min="5"
+                max="200"
+                step="5"
+                value={trees}
+                onChange={(e) => setTrees(Number(e.target.value))}
+                className="w-full h-2 rounded-full appearance-none cursor-pointer"
+                style={{
+                  background: `linear-gradient(to right, #52B788 ${((trees - 5) / 195) * 100}%, #0D2818 ${((trees - 5) / 195) * 100}%)`,
+                }}
+              />
+              <div className="flex justify-between text-white/30 text-xs mt-2">
+                <span>5</span>
+                <span>200</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {[
+                { label: "CO₂ / Jahr", value: `${(trees * co2PerTree * 12 / 1000).toFixed(1)} t`, icon: Leaf },
+                { label: "Kosten / Monat", value: `€${(trees * costPerTree).toLocaleString("de-DE")}`, icon: BarChart3 },
+                { label: "Schulbeitrag / Jahr", value: `€${(trees * schoolContribution * 12).toLocaleString("de-DE")}`, icon: School },
+                { label: "Arbeitsplätze", value: `${Math.ceil(trees / 10)}`, icon: Users },
+              ].map((item, i) => (
+                <div key={i} className="text-center">
+                  <item.icon className="w-5 h-5 text-[#52B788] mx-auto mb-2" />
+                  <p className="font-[Montserrat] font-800 text-xl md:text-2xl text-white">{item.value}</p>
+                  <p className="text-white/40 text-xs mt-1">{item.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </FadeInSection>
+      </div>
+    </section>
+  );
+}
+
+/* ─── CONTACT / CTA ─── */
+function ContactSection() {
+  const [formData, setFormData] = useState({ name: "", email: "", company: "", employees: "", message: "" });
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitted(true);
+  };
+
+  return (
+    <section className="relative py-24 md:py-32 bg-[#081C15]" id="kontakt">
+      <div className="container">
+        <div className="grid lg:grid-cols-2 gap-16">
+          <FadeInSection>
+            <p className="text-[#52B788] font-[Montserrat] font-semibold text-sm tracking-[0.15em] uppercase mb-4">Kontakt</p>
+            <h2 className="font-[Montserrat] font-800 text-3xl md:text-4xl text-white leading-tight mb-6">
+              Bereit, echten Impact zu schaffen?
+            </h2>
+            <p className="text-[#B7E4C7]/70 text-lg leading-relaxed mb-8">
+              Vereinbaren Sie ein kostenloses 15-minütiges Kennenlerngespräch. Wir zeigen Ihnen,
+              wie quetz.org perfekt in Ihre CSR-Strategie passt.
+            </p>
+            <div className="space-y-6">
+              {[
+                { icon: MapPin, text: "Erkrath, NRW, Deutschland" },
+                { icon: Globe, text: "www.quetz.org" },
+              ].map((item, i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <item.icon className="w-5 h-5 text-[#52B788]" />
+                  <span className="text-white/70">{item.text}</span>
+                </div>
+              ))}
+            </div>
+          </FadeInSection>
+
+          <FadeInSection delay={0.2}>
+            {submitted ? (
+              <div className="bg-[#52B788]/10 border border-[#52B788]/30 rounded-2xl p-12 text-center">
+                <div className="w-16 h-16 rounded-full bg-[#52B788]/20 flex items-center justify-center mx-auto mb-6">
+                  <Check className="w-8 h-8 text-[#52B788]" />
+                </div>
+                <h3 className="font-[Montserrat] font-bold text-xl text-white mb-2">Vielen Dank!</h3>
+                <p className="text-white/60">Wir melden uns innerhalb von 24 Stunden bei Ihnen.</p>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-white/60 text-sm mb-1.5 block">Ihr Name *</label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      className="w-full bg-[#0D2818] border border-[#52B788]/20 rounded-lg px-4 py-3 text-white placeholder:text-white/20 focus:border-[#52B788] focus:outline-none transition-colors"
+                      placeholder="Max Mustermann"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-white/60 text-sm mb-1.5 block">E-Mail *</label>
+                    <input
+                      type="email"
+                      required
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      className="w-full bg-[#0D2818] border border-[#52B788]/20 rounded-lg px-4 py-3 text-white placeholder:text-white/20 focus:border-[#52B788] focus:outline-none transition-colors"
+                      placeholder="max@firma.de"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-white/60 text-sm mb-1.5 block">Unternehmen *</label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.company}
+                      onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                      className="w-full bg-[#0D2818] border border-[#52B788]/20 rounded-lg px-4 py-3 text-white placeholder:text-white/20 focus:border-[#52B788] focus:outline-none transition-colors"
+                      placeholder="Firma GmbH"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-white/60 text-sm mb-1.5 block">Mitarbeiteranzahl</label>
+                    <select
+                      value={formData.employees}
+                      onChange={(e) => setFormData({ ...formData, employees: e.target.value })}
+                      className="w-full bg-[#0D2818] border border-[#52B788]/20 rounded-lg px-4 py-3 text-white focus:border-[#52B788] focus:outline-none transition-colors"
+                    >
+                      <option value="select">Bitte wählen</option>
+                      <option value="1-50">1–50</option>
+                      <option value="51-200">51–200</option>
+                      <option value="201-500">201–500</option>
+                      <option value="500+">500+</option>
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label className="text-white/60 text-sm mb-1.5 block">Nachricht</label>
+                  <textarea
+                    rows={4}
+                    value={formData.message}
+                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                    className="w-full bg-[#0D2818] border border-[#52B788]/20 rounded-lg px-4 py-3 text-white placeholder:text-white/20 focus:border-[#52B788] focus:outline-none transition-colors resize-none"
+                    placeholder="Erzählen Sie uns von Ihren CSR-Zielen..."
+                  />
+                </div>
+                <Button type="submit" size="lg" className="w-full bg-[#52B788] hover:bg-[#40916C] text-white font-[Montserrat] font-bold text-base py-6 shadow-xl shadow-[#52B788]/20">
+                  Jetzt starten
+                  <ChevronRight className="ml-2 w-5 h-5" />
+                </Button>
+                <p className="text-white/30 text-xs text-center">
+                  Wir antworten innerhalb von 24 Stunden. Keine Spam-Mails, versprochen.
+                </p>
+              </form>
+            )}
+          </FadeInSection>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── FOOTER ─── */
+function Footer() {
+  return (
+    <footer className="bg-[#081C15] border-t border-[#52B788]/10 py-12">
+      <div className="container">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-2">
+            <Leaf className="w-5 h-5 text-[#52B788]" />
+            <span className="font-[Montserrat] font-bold text-white">quetz.org</span>
+          </div>
+          <div className="flex gap-8 text-sm">
+            <a href="#" className="text-white/40 hover:text-white/70 transition-colors">Impressum</a>
+            <a href="#" className="text-white/40 hover:text-white/70 transition-colors">Datenschutz</a>
+            <a href="#" className="text-white/40 hover:text-white/70 transition-colors">AGB</a>
+          </div>
+          <p className="text-white/30 text-sm">
+            © 2026 quetz.org — Erkrath, Deutschland
+          </p>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+/* ─── MAIN PAGE ─── */
+export default function Home() {
+  return (
+    <div className="min-h-screen">
+      <Navbar />
+      <HeroSection />
+      <ProblemSection />
+      <SolutionSection />
+      <TransparencySection />
+      <SchoolSection />
+      <HowItWorksSection />
+      <CalculatorSection />
+      <PricingSection />
+      <EmployerBrandingSection />
+      <ContactSection />
+      <Footer />
     </div>
   );
 }
