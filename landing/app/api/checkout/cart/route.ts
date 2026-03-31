@@ -9,9 +9,10 @@ export async function POST(req: NextRequest) {
   })
   try {
     const body = await req.json()
-    const { items } = body
+    const { items, recipientName, recipientEmail, occasion, message, senderEmail, language } = body
 
     const isSubscription = items.some((i: any) => i.planId || i.recurring || i.type === 'subscription')
+    const hasGift = items.some((i: any) => i.isGift === true)
 
     const lineItems = items.map((item: any) => {
       const priceData: any = {
@@ -25,11 +26,23 @@ export async function POST(req: NextRequest) {
       return { price_data: priceData, quantity: item.quantity || 1 }
     })
 
+    const metadata: Record<string, string> = {}
+    if (language) metadata.language = language
+    if (hasGift) {
+      metadata.isGift = "true"
+      if (recipientName) metadata.recipientName = recipientName
+      if (recipientEmail) metadata.recipientEmail = recipientEmail
+      if (occasion) metadata.occasion = occasion
+      if (message) metadata.message = message
+      if (senderEmail) metadata.senderEmail = senderEmail
+    }
+
     const session = await stripe.checkout.sessions.create({
       mode: isSubscription ? "subscription" : "payment",
       line_items: lineItems,
       success_url: `${process.env.NEXTAUTH_URL}/mi-bosque?success=true`,
       cancel_url: `${process.env.NEXTAUTH_URL}/carrito`,
+      metadata,
     })
 
     return NextResponse.json({ url: session.url })
