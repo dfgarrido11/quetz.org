@@ -142,7 +142,7 @@ export default function MiBosquePage() {
 
   if (!session) return null;
 
-  const paidAdoptions = adoptions.filter((a) => a.status === 'paid');
+  const paidAdoptions = adoptions.filter((a) => ['paid', 'active'].includes(a.status));
   const totalTrees = paidAdoptions.reduce((sum, a) => sum + a.quantity, 0);
   const totalCo2 = totalTrees * 25;
   const daysSinceFirst = paidAdoptions.length > 0

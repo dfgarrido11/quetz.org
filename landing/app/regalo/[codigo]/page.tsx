@@ -245,7 +245,7 @@ export default function RegaloPage() {
                 {activating ? (
                   <><Loader2 className="w-5 h-5 animate-spin" /> {t('giftActivate.activating')}</>
                 ) : (
-                  <><CheckCircle className="w-5 h-5" /> {t('giftActivate.activateBtn')}</>
+                  <><CheckCircle className="w-5 h-5" /> {t('giftActivate.activate')}</>
                 )}
               </button>
             ) : (
