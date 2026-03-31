@@ -45,80 +45,29 @@ export default function GallerySection() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Row 1: image 0 spans 2 cols, image 1 spans 1 col */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={inView ? { opacity: 1, scale: 1 } : {}}
-            transition={{ duration: 0.5, delay: 0 }}
-            className="md:col-span-2 overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer hover:scale-[1.02]"
-            onClick={() => setSelectedImage(galleryImages[0]?.src ?? null)}
-          >
-            <div className="relative aspect-[4/3] w-full">
-              <Image
-                src={galleryImages[0]?.src ?? ''}
-                alt={galleryImages[0]?.alt ?? 'Paisaje de Zacapa'}
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 66vw"
-              />
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={inView ? { opacity: 1, scale: 1 } : {}}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer hover:scale-[1.02]"
-            onClick={() => setSelectedImage(galleryImages[1]?.src ?? null)}
-          >
-            <div className="relative aspect-square w-full">
-              <Image
-                src={galleryImages[1]?.src ?? ''}
-                alt={galleryImages[1]?.alt ?? 'Paisaje de Zacapa'}
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 33vw"
-              />
-            </div>
-          </motion.div>
-
-          {/* Row 2: image 2 spans 1 col, image 3 spans 2 cols */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={inView ? { opacity: 1, scale: 1 } : {}}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer hover:scale-[1.02]"
-            onClick={() => setSelectedImage(galleryImages[2]?.src ?? null)}
-          >
-            <div className="relative aspect-square w-full">
-              <Image
-                src={galleryImages[2]?.src ?? ''}
-                alt={galleryImages[2]?.alt ?? 'Paisaje de Zacapa'}
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 33vw"
-              />
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={inView ? { opacity: 1, scale: 1 } : {}}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="md:col-span-2 overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer hover:scale-[1.02]"
-            onClick={() => setSelectedImage(galleryImages[3]?.src ?? null)}
-          >
-            <div className="relative aspect-[21/9] w-full">
-              <Image
-                src={galleryImages[3]?.src ?? ''}
-                alt={galleryImages[3]?.alt ?? 'Paisaje de Zacapa'}
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 66vw"
-              />
-            </div>
-          </motion.div>
+        <div className="rounded-2xl overflow-hidden shadow-2xl max-w-5xl mx-auto">
+          <div className="grid grid-cols-2 gap-0.5 bg-gray-200">
+            {galleryImages.map((img, index) => (
+              <motion.div
+                key={img.id}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={inView ? { opacity: 1, scale: 1 } : {}}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="overflow-hidden cursor-pointer"
+                onClick={() => setSelectedImage(img.src)}
+              >
+                <div className="relative aspect-[4/3] w-full">
+                  <Image
+                    src={img.src}
+                    alt={img.alt}
+                    fill
+                    className="object-cover hover:scale-105 transition-transform duration-500"
+                    sizes="(max-width: 768px) 50vw, 40vw"
+                  />
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </div>
 
