@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import Stripe from "stripe";
 import { NextRequest, NextResponse } from "next/server";
 import nodemailer from "nodemailer";
+import { prisma } from "@/lib/prisma";
 
 function getSubjectLine(language: string | undefined): string {
   if (language === "en") return "🌳 Your tree has a name! Welcome to the Quetz family";
@@ -520,6 +521,268 @@ async function sendTelegramNotification(
   }
 }
 
+// ── Gift helpers ──────────────────────────────────────────────────────────────
+
+const GIFT_CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+function generateGiftCode(): string {
+  let code = "";
+  for (let i = 0; i < 8; i++) {
+    code += GIFT_CODE_CHARS[Math.floor(Math.random() * GIFT_CODE_CHARS.length)];
+  }
+  return code;
+}
+
+async function uniqueGiftCode(): Promise<string> {
+  for (let attempt = 0; attempt < 10; attempt++) {
+    const code = generateGiftCode();
+    const existing = await prisma.gift.findUnique({ where: { code } });
+    if (!existing) return code;
+  }
+  throw new Error("Failed to generate unique gift code");
+}
+
+function buildGiftRecipientEmail(
+  recipientName: string,
+  senderName: string,
+  message: string,
+  code: string,
+  planName: string,
+  occasion: string
+): string {
+  const occasionEmoji: Record<string, string> = {
+    cumpleanos: "🎂",
+    navidad: "🎄",
+    sanValentin: "❤️",
+    otro: "🎁",
+  };
+  const emoji = occasionEmoji[occasion] ?? "🎁";
+  const activationUrl = `https://quetz.org/regalo/${code}`;
+
+  return `<!DOCTYPE html>
+<html lang="es" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>¡Te han regalado un árbol! 🌳</title>
+</head>
+<body style="margin:0;padding:0;background-color:#fdf2f8;font-family:'Segoe UI',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#fdf2f8;padding:32px 16px;">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 8px 32px rgba(139,90,143,0.15);">
+
+          <!-- HEADER -->
+          <tr>
+            <td style="background:linear-gradient(160deg,#6b21a8 0%,#a855f7 50%,#ec4899 100%);padding:48px 32px 40px;text-align:center;">
+              <div style="font-size:48px;margin-bottom:8px;">${emoji}</div>
+              <div style="font-size:36px;font-weight:900;color:#ffffff;letter-spacing:-1px;margin-bottom:8px;">¡Para ti!</div>
+              <div style="font-size:14px;color:#e9d5ff;letter-spacing:2px;text-transform:uppercase;">Un regalo muy especial</div>
+            </td>
+          </tr>
+
+          <!-- HERO -->
+          <tr>
+            <td style="padding:40px 32px 24px;text-align:left;">
+              <p style="font-size:22px;font-weight:800;color:#1f2937;margin:0 0 16px;">
+                Hola, ${recipientName}! 🌟
+              </p>
+              <p style="font-size:16px;line-height:1.75;color:#374151;margin:0 0 16px;">
+                <strong>${senderName}</strong> ha pensado en ti y te ha regalado algo único: <strong>un árbol real en Guatemala</strong>. No es un regalo cualquiera — es vida, es empleo para una familia, y es parte de una escuela que 120 niños esperan.
+              </p>
+              ${message ? `
+              <div style="background:linear-gradient(135deg,#fdf2f8,#fce7f3);border-left:4px solid #ec4899;border-radius:8px;padding:16px 20px;margin-bottom:24px;">
+                <p style="margin:0;font-size:15px;line-height:1.7;color:#831843;font-style:italic;">
+                  ❝ ${message} ❞
+                </p>
+                <p style="margin:8px 0 0;font-size:13px;color:#9d174d;font-weight:600;">— ${senderName}</p>
+              </div>` : ""}
+            </td>
+          </tr>
+
+          <!-- QUETZITO -->
+          <tr>
+            <td style="padding:0 32px 28px;">
+              <div style="background:linear-gradient(135deg,#1B4332 0%,#2D6A4F 60%,#52B788 100%);border-radius:12px;padding:20px 24px;overflow:hidden;">
+                <table width="100%" cellpadding="0" cellspacing="0">
+                  <tr>
+                    <td style="width:96px;vertical-align:top;padding-right:16px;">
+                      <img src="https://www.quetz.org/mascot/quetzito-aventurero.png"
+                           alt="Quetzito"
+                           width="80"
+                           style="width:80px;height:auto;border-radius:50%;border:3px solid #52B788;display:block;" />
+                    </td>
+                    <td style="vertical-align:middle;">
+                      <p style="margin:0;font-size:14px;line-height:1.7;color:#ffffff;">
+                        <strong>¡Hola! Soy Quetzito 🦜</strong> y voy a cuidar tu árbol en Guatemala. Cuando lo actives, te enviaré fotos, coordenadas GPS y noticias de su crecimiento. ¡Prepárate para la magia verde!
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+            </td>
+          </tr>
+
+          <!-- GIFT CODE BOX -->
+          <tr>
+            <td style="padding:0 32px 28px;text-align:center;">
+              <div style="background:#f9fafb;border:2px dashed #a855f7;border-radius:16px;padding:28px 24px;">
+                <p style="font-size:13px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:2px;margin:0 0 12px;">Tu código de regalo</p>
+                <div style="font-size:32px;font-weight:900;color:#6b21a8;letter-spacing:6px;font-family:'Courier New',monospace;background:#ede9fe;border-radius:8px;padding:12px 20px;display:inline-block;">
+                  ${code}
+                </div>
+                <p style="font-size:13px;color:#6b7280;margin:12px 0 0;">Plan: <strong style="color:#1f2937;">${planName}</strong></p>
+              </div>
+            </td>
+          </tr>
+
+          <!-- IMPACT -->
+          <tr>
+            <td style="padding:0 32px 28px;">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td width="33%" style="text-align:center;padding:0 6px;">
+                    <div style="background:linear-gradient(135deg,#2D6A4F,#52B788);border-radius:12px;padding:20px 8px;box-shadow:0 4px 12px rgba(45,106,79,0.25);">
+                      <div style="font-size:28px;margin-bottom:4px;">🌳</div>
+                      <div style="font-size:15px;font-weight:800;color:#ffffff;margin-bottom:2px;">Tu árbol</div>
+                      <div style="font-size:12px;color:#B7E4C7;">en Guatemala</div>
+                    </div>
+                  </td>
+                  <td width="33%" style="text-align:center;padding:0 6px;">
+                    <div style="background:linear-gradient(135deg,#2D6A4F,#52B788);border-radius:12px;padding:20px 8px;box-shadow:0 4px 12px rgba(45,106,79,0.25);">
+                      <div style="font-size:28px;margin-bottom:4px;">👨‍👩‍👧</div>
+                      <div style="font-size:15px;font-weight:800;color:#ffffff;margin-bottom:2px;">1 familia</div>
+                      <div style="font-size:12px;color:#B7E4C7;">empleada</div>
+                    </div>
+                  </td>
+                  <td width="33%" style="text-align:center;padding:0 6px;">
+                    <div style="background:linear-gradient(135deg,#2D6A4F,#52B788);border-radius:12px;padding:20px 8px;box-shadow:0 4px 12px rgba(45,106,79,0.25);">
+                      <div style="font-size:28px;margin-bottom:4px;">🏫</div>
+                      <div style="font-size:15px;font-weight:800;color:#ffffff;margin-bottom:2px;">30%</div>
+                      <div style="font-size:12px;color:#B7E4C7;">para la escuela</div>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- CTA -->
+          <tr>
+            <td style="padding:0 32px 36px;text-align:center;">
+              <a href="${activationUrl}"
+                 style="display:inline-block;background:linear-gradient(135deg,#6b21a8 0%,#a855f7 50%,#ec4899 100%);color:#ffffff;text-decoration:none;font-size:18px;font-weight:800;padding:18px 48px;border-radius:50px;letter-spacing:0.5px;box-shadow:0 6px 20px rgba(168,85,247,0.4);">
+                🌿 Activar mi árbol
+              </a>
+              <p style="font-size:12px;color:#9ca3af;margin:12px 0 0;">
+                O visita: <a href="${activationUrl}" style="color:#a855f7;">${activationUrl}</a>
+              </p>
+            </td>
+          </tr>
+
+          <!-- FOOTER -->
+          <tr>
+            <td style="background:linear-gradient(135deg,#081C15,#1B4332);padding:28px 32px;text-align:center;">
+              <p style="margin:0 0 8px;font-size:15px;font-weight:700;color:#B7E4C7;">Con amor desde Guatemala 🇬🇹</p>
+              <p style="margin:0 0 12px;font-size:13px;color:#52B788;">
+                <a href="https://quetz.org" style="color:#52B788;text-decoration:none;">quetz.org</a>
+                &nbsp;&bull;&nbsp;
+                <a href="mailto:hola@quetz.org" style="color:#52B788;text-decoration:none;">hola@quetz.org</a>
+              </p>
+              <p style="margin:0;font-size:11px;color:#6b7280;">
+                Has recibido este email porque alguien especial te regaló un árbol con Quetz.org.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
+function buildGiftConfirmationEmail(
+  buyerName: string,
+  recipientName: string,
+  recipientEmail: string,
+  code: string,
+  planName: string,
+  amount: number,
+  currency: string
+): string {
+  const activationUrl = `https://quetz.org/regalo/${code}`;
+  return `<!DOCTYPE html>
+<html lang="es" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tu regalo ha sido enviado 🎁</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f0f7f4;font-family:'Segoe UI',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f0f7f4;padding:32px 16px;">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 8px 32px rgba(8,28,21,0.18);">
+
+          <tr>
+            <td style="background:linear-gradient(160deg,#081C15 0%,#1B4332 50%,#52B788 100%);padding:48px 32px 40px;text-align:center;">
+              <div style="font-size:42px;font-weight:900;color:#ffffff;letter-spacing:-1px;margin-bottom:8px;">QUETZ.ORG</div>
+              <div style="font-size:14px;color:#B7E4C7;letter-spacing:3px;text-transform:uppercase;">Tu regalo ha sido enviado 🎁</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:40px 32px 28px;">
+              <p style="font-size:22px;font-weight:800;color:#081C15;margin:0 0 16px;">
+                ¡Gracias, ${buyerName || "amigo/a"}! 💚
+              </p>
+              <p style="font-size:16px;line-height:1.75;color:#374151;margin:0 0 24px;">
+                Tu regalo ha sido enviado a <strong>${recipientEmail}</strong>. <strong>${recipientName}</strong> recibirá un email con su código para activar el árbol y unirse a la familia Quetz.
+              </p>
+
+              <div style="background:#f8fffe;border:1.5px solid #B7E4C7;border-radius:12px;padding:24px;margin-bottom:28px;">
+                <table width="100%" cellpadding="0" cellspacing="0">
+                  <tr><td style="font-size:13px;color:#6b7280;text-transform:uppercase;letter-spacing:1px;padding-bottom:4px;">Destinatario</td></tr>
+                  <tr><td style="font-size:18px;font-weight:700;color:#081C15;padding-bottom:16px;">${recipientName} &lt;${recipientEmail}&gt;</td></tr>
+                  <tr><td style="font-size:13px;color:#6b7280;text-transform:uppercase;letter-spacing:1px;padding-bottom:4px;">Plan regalado</td></tr>
+                  <tr><td style="font-size:18px;font-weight:700;color:#2D6A4F;padding-bottom:16px;">${planName}</td></tr>
+                  <tr><td style="font-size:13px;color:#6b7280;text-transform:uppercase;letter-spacing:1px;padding-bottom:4px;">Monto pagado</td></tr>
+                  <tr><td style="font-size:18px;font-weight:700;color:#2D6A4F;padding-bottom:16px;">${amount.toFixed(2)} ${currency.toUpperCase()}</td></tr>
+                  <tr><td style="font-size:13px;color:#6b7280;text-transform:uppercase;letter-spacing:1px;padding-bottom:4px;">Código de activación</td></tr>
+                  <tr><td style="font-size:24px;font-weight:900;color:#6b21a8;letter-spacing:4px;font-family:'Courier New',monospace;">${code}</td></tr>
+                </table>
+              </div>
+
+              <p style="font-size:14px;color:#6b7280;margin:0 0 20px;">
+                Si necesitas compartir el enlace de activación manualmente:
+              </p>
+              <a href="${activationUrl}" style="display:inline-block;background:linear-gradient(135deg,#081C15,#2D6A4F,#52B788);color:#ffffff;text-decoration:none;font-size:15px;font-weight:700;padding:14px 32px;border-radius:50px;box-shadow:0 4px 14px rgba(8,28,21,0.3);">
+                🌿 Ver página de activación
+              </a>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="background:linear-gradient(135deg,#081C15,#1B4332);padding:28px 32px;text-align:center;">
+              <p style="margin:0 0 8px;font-size:15px;font-weight:700;color:#B7E4C7;">Con amor desde Guatemala 🇬🇹</p>
+              <p style="margin:0;font-size:13px;color:#52B788;">
+                <a href="https://quetz.org" style="color:#52B788;text-decoration:none;">quetz.org</a>
+                &nbsp;&bull;&nbsp;
+                <a href="mailto:hola@quetz.org" style="color:#52B788;text-decoration:none;">hola@quetz.org</a>
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
 export async function POST(req: NextRequest) {
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: "2024-06-20",
@@ -555,52 +818,140 @@ export async function POST(req: NextRequest) {
       sessionId: session.id,
     });
 
-    if (customerEmail) {
+    const amount = session.amount_total != null ? session.amount_total / 100 : 0;
+    const currency = session.currency ?? "eur";
+    const language = metadata.language as string | undefined;
+    const planName = metadata.planName as string | undefined ?? "";
+    const isGift = metadata.isGift === "true";
+
+    const transporter = nodemailer.createTransport({
+      host: "smtp.zoho.eu",
+      port: 587,
+      secure: false,
+      auth: {
+        user: "hola@quetz.org",
+        pass: process.env.ZOHO_SMTP_PASSWORD,
+      },
+    });
+
+    if (isGift) {
+      // ── GIFT PURCHASE FLOW ─────────────────────────────────────────────────
+      const recipientEmail = metadata.recipientEmail ?? "";
+      const recipientName = metadata.recipientName ?? "Amigo/a";
+      const occasion = metadata.occasion ?? "otro";
+      const message = metadata.message ?? "";
+      const senderEmail = metadata.senderEmail ?? customerEmail;
+
       try {
-        const transporter = nodemailer.createTransport({
-          host: "smtp.zoho.eu",
-          port: 587,
-          secure: false,
-          auth: {
-            user: "hola@quetz.org",
-            pass: process.env.ZOHO_SMTP_PASSWORD,
+        // 1) Generate code and create Gift record
+        const code = await uniqueGiftCode();
+
+        await prisma.gift.create({
+          data: {
+            code,
+            planId: planName.toLowerCase().replace(/\s+/g, "_") || "custom",
+            planName: planName || "Tree Adoption",
+            treesPerMonth: 1,
+            durationMonths: 12,
+            amountEur: amount,
+            senderEmail,
+            recipientName,
+            recipientEmail,
+            occasion,
+            message: message || null,
+            stripeSessionId: session.id,
+            status: "paid",
           },
         });
 
-        const language = metadata.language as string | undefined;
-        const planName = metadata.planName as string | undefined ?? "";
-        const amount = session.amount_total != null ? session.amount_total / 100 : 0;
-        const currency = session.currency ?? "eur";
+        // 2) Send gift email to RECIPIENT
+        if (recipientEmail) {
+          await transporter.sendMail({
+            from: "Quetz.org 🌳 <hola@quetz.org>",
+            to: recipientEmail,
+            subject: `🎁 ¡Alguien te ha regalado un árbol! | Someone gifted you a tree!`,
+            html: buildGiftRecipientEmail(
+              recipientName,
+              customerName || senderEmail,
+              message,
+              code,
+              planName || "Tree Adoption",
+              occasion
+            ),
+          });
+        }
 
-        // Welcome email to customer
-        await transporter.sendMail({
-          from: "Quetz.org 🌳 <hola@quetz.org>",
-          to: customerEmail,
-          subject: getSubjectLine(language),
-          html: buildWelcomeEmail(customerName, language, planName, amount, currency),
+        // 3) Send confirmation email to BUYER
+        if (customerEmail) {
+          await transporter.sendMail({
+            from: "Quetz.org 🌳 <hola@quetz.org>",
+            to: customerEmail,
+            subject: `🎁 Tu regalo ha sido enviado — código ${code}`,
+            html: buildGiftConfirmationEmail(
+              customerName,
+              recipientName,
+              recipientEmail,
+              code,
+              planName || "Tree Adoption",
+              amount,
+              currency
+            ),
+          });
+        }
+
+        // 4) Update gift status to 'sent'
+        await prisma.gift.update({
+          where: { code },
+          data: { status: "sent", sentAt: new Date() },
         });
 
-        // Notification email to team
-        await transporter.sendMail({
-          from: "Quetz.org 🌳 <hola@quetz.org>",
-          to: "dgarrido@quetz.org",
-          subject: `[Quetz] New tree adoption — ${customerEmail}`,
-          html: `
-            <h2>New Checkout Completed</h2>
-            <table style="font-family:monospace;border-collapse:collapse;">
-              <tr><td style="padding:4px 12px 4px 0;color:#6b7280;">Session ID</td><td>${session.id}</td></tr>
-              <tr><td style="padding:4px 12px 4px 0;color:#6b7280;">Customer Email</td><td>${customerEmail}</td></tr>
-              <tr><td style="padding:4px 12px 4px 0;color:#6b7280;">Customer Name</td><td>${customerName}</td></tr>
-              <tr><td style="padding:4px 12px 4px 0;color:#6b7280;">Amount Total</td><td>${session.amount_total != null ? (session.amount_total / 100).toFixed(2) : "—"} ${session.currency?.toUpperCase() ?? ""}</td></tr>
-              <tr><td style="padding:4px 12px 4px 0;color:#6b7280;">Metadata</td><td><pre>${JSON.stringify(metadata, null, 2)}</pre></td></tr>
-            </table>
-          `,
-        });
+        console.log(`Gift ${code} sent to ${recipientEmail}, confirmed to ${customerEmail}`);
 
-        console.log("Welcome emails sent to:", customerEmail);
-        await sendTelegramNotification(customerName, customerEmail, planName, amount, currency);
-      } catch (mailErr) {
-        console.error("Failed to send welcome email:", mailErr);
+        // 5) Telegram notification
+        await sendTelegramNotification(
+          `🎁 GIFT → ${recipientName}`,
+          customerEmail,
+          planName || "Tree Gift",
+          amount,
+          currency
+        );
+      } catch (giftErr) {
+        console.error("Failed to process gift:", giftErr);
+      }
+    } else {
+      // ── REGULAR PURCHASE FLOW ──────────────────────────────────────────────
+      if (customerEmail) {
+        try {
+          // Welcome email to customer
+          await transporter.sendMail({
+            from: "Quetz.org 🌳 <hola@quetz.org>",
+            to: customerEmail,
+            subject: getSubjectLine(language),
+            html: buildWelcomeEmail(customerName, language, planName, amount, currency),
+          });
+
+          // Notification email to team
+          await transporter.sendMail({
+            from: "Quetz.org 🌳 <hola@quetz.org>",
+            to: "dgarrido@quetz.org",
+            subject: `[Quetz] New tree adoption — ${customerEmail}`,
+            html: `
+              <h2>New Checkout Completed</h2>
+              <table style="font-family:monospace;border-collapse:collapse;">
+                <tr><td style="padding:4px 12px 4px 0;color:#6b7280;">Session ID</td><td>${session.id}</td></tr>
+                <tr><td style="padding:4px 12px 4px 0;color:#6b7280;">Customer Email</td><td>${customerEmail}</td></tr>
+                <tr><td style="padding:4px 12px 4px 0;color:#6b7280;">Customer Name</td><td>${customerName}</td></tr>
+                <tr><td style="padding:4px 12px 4px 0;color:#6b7280;">Amount Total</td><td>${session.amount_total != null ? (session.amount_total / 100).toFixed(2) : "—"} ${session.currency?.toUpperCase() ?? ""}</td></tr>
+                <tr><td style="padding:4px 12px 4px 0;color:#6b7280;">Metadata</td><td><pre>${JSON.stringify(metadata, null, 2)}</pre></td></tr>
+              </table>
+            `,
+          });
+
+          console.log("Welcome emails sent to:", customerEmail);
+          await sendTelegramNotification(customerName, customerEmail, planName, amount, currency);
+        } catch (mailErr) {
+          console.error("Failed to send welcome email:", mailErr);
+        }
       }
     }
   }
