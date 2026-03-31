@@ -278,7 +278,7 @@ function ProductCard({ product, onAddToCart, t }: { product: Product; onAddToCar
             fill
             className="object-cover"
             sizes="(max-width: 768px) 100vw, 25vw"
-            priority={product.id === 'camiseta-adulto'}
+            priority
           />
 
           {/* Toggle front/back button — bottom */}
@@ -709,6 +709,7 @@ export default function ShopPage() {
                 alt={t('shop.prod.hoodie.name')}
                 fill
                 className="object-cover"
+                priority
                 sizes="160px"
               />
             </div>
@@ -718,6 +719,7 @@ export default function ShopPage() {
                 alt={t('shop.prod.taza.name')}
                 fill
                 className="object-cover"
+                priority
                 sizes="112px"
               />
             </div>
