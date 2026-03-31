@@ -16,7 +16,7 @@ import NewsletterSection from "./components/newsletter-section";
 import { LeadModal } from "./components/lead-modal";
 import AdoptionModal from "./components/adoption-modal";
 import DonationModal from "./components/donation-modal";
-import QuetzitoChatbot from "./components/quetzito-chatbot";
+import ChatWidget from "./components/chat-widget";
 import Footer from "./components/footer";
 
 export default function Home() {
@@ -55,7 +55,7 @@ export default function Home() {
       <LeadModal open={isLeadModalOpen} onOpenChange={closeLeadModal} />
       <AdoptionModal isOpen={isAdoptionModalOpen} onClose={closeAdoptionModal} tree={selectedTree} />
       <DonationModal isOpen={isDonationModalOpen} onClose={closeDonationModal} />
-      <QuetzitoChatbot />
+      <ChatWidget />
     </>
   );
 }
