@@ -25,6 +25,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'header.shop': 'Tienda',
     'header.enter': 'Entrar',
     'header.adopt': 'Adoptar',
+    'header.forCompanies': 'Para Empresas',
     
     // Hero
     'hero.title': 'Adopta un árbol en Zacapa, Guatemala y transforma una comunidad.',
@@ -500,6 +501,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'header.shop': 'Shop',
     'header.enter': 'Anmelden',
     'header.adopt': 'Jetzt adoptieren',
+    'header.forCompanies': 'Für Unternehmen',
     
     // Hero - Optimized for German market conversion
     'hero.title': 'Dein Baum. Echte Wirkung. 100% nachverfolgbar.',
@@ -970,6 +972,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'header.shop': 'Shop',
     'header.enter': 'Log In',
     'header.adopt': 'Adopt',
+    'header.forCompanies': 'For Companies',
     
     // Hero
     'hero.title': 'Adopt a tree in Zacapa, Guatemala and transform a community.',
@@ -1482,6 +1485,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'header.shop': 'Boutique',
     'header.enter': 'Connexion',
     'header.adopt': 'Adopter',
+    'header.forCompanies': 'Pour Entreprises',
     
     // Hero
     'hero.title': 'Adopte un arbre à Zacapa, Guatemala et transforme une communauté.',
@@ -1990,6 +1994,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'header.shop': 'المتجر',
     'header.enter': 'تسجيل الدخول',
     'header.adopt': 'تبنَّ شجرة',
+    'header.forCompanies': 'للشركات',
     
     // Hero
     'hero.title': 'تبنَّ شجرة في زاكابا، غواتيمالا وغيّر مجتمعاً بأكمله.',
