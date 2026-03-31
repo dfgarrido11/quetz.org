@@ -4,7 +4,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import Image from 'next/image';
 import { useLanguage } from '@/lib/language-context';
-import MascotScene from './mascot-scene';
+
 
 interface HeroSectionProps {
   onOpenModal: () => void;
@@ -15,7 +15,6 @@ export default function HeroSection({ onOpenModal }: HeroSectionProps) {
   const shouldReduceMotion = useReducedMotion();
 
   return (
-    <>
     <section id="inicio" className={`relative h-screen w-full overflow-hidden ${isRTL ? 'rtl' : 'ltr'}`}>
       <div className="absolute inset-0">
         <Image
@@ -126,7 +125,7 @@ export default function HeroSection({ onOpenModal }: HeroSectionProps) {
             ease: 'easeInOut',
             repeatType: 'mirror' as const,
           }}
-          className="relative w-48 h-56 md:w-64 md:h-80 drop-shadow-2xl"
+          className="relative w-56 h-64 md:w-72 md:h-96 drop-shadow-2xl"
         >
           <Image
             src="/mascot/quetzito-aventurero.png"
@@ -138,7 +137,5 @@ export default function HeroSection({ onOpenModal }: HeroSectionProps) {
         </motion.div>
       </motion.div>
     </section>
-    <MascotScene />
-    </>
   );
 }
