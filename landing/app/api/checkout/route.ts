@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
   })
   try {
     const body = await req.json()
-    const { items } = body
+    const { items, language } = body
 
     const lineItems = items.map((item: any) => ({
       price_data: {
@@ -27,6 +27,7 @@ export async function POST(req: NextRequest) {
       success_url: `${process.env.NEXTAUTH_URL}/mi-bosque?success=true`,
       cancel_url: `${process.env.NEXTAUTH_URL}/carrito`,
       customer_email: body.email || undefined,
+      metadata: language ? { language } : {},
     })
 
     return NextResponse.json({ url: session.url })

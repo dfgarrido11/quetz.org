@@ -111,10 +111,26 @@ export default function CartPage() {
     setError('');
 
     try {
+      const giftItem = items.find(item => item.isGift && item.giftRecipient);
+      const isGiftCheckout = !!giftItem;
+
       const response = await fetch('/api/checkout/cart', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items }),
+        body: JSON.stringify({
+          items,
+          ...(isGiftCheckout && giftItem?.giftRecipient ? {
+            isGift: true,
+            recipientName: giftItem.giftRecipient.name,
+            recipientEmail: giftItem.giftRecipient.email,
+            message: giftItem.giftRecipient.message || '',
+            occasion: 'gift',
+            senderEmail: '',
+            language: typeof window !== 'undefined' ? document.documentElement.lang || 'es' : 'es',
+          } : {
+            language: typeof window !== 'undefined' ? document.documentElement.lang || 'es' : 'es',
+          }),
+        }),
       });
 
       const data = await response.json();
