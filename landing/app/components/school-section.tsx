@@ -118,14 +118,14 @@ export default function SchoolSection({ onOpenDonation }: SchoolSectionProps) {
             ease: 'easeInOut',
             repeatType: 'mirror' as const,
           }}
-          className="relative w-32 h-44 xl:w-40 xl:h-52 drop-shadow-2xl"
+          className="relative w-24 md:w-32 h-36 md:h-44 drop-shadow-2xl"
         >
           <Image
             src="/mascot/quetzito-maestro.png"
             alt="Quetzita Maestra"
             fill
-            className="object-contain object-bottom"
-            sizes="160px"
+            className="object-contain object-bottom mascot-peek"
+            sizes="(max-width: 768px) 96px, 128px"
           />
         </motion.div>
       </motion.div>

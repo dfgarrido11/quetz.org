@@ -107,34 +107,46 @@ export default function HeroSection({ onOpenModal }: HeroSectionProps) {
         </motion.div>
       </div>
 
-      {/* Quetzito Aventurero - flotando en el hero */}
+      {/* Quetzito - LEFT SIDE */}
       <motion.div
-        initial={{ opacity: 0, x: isRTL ? -80 : 80 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.9, delay: 1.2 }}
-        className={`absolute hidden lg:block ${isRTL ? 'left-8 xl:left-20' : 'right-8 xl:right-20'} top-1/2 -translate-y-1/2 pointer-events-none z-10`}
+        initial={{ opacity: 0, x: -80, scale: 0.5 }}
+        animate={{ opacity: 1, x: 0, scale: 1 }}
+        transition={{ duration: 1.2, delay: 1.0, type: 'spring', bounce: 0.3 }}
+        className="absolute hidden md:block left-4 md:left-12 lg:left-20 bottom-8 md:bottom-16 pointer-events-none z-10"
       >
-        <motion.div
-          animate={shouldReduceMotion ? {} : {
-            y: [0, -15, 0],
-            rotate: [-3, 3, -3],
-          }}
-          transition={{
-            duration: 4,
-            repeat: Infinity,
-            ease: 'easeInOut',
-            repeatType: 'mirror' as const,
-          }}
-          className="relative w-56 h-64 md:w-72 md:h-96 drop-shadow-2xl"
-        >
-          <Image
-            src="/mascot/quetzito-aventurero.png"
-            alt="Quetzito aventurero"
-            fill
-            className="object-contain mascot-float mascot-hover"
-            sizes="(max-width: 768px) 192px, 256px"
-          />
-        </motion.div>
+        <div className="flex flex-col items-center">
+          <div className="relative w-40 md:w-52 lg:w-64 h-52 md:h-64 lg:h-80">
+            <Image
+              src="/mascot/quetzito-aventurero.png"
+              alt="Quetzito aventurero"
+              fill
+              className="object-contain mascot-float-hero drop-shadow-[0_8px_32px_rgba(0,0,0,0.25)] hover:scale-110 transition-transform duration-300 cursor-pointer"
+              sizes="(max-width: 768px) 160px, (max-width: 1024px) 208px, 256px"
+            />
+          </div>
+          <div className="w-32 h-4 mx-auto -mt-2 rounded-full blur-lg bg-green-500/20 mascot-glow" />
+        </div>
+      </motion.div>
+
+      {/* Quetzita - RIGHT SIDE */}
+      <motion.div
+        initial={{ opacity: 0, x: 80, scale: 0.5 }}
+        animate={{ opacity: 1, x: 0, scale: 1 }}
+        transition={{ duration: 1.2, delay: 1.4, type: 'spring', bounce: 0.3 }}
+        className="absolute hidden md:block right-4 md:right-12 lg:right-20 bottom-8 md:bottom-16 pointer-events-none z-10"
+      >
+        <div className="flex flex-col items-center">
+          <div className="relative w-40 md:w-52 lg:w-64 h-52 md:h-64 lg:h-80">
+            <Image
+              src="/mascot/yupp-generated-image-839091.png"
+              alt="Quetzita"
+              fill
+              className="object-contain mascot-float-hero drop-shadow-[0_8px_32px_rgba(0,0,0,0.25)] hover:scale-110 transition-transform duration-300 cursor-pointer"
+              sizes="(max-width: 768px) 160px, (max-width: 1024px) 208px, 256px"
+            />
+          </div>
+          <div className="w-32 h-4 mx-auto -mt-2 rounded-full blur-lg bg-yellow-500/20 mascot-glow" />
+        </div>
       </motion.div>
     </section>
   );
