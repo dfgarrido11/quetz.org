@@ -490,6 +490,36 @@ function buildWelcomeEmail(
 </html>`;
 }
 
+async function sendTelegramNotification(
+  customerName: string,
+  customerEmail: string,
+  planName: string,
+  amount: number,
+  currency: string
+): Promise<void> {
+  try {
+    const token = process.env.TELEGRAM_BOT_TOKEN;
+    const chatId = process.env.TELEGRAM_CHAT_ID;
+    if (!token || !chatId) return;
+
+    const text =
+      `🌳 <b>¡Nueva compra en Quetz.org!</b>\n\n` +
+      `👤 <b>Cliente:</b> ${customerName || "—"}\n` +
+      `📧 <b>Email:</b> ${customerEmail}\n` +
+      `📋 <b>Plan:</b> ${planName || "Tree Adoption"}\n` +
+      `💰 <b>Monto:</b> ${amount.toFixed(2)} ${currency.toUpperCase()}\n\n` +
+      `🎉 ¡Otro árbol para Guatemala!`;
+
+    await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_id: chatId, parse_mode: "HTML", text }),
+    });
+  } catch (err) {
+    console.error("Failed to send Telegram notification:", err);
+  }
+}
+
 export async function POST(req: NextRequest) {
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: "2024-06-20",
@@ -568,6 +598,7 @@ export async function POST(req: NextRequest) {
         });
 
         console.log("Welcome emails sent to:", customerEmail);
+        await sendTelegramNotification(customerName, customerEmail, planName, amount, currency);
       } catch (mailErr) {
         console.error("Failed to send welcome email:", mailErr);
       }
