@@ -193,13 +193,13 @@ export default function PlansSection({ onSelectPlan }: PlansSectionProps) {
                     transition={{ duration: 1, times: [0, 0.25, 0.5, 0.75, 1] }}
                     className="absolute inset-0 z-40 pointer-events-none flex items-center justify-center"
                   >
-                    <div className="relative w-24 h-28 drop-shadow-xl">
+                    <div className="relative w-24 md:w-32 h-28 md:h-36 drop-shadow-xl">
                       <Image
                         src="/mascot/quetzito-aventurero.png"
                         alt="¡Celebración!"
                         fill
-                        className="object-contain"
-                        sizes="96px"
+                        className="object-contain mascot-peek w-24 md:w-32 drop-shadow-lg"
+                        sizes="(max-width: 768px) 96px, 128px"
                       />
                     </div>
                   </motion.div>

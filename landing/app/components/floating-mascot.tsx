@@ -37,8 +37,8 @@ export default function FloatingMascot({ onOpenModal }: FloatingMascotProps) {
 
   useEffect(() => {
     if (isVisible) {
-      setMascotAnimClass('mascot-entrance');
-      const floatTimer = setTimeout(() => setMascotAnimClass('mascot-float'), 800);
+      setMascotAnimClass('mascot-peek');
+      const floatTimer = setTimeout(() => setMascotAnimClass('mascot-float-hero'), 800);
       return () => clearTimeout(floatTimer);
     }
   }, [isVisible]);
@@ -121,13 +121,7 @@ export default function FloatingMascot({ onOpenModal }: FloatingMascotProps) {
               onClick={handleClick}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
-              animate={{ 
-                y: [0, -8, 0],
-              }}
-              transition={{
-                y: { duration: 2, repeat: Infinity, ease: 'easeInOut' }
-              }}
-              className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden shadow-xl border-4 border-white cursor-pointer bg-gradient-to-br from-quetz-green to-green-600"
+              className="relative w-24 h-24 md:w-28 md:h-28 rounded-full overflow-hidden shadow-xl border-4 border-white cursor-pointer bg-gradient-to-br from-quetz-green to-green-600 mascot-float-hero"
             >
               <Image
                 src="/mascot/quetzito-heroe.png"

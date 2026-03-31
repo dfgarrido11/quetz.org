@@ -92,14 +92,14 @@ export default function TreesSection({ onSelectTree, isGiftMode = false }: Trees
               repeat: Infinity,
               ease: 'easeInOut'
             }}
-            className="w-32 h-40 relative"
+            className="w-20 md:w-28 h-28 md:h-36 relative"
           >
             <Image
               src="/mascot/quetzito-aventurero.png"
               alt="Quetzito Aventurero"
               fill
-              className="object-contain object-center drop-shadow-xl"
-              sizes="128px"
+              className="object-contain object-center drop-shadow-xl mascot-float-hero"
+              sizes="(max-width: 768px) 80px, 112px"
             />
           </motion.div>
         </div>
@@ -129,13 +129,13 @@ export default function TreesSection({ onSelectTree, isGiftMode = false }: Trees
             className="lg:hidden flex justify-center mt-6"
           >
             <div className={`flex items-center gap-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-full py-2 px-4 shadow-md ${isRTL ? 'flex-row-reverse' : ''}`}>
-              <div className="w-12 h-12 relative flex-shrink-0">
+              <div className="w-20 md:w-28 h-24 md:h-32 relative flex-shrink-0">
                 <Image
                   src="/mascot/quetzito-maestro.png"
                   alt="Quetzito Maestro"
                   fill
-                  className="object-contain"
-                  sizes="48px"
+                  className="object-contain mascot-float-hero"
+                  sizes="(max-width: 768px) 80px, 112px"
                 />
               </div>
               <p className="text-sm font-medium text-gray-700">
