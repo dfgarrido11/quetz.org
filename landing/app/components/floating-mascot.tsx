@@ -15,6 +15,7 @@ export default function FloatingMascot({ onOpenModal }: FloatingMascotProps) {
   const [showBubble, setShowBubble] = useState(false);
   const [currentMessage, setCurrentMessage] = useState(0);
   const [hasInteracted, setHasInteracted] = useState(false);
+  const [mascotAnimClass, setMascotAnimClass] = useState('');
   const { t, isRTL } = useLanguage();
 
   const messages = [
@@ -33,6 +34,14 @@ export default function FloatingMascot({ onOpenModal }: FloatingMascotProps) {
 
     return () => clearTimeout(showTimer);
   }, []);
+
+  useEffect(() => {
+    if (isVisible) {
+      setMascotAnimClass('mascot-entrance');
+      const floatTimer = setTimeout(() => setMascotAnimClass('mascot-float'), 800);
+      return () => clearTimeout(floatTimer);
+    }
+  }, [isVisible]);
 
   useEffect(() => {
     if (isVisible && !hasInteracted) {
@@ -97,7 +106,7 @@ export default function FloatingMascot({ onOpenModal }: FloatingMascotProps) {
           </AnimatePresence>
 
           {/* Mascot Container */}
-          <div className="relative">
+          <div className={`relative ${mascotAnimClass}`}>
             {/* Close Button */}
             <button
               onClick={handleClose}

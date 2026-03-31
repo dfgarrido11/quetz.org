@@ -124,14 +124,14 @@ export default function HeroSection({ onOpenModal }: HeroSectionProps) {
             ease: 'easeInOut',
             repeatType: 'mirror' as const,
           }}
-          className="relative w-40 h-48 xl:w-52 xl:h-64 drop-shadow-2xl"
+          className="relative w-48 h-56 md:w-64 md:h-80 drop-shadow-2xl"
         >
           <Image
             src="/mascot/quetzito-aventurero.png"
             alt="Quetzito aventurero"
             fill
-            className="object-contain"
-            sizes="(max-width: 1280px) 160px, 208px"
+            className="object-contain mascot-float mascot-hover"
+            sizes="(max-width: 768px) 192px, 256px"
           />
         </motion.div>
       </motion.div>

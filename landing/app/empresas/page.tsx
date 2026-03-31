@@ -176,7 +176,7 @@ function HeroSection() {
       <motion.img
         src="/mascot/quetzito-aventurero.png"
         alt="Quetzito"
-        className="absolute bottom-24 right-8 md:right-24 w-28 md:w-40 z-20 pointer-events-none drop-shadow-2xl"
+        className="absolute bottom-24 right-8 md:right-24 w-28 md:w-40 z-20 pointer-events-none drop-shadow-2xl mascot-float mascot-hover"
         animate={{ y: [0, -18, 0], rotate: [-2, 2, -2] }}
         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
       />
@@ -339,7 +339,7 @@ function SchoolSection() {
           <motion.img
             src="/mascot/quetzito-maestro.png"
             alt="Quetzito Maestro"
-            className="hidden md:block absolute left-8 bottom-0 w-36 z-20 pointer-events-none drop-shadow-2xl"
+            className="hidden md:block absolute left-8 bottom-0 w-36 z-20 pointer-events-none drop-shadow-2xl mascot-float mascot-hover"
             animate={{ y: [0, -12, 0] }}
             transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
           />
