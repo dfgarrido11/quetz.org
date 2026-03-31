@@ -66,3 +66,45 @@ html[dir='rtl'] .ltr-text {
     opacity: 1;
   }
 }
+
+/* ─── Mascot Animations ─── */
+
+@keyframes mascotFloat {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  25% { transform: translateY(-8px) rotate(1deg); }
+  50% { transform: translateY(-12px) rotate(0deg); }
+  75% { transform: translateY(-6px) rotate(-1deg); }
+}
+
+@keyframes mascotEntrance {
+  0% { opacity: 0; transform: scale(0.3) translateY(40px); }
+  50% { opacity: 1; transform: scale(1.05) translateY(-5px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes subtleGlow {
+  0%, 100% { filter: drop-shadow(0 4px 12px rgba(82, 183, 136, 0.2)); }
+  50% { filter: drop-shadow(0 8px 24px rgba(82, 183, 136, 0.4)); }
+}
+
+@keyframes wingWave {
+  0%, 100% { transform: scaleX(1); }
+  50% { transform: scaleX(1.03); }
+}
+
+.mascot-float {
+  animation: mascotFloat 4s ease-in-out infinite, subtleGlow 3s ease-in-out infinite;
+}
+
+.mascot-entrance {
+  animation: mascotEntrance 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.mascot-hover {
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.mascot-hover:hover {
+  transform: scale(1.08) translateY(-4px);
+  filter: drop-shadow(0 12px 32px rgba(82, 183, 136, 0.5));
+}
