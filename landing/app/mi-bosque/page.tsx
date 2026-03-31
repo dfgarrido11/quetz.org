@@ -217,7 +217,6 @@ export default function MiBosquePage() {
               href="/#arboles"
               className="inline-flex items-center gap-2 bg-quetz-green text-white font-semibold py-3 px-6 rounded-xl hover:bg-green-700 transition-colors"
             >
-              <Gift className="w-5 h-5" />
               <span>🎁 {t('myForest.giftTree')}</span>
             </Link>
           </div>
@@ -430,7 +429,6 @@ function AdoptionCard({ adoption }: { adoption: Adoption }) {
           href={`/regalar?tree=${adoption.tree?.species}`}
           className="mt-3 w-full flex items-center justify-center gap-2 py-2 px-4 bg-pink-50 text-pink-600 rounded-lg text-sm font-medium hover:bg-pink-100 transition-colors"
         >
-          <Gift className="w-4 h-4" />
           <span>🎁 {t('myForest.giftThisTree')}</span>
         </Link>
       </div>
