@@ -576,60 +576,156 @@ function EmployerBrandingSection() {
 
 /* ─── CO2 CALCULATOR ─── */
 function CalculatorSection() {
+  const [mode, setMode] = useState<'employees' | 'trees'>('employees');
+  const [employees, setEmployees] = useState(50);
   const [trees, setTrees] = useState(20);
-  const co2PerTree = 22;
-  const costPerTree = 35;
-  const schoolContribution = 5;
+
+  const co2PerTree = 22; // kg/year
+  const costPerTree = 35; // € one-time
+  const schoolContribution = 5; // €/tree/year
+  // Average EU employee emits ~8.4 t CO2/year (commute + office)
+  const co2PerEmployee = 8400; // kg/year
+  const treesNeededForEmployees = Math.ceil((employees * co2PerEmployee) / (co2PerTree * 12));
+  const activeTrees = mode === 'employees' ? treesNeededForEmployees : trees;
+  const co2Offset = (activeTrees * co2PerTree * 12) / 1000; // tonnes/year
+  const monthlyCost = activeTrees * costPerTree;
+  const schoolYearly = activeTrees * schoolContribution * 12;
+  const jobs = Math.max(1, Math.ceil(activeTrees / 10));
+  const coveragePercent = mode === 'employees'
+    ? Math.min(100, Math.round((co2Offset * 1000) / (employees * co2PerEmployee) * 100))
+    : null;
 
   return (
-    <section className="relative py-24 md:py-32 bg-[#1B4332]">
+    <section className="relative py-24 md:py-32 bg-[#1B4332]" id="calculadora">
       <div className="container">
         <FadeInSection>
           <div className="text-center mb-12">
-            <p className="text-[#52B788] font-[Montserrat] font-semibold text-sm tracking-[0.15em] uppercase mb-4">Impact-Rechner</p>
+            <p className="text-[#52B788] font-[Montserrat] font-semibold text-sm tracking-[0.15em] uppercase mb-4">Calculadora de Impacto</p>
             <h2 className="font-[Montserrat] font-800 text-3xl md:text-4xl text-white mb-4">
-              Berechnen Sie Ihren Impact
+              ¿Cuántos árboles necesita tu empresa?
             </h2>
+            <p className="text-white/60 max-w-xl mx-auto">
+              Calcula tu compensación de CO₂ en segundos. Elige el modo que mejor se adapte a tu empresa.
+            </p>
           </div>
         </FadeInSection>
 
         <FadeInSection delay={0.15}>
-          <div className="max-w-3xl mx-auto bg-[#0D2818]/80 border border-[#52B788]/20 rounded-2xl p-8 md:p-12">
-            <div className="mb-8">
-              <label className="text-white/80 text-sm font-medium mb-3 block">
-                Anzahl Bäume pro Monat: <span className="text-[#52B788] font-[Montserrat] font-bold text-lg">{trees}</span>
-              </label>
-              <input
-                type="range"
-                min="5"
-                max="200"
-                step="5"
-                value={trees}
-                onChange={(e) => setTrees(Number(e.target.value))}
-                className="w-full h-2 rounded-full appearance-none cursor-pointer"
-                style={{
-                  background: `linear-gradient(to right, #52B788 ${((trees - 5) / 195) * 100}%, #0D2818 ${((trees - 5) / 195) * 100}%)`,
-                }}
-              />
-              <div className="flex justify-between text-white/30 text-xs mt-2">
-                <span>5</span>
-                <span>200</span>
-              </div>
+          <div className="max-w-3xl mx-auto">
+            {/* Mode toggle */}
+            <div className="flex bg-[#0D2818] border border-[#52B788]/20 rounded-xl p-1 mb-6 max-w-sm mx-auto">
+              <button
+                onClick={() => setMode('employees')}
+                className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold transition-all ${
+                  mode === 'employees'
+                    ? 'bg-[#52B788] text-[#0D2818]'
+                    : 'text-white/50 hover:text-white'
+                }`}
+              >
+                Por empleados
+              </button>
+              <button
+                onClick={() => setMode('trees')}
+                className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold transition-all ${
+                  mode === 'trees'
+                    ? 'bg-[#52B788] text-[#0D2818]'
+                    : 'text-white/50 hover:text-white'
+                }`}
+              >
+                Por árboles
+              </button>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {[
-                { label: "CO₂ / Jahr", value: `${(trees * co2PerTree * 12 / 1000).toFixed(1)} t`, icon: Leaf },
-                { label: "Kosten / Monat", value: `€${(trees * costPerTree).toLocaleString("de-DE")}`, icon: BarChart3 },
-                { label: "Schulbeitrag / Jahr", value: `€${(trees * schoolContribution * 12).toLocaleString("de-DE")}`, icon: School },
-                { label: "Arbeitsplätze", value: `${Math.ceil(trees / 10)}`, icon: Users },
-              ].map((item, i) => (
-                <div key={i} className="text-center">
-                  <item.icon className="w-5 h-5 text-[#52B788] mx-auto mb-2" />
-                  <p className="font-[Montserrat] font-800 text-xl md:text-2xl text-white">{item.value}</p>
-                  <p className="text-white/40 text-xs mt-1">{item.label}</p>
+            <div className="bg-[#0D2818]/80 border border-[#52B788]/20 rounded-2xl p-8 md:p-12">
+              {/* Slider */}
+              <div className="mb-8">
+                {mode === 'employees' ? (
+                  <>
+                    <label className="text-white/80 text-sm font-medium mb-3 block">
+                      Número de empleados:{' '}
+                      <span className="text-[#52B788] font-[Montserrat] font-bold text-lg">{employees}</span>
+                    </label>
+                    <input
+                      type="range" min="5" max="500" step="5" value={employees}
+                      onChange={(e) => setEmployees(Number(e.target.value))}
+                      className="w-full h-2 rounded-full appearance-none cursor-pointer"
+                      style={{ background: `linear-gradient(to right, #52B788 ${((employees - 5) / 495) * 100}%, #0D2818 ${((employees - 5) / 495) * 100}%)` }}
+                    />
+                    <div className="flex justify-between text-white/30 text-xs mt-2"><span>5</span><span>500</span></div>
+                    <p className="text-white/40 text-xs mt-3 text-center">
+                      Basado en ~8.4 t CO₂/empleado/año (desplazamiento + oficina, promedio UE)
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <label className="text-white/80 text-sm font-medium mb-3 block">
+                      Árboles al mes:{' '}
+                      <span className="text-[#52B788] font-[Montserrat] font-bold text-lg">{trees}</span>
+                    </label>
+                    <input
+                      type="range" min="5" max="200" step="5" value={trees}
+                      onChange={(e) => setTrees(Number(e.target.value))}
+                      className="w-full h-2 rounded-full appearance-none cursor-pointer"
+                      style={{ background: `linear-gradient(to right, #52B788 ${((trees - 5) / 195) * 100}%, #0D2818 ${((trees - 5) / 195) * 100}%)` }}
+                    />
+                    <div className="flex justify-between text-white/30 text-xs mt-2"><span>5</span><span>200</span></div>
+                  </>
+                )}
+              </div>
+
+              {/* Results */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
+                {[
+                  { label: mode === 'employees' ? 'CO₂ compensado/año' : 'CO₂ / año', value: `${co2Offset.toFixed(1)} t`, icon: Leaf, highlight: true },
+                  { label: 'Árboles necesarios', value: activeTrees.toLocaleString('de-DE'), icon: TreePine, highlight: false },
+                  { label: 'Coste mensual', value: `€${monthlyCost.toLocaleString('de-DE')}`, icon: BarChart3, highlight: false },
+                  { label: 'Empleos creados', value: `${jobs}`, icon: Users, highlight: false },
+                ].map((item, i) => (
+                  <div key={i} className={`text-center p-4 rounded-xl ${
+                    item.highlight ? 'bg-[#52B788]/10 border border-[#52B788]/30' : ''
+                  }`}>
+                    <item.icon className="w-5 h-5 text-[#52B788] mx-auto mb-2" />
+                    <p className="font-[Montserrat] font-800 text-xl md:text-2xl text-white">{item.value}</p>
+                    <p className="text-white/40 text-xs mt-1">{item.label}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Coverage bar (only in employee mode) */}
+              {mode === 'employees' && coveragePercent !== null && (
+                <div className="border-t border-white/10 pt-6">
+                  <div className="flex justify-between text-sm mb-2">
+                    <span className="text-white/60">Cobertura de huella de carbono</span>
+                    <span className="text-[#52B788] font-bold">{coveragePercent}%</span>
+                  </div>
+                  <div className="h-3 bg-[#0D2818] rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-[#52B788] to-[#40916C] rounded-full transition-all duration-500"
+                      style={{ width: `${coveragePercent}%` }}
+                    />
+                  </div>
+                  <p className="text-white/30 text-xs mt-2 text-center">
+                    Con {activeTrees} árboles/mes compensas el {coveragePercent}% de la huella de tus {employees} empleados
+                  </p>
                 </div>
-              ))}
+              )}
+
+              {/* School contribution highlight */}
+              <div className="mt-6 bg-blue-900/30 border border-blue-500/20 rounded-xl p-4 text-center">
+                <p className="text-blue-300 text-sm">
+                  🏫 Tu plan contribuye <strong className="text-white">€{schoolYearly.toLocaleString('de-DE')}/año</strong> a la construcción de la Escuela de Jumuzna
+                </p>
+              </div>
+
+              {/* CTA */}
+              <div className="mt-6 text-center">
+                <a
+                  href="#contacto"
+                  className="inline-flex items-center gap-2 bg-[#52B788] text-[#0D2818] font-bold px-8 py-3 rounded-xl hover:bg-[#40916C] transition-colors"
+                >
+                  Solicitar propuesta para {activeTrees} árboles/mes
+                </a>
+              </div>
             </div>
           </div>
         </FadeInSection>
