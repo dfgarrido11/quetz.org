@@ -217,7 +217,7 @@ export default function MiBosquePage() {
               href="/#arboles"
               className="inline-flex items-center gap-2 bg-quetz-green text-white font-semibold py-3 px-6 rounded-xl hover:bg-green-700 transition-colors"
             >
-              <span>🎁 {t('myForest.giftTree')}</span>
+              <span>{t('myForest.giftTree')}</span>
             </Link>
           </div>
 
