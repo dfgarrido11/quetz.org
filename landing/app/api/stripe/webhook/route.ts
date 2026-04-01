@@ -967,8 +967,138 @@ export async function POST(req: NextRequest) {
 
   console.log("[webhook] Event verified:", event.type, "id:", event.id);
 
+  // ── invoice.payment_succeeded — subscription renewals ────────────────────
+  if (event.type === "invoice.payment_succeeded") {
+    const invoice = event.data.object as Stripe.Invoice;
+    const billingReason = invoice.billing_reason;
+
+    console.log("[webhook] Invoice billing_reason:", billingReason, "subscription:", invoice.subscription);
+
+    // subscription_create is already handled by checkout.session.completed — skip to avoid double email
+    if (billingReason === "subscription_create") {
+      console.log("[webhook] Skipping invoice.payment_succeeded with billing_reason=subscription_create (handled by checkout event)");
+      return NextResponse.json({ received: true }, { status: 200 });
+    }
+
+    // Resolve customer email
+    let invoiceEmail = invoice.customer_email ?? "";
+    let invoiceName = invoice.customer_name ?? "";
+    if (!invoiceEmail && invoice.customer) {
+      try {
+        const customerId = typeof invoice.customer === "string" ? invoice.customer : invoice.customer.id;
+        const customer = await stripe.customers.retrieve(customerId) as Stripe.Customer;
+        invoiceEmail = customer.email ?? "";
+        invoiceName = customer.name ?? "";
+        console.log("[webhook] Customer resolved from Stripe API:", invoiceEmail);
+      } catch (custErr: any) {
+        console.error("[webhook] Failed to retrieve customer:", custErr.message);
+      }
+    }
+
+    const invoiceAmount = invoice.amount_paid / 100;
+    const invoiceCurrency = invoice.currency ?? "eur";
+    const stripeSubscriptionId = typeof invoice.subscription === "string"
+      ? invoice.subscription
+      : invoice.subscription?.id ?? null;
+
+    console.log("[webhook] Invoice payment:", { email: invoiceEmail, amount: invoiceAmount, stripeSubscriptionId });
+
+    // Look up subscription in our DB to get planName and language
+    let invoicePlanName = "Tree Adoption";
+    let invoiceLanguage: string | undefined = undefined;
+    if (stripeSubscriptionId) {
+      const sub = await prisma.subscription.findUnique({ where: { stripeSubscriptionId } });
+      if (sub) {
+        invoicePlanName = sub.planName;
+        console.log("[webhook] Found subscription in DB:", sub.id, "plan:", sub.planName);
+      } else {
+        console.warn("[webhook] No subscription found in DB for stripeSubscriptionId:", stripeSubscriptionId);
+      }
+    }
+
+    console.log("[webhook] ZOHO password present:", !!process.env.ZOHO_SMTP_PASSWORD);
+
+    const invoiceTransporter = nodemailer.createTransport({
+      host: "smtp.zoho.eu",
+      port: 587,
+      secure: false,
+      auth: { user: "hola@quetz.org", pass: process.env.ZOHO_SMTP_PASSWORD },
+    });
+
+    if (invoiceEmail) {
+      try {
+        console.log("[webhook] Sending welcome email (invoice) to:", invoiceEmail);
+        await invoiceTransporter.sendMail({
+          from: "Quetz.org 🌳 <hola@quetz.org>",
+          to: invoiceEmail,
+          subject: getSubjectLine(invoiceLanguage),
+          html: buildWelcomeEmail(invoiceName, invoiceLanguage, invoicePlanName, invoiceAmount, invoiceCurrency),
+        });
+        console.log("[webhook] Welcome email sent successfully (invoice) to:", invoiceEmail);
+
+        await invoiceTransporter.sendMail({
+          from: "Quetz.org 🌳 <hola@quetz.org>",
+          to: "dgarrido@quetz.org",
+          subject: `[Quetz] Subscription payment — ${invoiceEmail}`,
+          html: `
+            <h2>Invoice Payment Succeeded</h2>
+            <table style="font-family:monospace;border-collapse:collapse;">
+              <tr><td style="padding:4px 12px 4px 0;color:#6b7280;">Email</td><td>${invoiceEmail}</td></tr>
+              <tr><td style="padding:4px 12px 4px 0;color:#6b7280;">Amount</td><td>${invoiceAmount.toFixed(2)} ${invoiceCurrency.toUpperCase()}</td></tr>
+              <tr><td style="padding:4px 12px 4px 0;color:#6b7280;">Plan</td><td>${invoicePlanName}</td></tr>
+              <tr><td style="padding:4px 12px 4px 0;color:#6b7280;">Billing Reason</td><td>${billingReason}</td></tr>
+              <tr><td style="padding:4px 12px 4px 0;color:#6b7280;">Subscription ID</td><td>${stripeSubscriptionId ?? "—"}</td></tr>
+              <tr><td style="padding:4px 12px 4px 0;color:#6b7280;">Invoice ID</td><td>${invoice.id}</td></tr>
+            </table>
+          `,
+        });
+        console.log("[webhook] Team notification sent (invoice)");
+
+        console.log("[webhook] Sending Telegram (invoice)...");
+        await sendTelegramNotification(invoiceName, invoiceEmail, invoicePlanName, invoiceAmount, invoiceCurrency);
+        console.log("[webhook] Telegram sent (invoice)");
+      } catch (mailErr: any) {
+        console.error("[webhook] EMAIL ERROR (invoice):", mailErr.message, mailErr.stack);
+      }
+    } else {
+      console.warn("[webhook] No email found on invoice — skipping email send");
+    }
+
+    // Create adoption record for this invoice payment
+    console.log("[webhook] Creating adoption record (invoice)...");
+    try {
+      if (invoiceEmail) {
+        let user = await prisma.user.findUnique({ where: { email: invoiceEmail } });
+        if (!user) {
+          user = await prisma.user.create({ data: { email: invoiceEmail, name: invoiceName || null } });
+          console.log("[webhook] New user created (invoice):", user.id);
+        } else {
+          console.log("[webhook] Existing user found (invoice):", user.id);
+        }
+
+        const fallbackTree = await prisma.tree.findFirst({ where: { active: true } });
+        await prisma.adoption.create({
+          data: {
+            userId: user.id,
+            treeId: fallbackTree?.id ?? null,
+            quantity: 1,
+            amount: invoiceAmount,
+            currency: invoiceCurrency.toUpperCase(),
+            status: "active",
+          },
+        });
+        console.log("[webhook] Adoption created (invoice) for user:", user.id);
+      }
+    } catch (dbErr: any) {
+      console.error("[webhook] DB ERROR (invoice):", dbErr.message, dbErr.stack);
+    }
+
+    console.log("[webhook] Done (invoice) — returning 200");
+    return NextResponse.json({ received: true }, { status: 200 });
+  }
+
   if (event.type !== "checkout.session.completed") {
-    console.log("[webhook] Ignoring event type:", event.type, "— not checkout.session.completed");
+    console.log("[webhook] Ignoring event type:", event.type);
     return NextResponse.json({ received: true }, { status: 200 });
   }
 
