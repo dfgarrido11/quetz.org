@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useLanguage } from '@/lib/language-context';
 import { motion } from 'framer-motion';
-import { TreePine, Users, Leaf, School, DollarSign, MapPin, Heart, CheckCircle, Clock, Building } from 'lucide-react';
+import { TreePine, Users, Leaf, School, DollarSign, MapPin, Heart, CheckCircle, Clock } from 'lucide-react';
 import Link from 'next/link';
 
 interface Stats {
@@ -136,32 +136,22 @@ export default function TransparenciaPage() {
       <section className="py-16 px-4">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold text-gray-900 text-center mb-2">¿A dónde va tu dinero?</h2>
-          <p className="text-gray-500 text-center mb-10">Distribución de cada euro adoptado</p>
+          <p className="text-gray-500 text-center mb-10">Cada adopción genera impacto en dos frentes</p>
 
-          <div className="grid md:grid-cols-3 gap-6">
-            <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-6 text-center">
-              <div className="text-5xl font-bold text-emerald-700 mb-2">70%</div>
-              <div className="flex items-center justify-center gap-2 mb-3">
-                <Users className="w-5 h-5 text-emerald-600" />
-                <h3 className="font-bold text-emerald-800">Agricultores locales</h3>
+          <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+            <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-8 text-center">
+              <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Users className="w-8 h-8 text-emerald-600" />
               </div>
-              <p className="text-sm text-emerald-700">Pago directo a las familias que plantan y cuidan los árboles en Zacapa. Sin intermediarios.</p>
+              <h3 className="font-bold text-emerald-800 text-xl mb-3">Familias agricultoras</h3>
+              <p className="text-sm text-emerald-700 leading-relaxed">Pago directo a las familias de Zacapa que plantan, riegan y cuidan cada árbol. Sin intermediarios. Empleo real en una región que lo necesita.</p>
             </div>
-            <div className="bg-blue-50 border border-blue-200 rounded-2xl p-6 text-center">
-              <div className="text-5xl font-bold text-blue-700 mb-2">20%</div>
-              <div className="flex items-center justify-center gap-2 mb-3">
-                <School className="w-5 h-5 text-blue-600" />
-                <h3 className="font-bold text-blue-800">Escuela de Jumuzna</h3>
+            <div className="bg-blue-50 border border-blue-200 rounded-2xl p-8 text-center">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <School className="w-8 h-8 text-blue-600" />
               </div>
-              <p className="text-sm text-blue-700">Fondo de construcción de la escuela para 120 niños en la aldea de Jumuzna, Zacapa.</p>
-            </div>
-            <div className="bg-purple-50 border border-purple-200 rounded-2xl p-6 text-center">
-              <div className="text-5xl font-bold text-purple-700 mb-2">10%</div>
-              <div className="flex items-center justify-center gap-2 mb-3">
-                <Building className="w-5 h-5 text-purple-600" />
-                <h3 className="font-bold text-purple-800">Operación quetz.org</h3>
-              </div>
-              <p className="text-sm text-purple-700">Costos de plataforma, pagos, comunicación y seguimiento de los árboles.</p>
+              <h3 className="font-bold text-blue-800 text-xl mb-3">Escuela de Jumuzna</h3>
+              <p className="text-sm text-blue-700 leading-relaxed">Una parte de cada adopción va directamente al fondo de construcción de la escuela para 120 niños en la aldea de Jumuzna, Zacapa.</p>
             </div>
           </div>
         </div>

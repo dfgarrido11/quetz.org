@@ -17,7 +17,7 @@ interface Stats {
 
 // Base exact values - SYNCHRONIZED with school-section.tsx
 // Total Income = School Funding Base = 5,420.20 €
-// Social Fund = 30% of Total Income = 1,626.06 €
+// School Fund contribution
 const BASE_STATS = {
   totalIncome: 5420.20,
   socialFund: 1626.06,

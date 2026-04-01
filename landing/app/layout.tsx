@@ -14,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
       default: 'QUETZ – Bäume adoptieren in Guatemala | Echte Wirkung, 100% transparent',
       template: '%s | QUETZ',
     },
-    description: 'Adoptiere einen Baum in Guatemala, schaffe Arbeit für Familien und baue eine Schule. 30% Sozialfonds. Alles verifizierbar. Ab 5€.',
+    description: 'Adoptiere einen Baum in Guatemala, schaffe Arbeit für Familien und baue eine Schule für 120 Kinder. Alles verifizierbar. Ab 5€.',
     keywords: [
       'Bäume adoptieren', 'Baum adoptieren Deutschland', 'nachhaltige Geschenke',
       'Aufforstung Guatemala', 'CSR Unternehmen', 'Firmenwald', 'CO2 kompensieren',
@@ -36,7 +36,7 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     openGraph: {
       title: 'QUETZ – Bäume adoptieren in Guatemala | Echte Wirkung',
-      description: 'Adoptiere einen Baum, schaffe Arbeit für Familien und baue eine Schule. 30% Sozialfonds. Ab 5€.',
+      description: 'Adoptiere einen Baum, schaffe Arbeit für Familien und baue eine Schule für 120 Kinder. Ab 5€.',
       images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'QUETZ - Bäume adoptieren in Guatemala' }],
       type: 'website',
       locale: 'de_DE',
@@ -45,7 +45,7 @@ export async function generateMetadata(): Promise<Metadata> {
     twitter: {
       card: 'summary_large_image',
       title: 'QUETZ – Bäume adoptieren mit echtem Impact',
-      description: 'Adoptiere einen Baum in Guatemala. 30% für Sozialfonds. 100% transparent.',
+      description: 'Adoptiere einen Baum in Guatemala. Schaffe Arbeit. Baue eine Schule. 100% transparent.',
       images: ['/og-image.png'],
       creator: '@quetz_org',
     },
