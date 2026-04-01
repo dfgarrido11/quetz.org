@@ -34,6 +34,11 @@ function RegistroContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get('redirect') || '/mi-bosque';
+  const autoActivate = searchParams.get('autoActivate') === '1';
+  // Build full redirect path including autoActivate param if present
+  const fullRedirectTo = autoActivate && redirectTo.includes('/regalo/')
+    ? `${redirectTo}?autoActivate=1`
+    : redirectTo;
   const { t, isRTL, language } = useLanguage();
   const items = useCartStore((state) => state.items);
   const [formData, setFormData] = useState({
@@ -55,12 +60,12 @@ function RegistroContent() {
         const cartBackup = JSON.stringify(items);
         document.cookie = `quetz_cart_backup=${encodeURIComponent(cartBackup)}; path=/; max-age=3600; SameSite=Lax`;
       }
-      document.cookie = `quetz_redirect_after_login=${encodeURIComponent(redirectTo)}; path=/; max-age=3600; SameSite=Lax`;
+      document.cookie = `quetz_redirect_after_login=${encodeURIComponent(fullRedirectTo)}; path=/; max-age=3600; SameSite=Lax`;
       
       // Use absolute URL to ensure callback goes to quetz.org, not railway domain
       const absoluteCallbackUrl = typeof window !== 'undefined'
-        ? `${window.location.origin}${redirectTo}`
-        : redirectTo;
+        ? `${window.location.origin}${fullRedirectTo}`
+        : fullRedirectTo;
       await signIn('google', { redirect: true, callbackUrl: absoluteCallbackUrl });
     } catch (err) {
       setError(t('auth.googleSignUpError'));
@@ -97,9 +102,9 @@ function RegistroContent() {
       });
 
       if (result?.error) {
-        router.replace(`/auth/login${redirectTo !== '/mi-bosque' ? `?redirect=${encodeURIComponent(redirectTo)}` : ''}`);
+        router.replace(`/auth/login${redirectTo !== '/mi-bosque' ? `?redirect=${encodeURIComponent(fullRedirectTo)}` : ''}`);
       } else {
-        router.replace(redirectTo);
+        router.replace(fullRedirectTo);
       }
     } catch (err) {
       setError(t('auth.error'));
