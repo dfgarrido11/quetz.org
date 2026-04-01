@@ -25,6 +25,8 @@ import {
 } from 'lucide-react';
 import { useCartStore, CartItem, SpeciesSelection } from '@/lib/cart-store';
 import { useLanguage } from '@/lib/language-context';
+import { metaPixel } from '@/app/components/meta-pixel';
+import { useCartAbandonment } from '@/lib/use-cart-abandonment';
 
 const ALL_TREE_SPECIES = [
   { id: 'pino', name: 'Pino', image: '/trees/pino.jpg' },
@@ -53,7 +55,10 @@ const getSpeciesForPlan = (planName: string) => {
 export default function CartPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
-  const { t, isRTL } = useLanguage();
+  const { t, isRTL, language } = useLanguage();
+  
+  // Track cart abandonment — sends email after 1 hour if user doesn't checkout
+  useCartAbandonment(language);
   const {
     items,
     removeItem,
@@ -109,6 +114,15 @@ export default function CartPage() {
 
     setIsCheckingOut(true);
     setError('');
+
+    // Track InitiateCheckout event for Meta Pixel
+    const hasSubscription = items.some(item => item.type === 'subscription');
+    metaPixel.trackInitiateCheckout({
+      content_category: hasSubscription ? 'subscription' : 'tree_adoption',
+      num_items: items.length,
+      value: totalPrice,
+      currency: 'EUR',
+    });
 
     try {
       const giftItem = items.find(item => item.isGift && item.giftRecipient);

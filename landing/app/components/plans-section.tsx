@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { Check, Coffee, Trees, TreeDeciduous, Sparkles, ShoppingCart } from 'lucide-react';
 import { useLanguage } from '@/lib/language-context';
 import { useCartStore } from '@/lib/cart-store';
+import { metaPixel } from '@/app/components/meta-pixel';
 import Link from 'next/link';
 
 interface PlansSectionProps {
@@ -157,6 +158,13 @@ export default function PlansSection({ onSelectPlan }: PlansSectionProps) {
                             pricePerUnit: plan.price,
                             isGift: false,
                             speciesSelection: [],
+                          });
+                          metaPixel.trackAddToCart({
+                            content_name: plan.title,
+                            content_type: 'subscription',
+                            content_ids: [plan.id],
+                            value: plan.price,
+                            currency: 'EUR',
                           });
                           setAddedPlan(plan.id);
                           if (!shouldReduceMotion) {
