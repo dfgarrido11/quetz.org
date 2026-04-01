@@ -1144,30 +1144,29 @@ export async function POST(req: NextRequest) {
               },
             });
           } else {
-            // One-time adoption — need a treeId FK
-            let resolvedTreeId = treeId;
+            // One-time adoption — resolve treeId from metadata or species lookup (nullable fallback)
+            let resolvedTreeId: string | null = treeId ?? null;
             if (!resolvedTreeId && planId) {
               const tree = await prisma.tree.findUnique({ where: { species: planId } });
-              resolvedTreeId = tree?.id;
+              resolvedTreeId = tree?.id ?? null;
             }
             if (!resolvedTreeId) {
               const fallback = await prisma.tree.findFirst({ where: { active: true } });
-              resolvedTreeId = fallback?.id;
+              resolvedTreeId = fallback?.id ?? null;
             }
-            if (resolvedTreeId) {
-              await prisma.adoption.create({
-                data: {
-                  userId: user.id,
-                  treeId: resolvedTreeId,
-                  quantity: qty,
-                  amount,
-                  currency: currency.toUpperCase(),
-                  status: "active",
-                },
-              });
-            } else {
-              console.error("[webhook] No tree found — skipping adoption record");
+            if (!resolvedTreeId) {
+              console.warn("[webhook] No tree found for planId:", planId, "— creating adoption without treeId");
             }
+            await prisma.adoption.create({
+              data: {
+                userId: user.id,
+                treeId: resolvedTreeId,
+                quantity: qty,
+                amount,
+                currency: currency.toUpperCase(),
+                status: "active",
+              },
+            });
           }
         }
       } catch (dbErr) {
