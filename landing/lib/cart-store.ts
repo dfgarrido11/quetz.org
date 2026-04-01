@@ -60,7 +60,7 @@ export const useCartStore = create<CartState>()(
       isOpen: false,
       
       addItem: (item) => {
-        const id = `${item.treeId}-${item.isGift ? 'gift' : 'me'}-${Date.now()}`;
+        const id = `${item.treeId || item.planId || 'item'}-${item.isGift ? 'gift' : 'me'}-${Date.now()}`;
         set((state) => ({
           items: [...state.items, { ...item, id }],
         }));

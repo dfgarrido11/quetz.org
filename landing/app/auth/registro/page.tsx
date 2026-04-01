@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { User, Mail, Lock, Globe, Loader2, ArrowLeft } from 'lucide-react';
@@ -29,8 +29,10 @@ const countries = [
   'Switzerland', 'UAE', 'United Kingdom', 'United States', 'Uruguay', 'Venezuela', 'Other'
 ];
 
-export default function RegistroPage() {
+function RegistroContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get('redirect') || '/mi-bosque';
   const { t, isRTL, language } = useLanguage();
   const [formData, setFormData] = useState({
     name: '',
@@ -46,7 +48,7 @@ export default function RegistroPage() {
     setGoogleLoading(true);
     setError('');
     try {
-      await signIn('google', { redirect: true, callbackUrl: '/mi-bosque' });
+      await signIn('google', { redirect: true, callbackUrl: redirectTo });
     } catch (err) {
       setError(t('auth.googleSignUpError'));
       setGoogleLoading(false);
@@ -82,9 +84,9 @@ export default function RegistroPage() {
       });
 
       if (result?.error) {
-        router.replace('/auth/login');
+        router.replace(`/auth/login${redirectTo !== '/mi-bosque' ? `?redirect=${encodeURIComponent(redirectTo)}` : ''}`);
       } else {
-        router.replace('/mi-bosque');
+        router.replace(redirectTo);
       }
     } catch (err) {
       setError(t('auth.error'));
@@ -261,12 +263,24 @@ export default function RegistroPage() {
           {/* Login Link */}
           <p className="text-center mt-6 text-gray-600">
             {t('auth.hasAccount')}{' '}
-            <Link href="/auth/login" className="text-quetz-green font-semibold hover:underline">
+            <Link href={`/auth/login${redirectTo !== '/mi-bosque' ? `?redirect=${encodeURIComponent(redirectTo)}` : ''}`} className="text-quetz-green font-semibold hover:underline">
               {t('auth.loginHere')}
             </Link>
           </p>
         </div>
       </motion.div>
     </div>
+  );
+}
+
+export default function RegistroPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-quetz-green border-t-transparent rounded-full" />
+      </div>
+    }>
+      <RegistroContent />
+    </Suspense>
   );
 }
