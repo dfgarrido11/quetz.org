@@ -8,6 +8,7 @@ import { motion } from 'framer-motion';
 import { User, Mail, Lock, Globe, Loader2, ArrowLeft } from 'lucide-react';
 import Image from 'next/image';
 import { useLanguage } from '@/lib/language-context';
+import { useCartStore } from '@/lib/cart-store';
 
 // Google Icon SVG component
 function GoogleIcon({ className }: { className?: string }) {
@@ -34,6 +35,7 @@ function RegistroContent() {
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get('redirect') || '/mi-bosque';
   const { t, isRTL, language } = useLanguage();
+  const items = useCartStore((state) => state.items);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -48,6 +50,13 @@ function RegistroContent() {
     setGoogleLoading(true);
     setError('');
     try {
+      // Save cart to cookie before OAuth redirect so it survives the cross-domain redirect
+      if (items.length > 0) {
+        const cartBackup = JSON.stringify(items);
+        document.cookie = `quetz_cart_backup=${encodeURIComponent(cartBackup)}; path=/; max-age=3600; SameSite=Lax`;
+      }
+      document.cookie = `quetz_redirect_after_login=${encodeURIComponent(redirectTo)}; path=/; max-age=3600; SameSite=Lax`;
+      
       // Use absolute URL to ensure callback goes to quetz.org, not railway domain
       const absoluteCallbackUrl = typeof window !== 'undefined'
         ? `${window.location.origin}${redirectTo}`

@@ -61,6 +61,7 @@ export default function CartPage() {
   useCartAbandonment(language);
   const {
     items,
+    addItem,
     removeItem,
     updateQuantity,
     updateGiftStatus,
@@ -68,6 +69,37 @@ export default function CartPage() {
     updateSpeciesSelection,
     clearCart,
   } = useCartStore();
+
+  // Restore cart from cookie backup after Google OAuth redirect
+  // This handles the case where the cart was saved before the OAuth redirect
+  // and needs to be restored when the user returns to the cart page
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    const cookies = document.cookie.split(';').reduce((acc, cookie) => {
+      const [key, val] = cookie.trim().split('=');
+      acc[key] = val;
+      return acc;
+    }, {} as Record<string, string>);
+    
+    const cartBackupCookie = cookies['quetz_cart_backup'];
+    if (cartBackupCookie && items.length === 0) {
+      try {
+        const backupItems = JSON.parse(decodeURIComponent(cartBackupCookie));
+        if (Array.isArray(backupItems) && backupItems.length > 0) {
+          // Restore each item to the cart
+          backupItems.forEach((item: any) => {
+            const { id, ...itemWithoutId } = item;
+            addItem(itemWithoutId);
+          });
+          // Clear the backup cookie
+          document.cookie = 'quetz_cart_backup=; path=/; max-age=0';
+        }
+      } catch (e) {
+        // Silently fail if cookie is malformed
+        document.cookie = 'quetz_cart_backup=; path=/; max-age=0';
+      }
+    }
+  }, []); // Only run once on mount
   
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
   const [isCheckingOut, setIsCheckingOut] = useState(false);
