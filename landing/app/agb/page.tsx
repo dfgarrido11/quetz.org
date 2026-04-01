@@ -27,7 +27,7 @@ export default function AGBPage() {
           
           <section>
             <h2 className="text-xl font-semibold text-gray-900 mb-3">§2 Vertragsgegenstand</h2>
-            <p><strong>Baum-Adoption:</strong> Symbolische Adoption inkl. Pflanzung, Pflege, Dashboard-Zugang und Beitrag zum Sozialfonds (30%).</p>
+            <p><strong>Baum-Adoption:</strong> Symbolische Adoption inkl. Pflanzung, Pflege, Dashboard-Zugang und Beitrag zum Schulbauprojekt in Zacapa.</p>
             <p className="mt-2"><strong>Abonnements:</strong> Monatliche Baumpflanzungen gemäß gewähltem Plan.</p>
             <p className="mt-2"><strong>Spenden:</strong> Direkte Unterstützung des Schulbau-Projekts.</p>
           </section>
@@ -51,7 +51,7 @@ export default function AGBPage() {
           
           <section>
             <h2 className="text-xl font-semibold text-gray-900 mb-3">§6 Mittelverwendung</h2>
-            <p>30% Sozialfonds (Familien + Schulbau), 70% Pflanzung, Pflege, Betrieb. Transparent dokumentiert.</p>
+            <p>Ein Teil jeder Adoption fließt direkt an die lokalen Bauernfamilien, ein weiterer Teil in den Schulbaufonds für 120 Kinder in Zacapa. Transparent dokumentiert auf quetz.org/transparencia.</p>
           </section>
           
           <section>
