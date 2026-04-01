@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 import { NextResponse } from 'next/server';
-import nodemailer from 'nodemailer';
+import { sendEmail } from '@/lib/email';
 
 // This endpoint is called by a cron job (e.g., Railway cron or Vercel cron)
 // It sends abandoned cart reminder emails to users who added items but didn't checkout
@@ -221,27 +221,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    const transporter = nodemailer.createTransport({
-      host: 'smtp.zoho.eu',
-      port: 465,
-      secure: true,
-      auth: {
-        user: 'hola@quetz.org',
-        pass: process.env.ZOHO_SMTP_PASSWORD,
-      },
-      connectionTimeout: 30000,
-      greetingTimeout: 30000,
-      socketTimeout: 30000,
-    });
-
     const { subject, html } = getEmailContent(userName, items, totalValue, cartUrl, language || 'es');
 
-    await transporter.sendMail({
-      from: '"Quetz 🌳" <hola@quetz.org>',
-      to: userEmail,
-      subject,
-      html,
-    });
+    await sendEmail(userEmail, subject, html);
 
     return NextResponse.json({ success: true, sentTo: userEmail });
   } catch (error) {

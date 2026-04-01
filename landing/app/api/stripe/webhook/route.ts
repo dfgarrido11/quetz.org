@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import Stripe from "stripe";
 import { NextRequest, NextResponse } from "next/server";
-import nodemailer from "nodemailer";
+import { sendEmail } from "@/lib/email";
 import { prisma } from "@/lib/prisma";
 
 function getSubjectLine(language: string | undefined): string {
@@ -1016,34 +1016,22 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    console.log("[webhook] ZOHO password present:", !!process.env.ZOHO_SMTP_PASSWORD);
-
-    const invoiceTransporter = nodemailer.createTransport({
-      host: "smtp.zoho.eu",
-      port: 465,
-      secure: true,
-      auth: { user: "hola@quetz.org", pass: process.env.ZOHO_SMTP_PASSWORD },
-      connectionTimeout: 30000,
-      greetingTimeout: 30000,
-      socketTimeout: 30000,
-    });
+    console.log("[webhook] RESEND_API_KEY present:", !!process.env.RESEND_API_KEY);
 
     if (invoiceEmail) {
       try {
         console.log("[webhook] Sending welcome email (invoice) to:", invoiceEmail);
-        await invoiceTransporter.sendMail({
-          from: "Quetz.org 🌳 <hola@quetz.org>",
-          to: invoiceEmail,
-          subject: getSubjectLine(invoiceLanguage),
-          html: buildWelcomeEmail(invoiceName, invoiceLanguage, invoicePlanName, invoiceAmount, invoiceCurrency),
-        });
+        await sendEmail(
+          invoiceEmail,
+          getSubjectLine(invoiceLanguage),
+          buildWelcomeEmail(invoiceName, invoiceLanguage, invoicePlanName, invoiceAmount, invoiceCurrency)
+        );
         console.log("[webhook] Welcome email sent successfully (invoice) to:", invoiceEmail);
 
-        await invoiceTransporter.sendMail({
-          from: "Quetz.org 🌳 <hola@quetz.org>",
-          to: "dgarrido@quetz.org",
-          subject: `[Quetz] Subscription payment — ${invoiceEmail}`,
-          html: `
+        await sendEmail(
+          "dgarrido@quetz.org",
+          `[Quetz] Subscription payment — ${invoiceEmail}`,
+          `
             <h2>Invoice Payment Succeeded</h2>
             <table style="font-family:monospace;border-collapse:collapse;">
               <tr><td style="padding:4px 12px 4px 0;color:#6b7280;">Email</td><td>${invoiceEmail}</td></tr>
@@ -1053,8 +1041,8 @@ export async function POST(req: NextRequest) {
               <tr><td style="padding:4px 12px 4px 0;color:#6b7280;">Subscription ID</td><td>${stripeSubscriptionId ?? "—"}</td></tr>
               <tr><td style="padding:4px 12px 4px 0;color:#6b7280;">Invoice ID</td><td>${invoice.id}</td></tr>
             </table>
-          `,
-        });
+          `
+        );
         console.log("[webhook] Team notification sent (invoice)");
 
         console.log("[webhook] Sending Telegram (invoice)...");
@@ -1126,20 +1114,9 @@ export async function POST(req: NextRequest) {
   const planName = metadata.planName as string | undefined ?? "";
   const isGift = metadata.isGift === "true";
 
-  console.log("[webhook] ZOHO password present:", !!process.env.ZOHO_SMTP_PASSWORD);
+  console.log("[webhook] RESEND_API_KEY present:", !!process.env.RESEND_API_KEY);
 
-  const transporter = nodemailer.createTransport({
-    host: "smtp.zoho.eu",
-    port: 465,
-    secure: true,
-    auth: {
-      user: "hola@quetz.org",
-      pass: process.env.ZOHO_SMTP_PASSWORD,
-    },
-    connectionTimeout: 30000,
-    greetingTimeout: 30000,
-    socketTimeout: 30000,
-  });
+  console.log("[webhook] RESEND_API_KEY present:", !!process.env.RESEND_API_KEY);
 
   if (isGift) {
     // ── GIFT PURCHASE FLOW ─────────────────────────────────────────────────
@@ -1176,11 +1153,10 @@ export async function POST(req: NextRequest) {
       // 2) Send gift email to RECIPIENT
       if (recipientEmail) {
         console.log("[webhook] Sending gift email to recipient:", recipientEmail);
-        await transporter.sendMail({
-          from: "Quetz.org 🌳 <hola@quetz.org>",
-          to: recipientEmail,
-          subject: `🎁 ¡Alguien te ha regalado un árbol! | Someone gifted you a tree!`,
-          html: buildGiftRecipientEmail(
+        await sendEmail(
+          recipientEmail,
+          `🎁 ¡Alguien te ha regalado un árbol! | Someone gifted you a tree!`,
+          buildGiftRecipientEmail(
             recipientName,
             customerName || senderEmail,
             message,
@@ -1188,19 +1164,18 @@ export async function POST(req: NextRequest) {
             planName || "Tree Adoption",
             occasion,
             language
-          ),
-        });
+          )
+        );
         console.log("[webhook] Gift email sent to recipient");
       }
 
       // 3) Send confirmation email to BUYER
       if (customerEmail) {
         console.log("[webhook] Sending gift confirmation to buyer:", customerEmail);
-        await transporter.sendMail({
-          from: "Quetz.org 🌳 <hola@quetz.org>",
-          to: customerEmail,
-          subject: `🎁 Tu regalo ha sido enviado — código ${code}`,
-          html: buildGiftConfirmationEmail(
+        await sendEmail(
+          customerEmail,
+          `🎁 Tu regalo ha sido enviado — código ${code}`,
+          buildGiftConfirmationEmail(
             customerName,
             recipientName,
             recipientEmail,
@@ -1209,8 +1184,8 @@ export async function POST(req: NextRequest) {
             amount,
             currency,
             language
-          ),
-        });
+          )
+        );
         console.log("[webhook] Gift confirmation sent to buyer");
       }
 
@@ -1241,21 +1216,19 @@ export async function POST(req: NextRequest) {
       try {
         // Welcome email to customer
         console.log("[webhook] Sending welcome email to:", customerEmail);
-        await transporter.sendMail({
-          from: "Quetz.org 🌳 <hola@quetz.org>",
-          to: customerEmail,
-          subject: getSubjectLine(language),
-          html: buildWelcomeEmail(customerName, language, planName, amount, currency),
-        });
+        await sendEmail(
+          customerEmail,
+          getSubjectLine(language),
+          buildWelcomeEmail(customerName, language, planName, amount, currency)
+        );
         console.log("[webhook] Welcome email sent successfully to:", customerEmail);
 
         // Notification email to team
         console.log("[webhook] Sending team notification email...");
-        await transporter.sendMail({
-          from: "Quetz.org 🌳 <hola@quetz.org>",
-          to: "dgarrido@quetz.org",
-          subject: `[Quetz] New tree adoption — ${customerEmail}`,
-          html: `
+        await sendEmail(
+          "dgarrido@quetz.org",
+          `[Quetz] New tree adoption — ${customerEmail}`,
+          `
             <h2>New Checkout Completed</h2>
             <table style="font-family:monospace;border-collapse:collapse;">
               <tr><td style="padding:4px 12px 4px 0;color:#6b7280;">Session ID</td><td>${session.id}</td></tr>
@@ -1264,8 +1237,8 @@ export async function POST(req: NextRequest) {
               <tr><td style="padding:4px 12px 4px 0;color:#6b7280;">Amount Total</td><td>${session.amount_total != null ? (session.amount_total / 100).toFixed(2) : "—"} ${session.currency?.toUpperCase() ?? ""}</td></tr>
               <tr><td style="padding:4px 12px 4px 0;color:#6b7280;">Metadata</td><td><pre>${JSON.stringify(metadata, null, 2)}</pre></td></tr>
             </table>
-          `,
-        });
+          `
+        );
         console.log("[webhook] Team notification sent");
 
         console.log("[webhook] Sending Telegram...");
