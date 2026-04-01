@@ -1,21 +1,9 @@
 export const dynamic = "force-dynamic";
 
 import { NextResponse } from 'next/server';
-import nodemailer from 'nodemailer';
+import { sendEmail } from '@/lib/email';
 
 export async function POST(request: Request) {
-  const transporter = nodemailer.createTransport({
-    host: 'smtp.zoho.eu',
-    port: 465,
-    secure: true,
-    auth: {
-      user: 'hola@quetz.org',
-      pass: process.env.ZOHO_SMTP_PASSWORD,
-    },
-    connectionTimeout: 30000,
-    greetingTimeout: 30000,
-    socketTimeout: 30000,
-  });
   try {
     const { companyName, country, contactName, email, phone, employees, message } = await request.json();
 
@@ -24,11 +12,10 @@ export async function POST(request: Request) {
     }
 
     // Notificar al equipo interno
-    await transporter.sendMail({
-      from: '"Quetz" <hola@quetz.org>',
-      to: 'dgarrido@quetz.org',
-      subject: `Nueva solicitud corporativa — ${companyName}`,
-      html: `
+    await sendEmail(
+      'dgarrido@quetz.org',
+      `Nueva solicitud corporativa — ${companyName}`,
+      `
         <h2>Nueva solicitud de propuesta corporativa</h2>
         <table style="border-collapse:collapse;width:100%">
           <tr><td style="padding:6px;font-weight:bold">Empresa</td><td style="padding:6px">${companyName}</td></tr>
@@ -39,22 +26,21 @@ export async function POST(request: Request) {
           <tr><td style="padding:6px;font-weight:bold">Empleados</td><td style="padding:6px">${employees}</td></tr>
           <tr><td style="padding:6px;font-weight:bold">Mensaje</td><td style="padding:6px">${message || '—'}</td></tr>
         </table>
-      `,
-    });
+      `
+    );
 
     // Confirmar al cliente
-    await transporter.sendMail({
-      from: '"Quetz" <hola@quetz.org>',
-      to: email,
-      subject: 'Hemos recibido tu solicitud — Quetz',
-      html: `
+    await sendEmail(
+      email,
+      'Hemos recibido tu solicitud — Quetz',
+      `
         <h2>Hola, ${contactName}</h2>
         <p>Gracias por tu interés en el programa de sostenibilidad corporativa de Quetz.</p>
         <p>Hemos recibido tu solicitud para <strong>${companyName}</strong> y nos pondremos en contacto contigo en las próximas 24–48 horas.</p>
         <br/>
         <p>El equipo de Quetz</p>
-      `,
-    });
+      `
+    );
 
     return NextResponse.json({ success: true });
   } catch (error) {

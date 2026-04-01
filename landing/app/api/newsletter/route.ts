@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import nodemailer from "nodemailer";
+import { sendEmail } from "@/lib/email";
 
 const confirmationText: Record<string, { subject: string; body: string }> = {
   en: {
@@ -93,22 +93,8 @@ export async function POST(req: NextRequest) {
 
     // Send confirmation email (fire-and-forget — don't block the response)
     const c = confirmationText[lang] ?? confirmationText.es;
-    const transporter = nodemailer.createTransport({
-      host: "smtp.zoho.eu",
-      port: 465,
-      secure: true,
-      auth: { user: "hola@quetz.org", pass: process.env.ZOHO_SMTP_PASSWORD },
-      connectionTimeout: 30000,
-      greetingTimeout: 30000,
-      socketTimeout: 30000,
-    });
-
-    transporter.sendMail({
-      from: "Quetz.org 🌳 <hola@quetz.org>",
-      to: email,
-      subject: c.subject,
-      html: buildConfirmationEmail(lang),
-    }).catch((err) => console.error("[newsletter] email failed:", err));
+    sendEmail(email, c.subject, buildConfirmationEmail(lang))
+      .catch((err) => console.error("[newsletter] email failed:", err));
 
     return NextResponse.json({ ok: true });
   } catch (err: any) {
