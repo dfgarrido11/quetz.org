@@ -942,12 +942,15 @@ function buildGiftConfirmationEmail(
 }
 
 export async function POST(req: NextRequest) {
+  console.log("[webhook] POST received");
+
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: "2024-06-20",
   });
 
   const body = await req.text();
   const sig = req.headers.get("stripe-signature");
+  console.log("[webhook] body length:", body.length, "sig present:", !!sig);
 
   let event: Stripe.Event;
 
@@ -958,222 +961,258 @@ export async function POST(req: NextRequest) {
       process.env.STRIPE_WEBHOOK_SECRET!
     );
   } catch (err: any) {
-    console.error("Stripe webhook signature verification failed:", err.message);
+    console.error("[webhook] Signature verification FAILED:", err.message);
     return NextResponse.json({ error: "Webhook verification failed" }, { status: 400 });
   }
 
-  if (event.type === "checkout.session.completed") {
-    const session = event.data.object as Stripe.Checkout.Session;
+  console.log("[webhook] Event verified:", event.type, "id:", event.id);
 
-    const customerEmail = session.customer_email ?? session.customer_details?.email ?? "";
-    const customerName = session.customer_details?.name ?? "";
-    const metadata = session.metadata ?? {};
+  if (event.type !== "checkout.session.completed") {
+    console.log("[webhook] Ignoring event type:", event.type, "— not checkout.session.completed");
+    return NextResponse.json({ received: true }, { status: 200 });
+  }
 
-    console.log("checkout.session.completed:", {
-      email: customerEmail,
-      name: customerName,
-      metadata,
-      sessionId: session.id,
-    });
+  const session = event.data.object as Stripe.Checkout.Session;
 
-    const amount = session.amount_total != null ? session.amount_total / 100 : 0;
-    const currency = session.currency ?? "eur";
-    const language = metadata.language as string | undefined;
-    const planName = metadata.planName as string | undefined ?? "";
-    const isGift = metadata.isGift === "true";
+  const customerEmail = session.customer_email ?? session.customer_details?.email ?? "";
+  const customerName = session.customer_details?.name ?? "";
+  const metadata = session.metadata ?? {};
 
-    const transporter = nodemailer.createTransport({
-      host: "smtp.zoho.eu",
-      port: 587,
-      secure: false,
-      auth: {
-        user: "hola@quetz.org",
-        pass: process.env.ZOHO_SMTP_PASSWORD,
-      },
-    });
+  console.log("[webhook] Session:", {
+    email: customerEmail,
+    name: customerName,
+    metadata,
+    mode: session.mode,
+    isGift: metadata.isGift,
+    sessionId: session.id,
+  });
 
-    if (isGift) {
-      // ── GIFT PURCHASE FLOW ─────────────────────────────────────────────────
-      const recipientEmail = metadata.recipientEmail ?? "";
-      const recipientName = metadata.recipientName ?? "Amigo/a";
-      const occasion = metadata.occasion ?? "otro";
-      const message = metadata.message ?? "";
-      const senderEmail = metadata.senderEmail ?? customerEmail;
+  const amount = session.amount_total != null ? session.amount_total / 100 : 0;
+  const currency = session.currency ?? "eur";
+  const language = metadata.language as string | undefined;
+  const planName = metadata.planName as string | undefined ?? "";
+  const isGift = metadata.isGift === "true";
 
-      try {
-        // 1) Generate code and create Gift record
-        const code = await uniqueGiftCode();
+  console.log("[webhook] ZOHO password present:", !!process.env.ZOHO_SMTP_PASSWORD);
 
-        await prisma.gift.create({
-          data: {
+  const transporter = nodemailer.createTransport({
+    host: "smtp.zoho.eu",
+    port: 587,
+    secure: false,
+    auth: {
+      user: "hola@quetz.org",
+      pass: process.env.ZOHO_SMTP_PASSWORD,
+    },
+  });
+
+  if (isGift) {
+    // ── GIFT PURCHASE FLOW ─────────────────────────────────────────────────
+    const recipientEmail = metadata.recipientEmail ?? "";
+    const recipientName = metadata.recipientName ?? "Amigo/a";
+    const occasion = metadata.occasion ?? "otro";
+    const message = metadata.message ?? "";
+    const senderEmail = metadata.senderEmail ?? customerEmail;
+
+    try {
+      // 1) Generate code and create Gift record
+      const code = await uniqueGiftCode();
+      console.log("[webhook] Gift code generated:", code);
+
+      await prisma.gift.create({
+        data: {
+          code,
+          planId: planName.toLowerCase().replace(/\s+/g, "_") || "custom",
+          planName: planName || "Tree Adoption",
+          treesPerMonth: 1,
+          durationMonths: 12,
+          amountEur: amount,
+          senderEmail,
+          recipientName,
+          recipientEmail,
+          occasion,
+          message: message || null,
+          stripeSessionId: session.id,
+          status: "paid",
+        },
+      });
+      console.log("[webhook] Gift record created in DB");
+
+      // 2) Send gift email to RECIPIENT
+      if (recipientEmail) {
+        console.log("[webhook] Sending gift email to recipient:", recipientEmail);
+        await transporter.sendMail({
+          from: "Quetz.org 🌳 <hola@quetz.org>",
+          to: recipientEmail,
+          subject: `🎁 ¡Alguien te ha regalado un árbol! | Someone gifted you a tree!`,
+          html: buildGiftRecipientEmail(
+            recipientName,
+            customerName || senderEmail,
+            message,
             code,
-            planId: planName.toLowerCase().replace(/\s+/g, "_") || "custom",
-            planName: planName || "Tree Adoption",
-            treesPerMonth: 1,
-            durationMonths: 12,
-            amountEur: amount,
-            senderEmail,
+            planName || "Tree Adoption",
+            occasion,
+            language
+          ),
+        });
+        console.log("[webhook] Gift email sent to recipient");
+      }
+
+      // 3) Send confirmation email to BUYER
+      if (customerEmail) {
+        console.log("[webhook] Sending gift confirmation to buyer:", customerEmail);
+        await transporter.sendMail({
+          from: "Quetz.org 🌳 <hola@quetz.org>",
+          to: customerEmail,
+          subject: `🎁 Tu regalo ha sido enviado — código ${code}`,
+          html: buildGiftConfirmationEmail(
+            customerName,
             recipientName,
             recipientEmail,
-            occasion,
-            message: message || null,
-            stripeSessionId: session.id,
-            status: "paid",
-          },
+            code,
+            planName || "Tree Adoption",
+            amount,
+            currency,
+            language
+          ),
         });
+        console.log("[webhook] Gift confirmation sent to buyer");
+      }
 
-        // 2) Send gift email to RECIPIENT
-        if (recipientEmail) {
-          await transporter.sendMail({
-            from: "Quetz.org 🌳 <hola@quetz.org>",
-            to: recipientEmail,
-            subject: `🎁 ¡Alguien te ha regalado un árbol! | Someone gifted you a tree!`,
-            html: buildGiftRecipientEmail(
-              recipientName,
-              customerName || senderEmail,
-              message,
-              code,
-              planName || "Tree Adoption",
-              occasion,
-              language
-            ),
-          });
-        }
+      // 4) Update gift status to 'sent'
+      await prisma.gift.update({
+        where: { code },
+        data: { status: "sent", sentAt: new Date() },
+      });
 
-        // 3) Send confirmation email to BUYER
-        if (customerEmail) {
-          await transporter.sendMail({
-            from: "Quetz.org 🌳 <hola@quetz.org>",
-            to: customerEmail,
-            subject: `🎁 Tu regalo ha sido enviado — código ${code}`,
-            html: buildGiftConfirmationEmail(
-              customerName,
-              recipientName,
-              recipientEmail,
-              code,
-              planName || "Tree Adoption",
-              amount,
-              currency,
-              language
-            ),
-          });
-        }
+      console.log(`[webhook] Gift ${code} sent to ${recipientEmail}, confirmed to ${customerEmail}`);
 
-        // 4) Update gift status to 'sent'
-        await prisma.gift.update({
-          where: { code },
-          data: { status: "sent", sentAt: new Date() },
+      // 5) Telegram notification
+      console.log("[webhook] Sending Telegram...");
+      await sendTelegramNotification(
+        `🎁 GIFT → ${recipientName}`,
+        customerEmail,
+        planName || "Tree Gift",
+        amount,
+        currency
+      );
+      console.log("[webhook] Telegram sent");
+    } catch (giftErr: any) {
+      console.error("[webhook] GIFT ERROR:", giftErr.message, giftErr.stack);
+    }
+  } else {
+    // ── REGULAR PURCHASE FLOW ──────────────────────────────────────────────
+    if (customerEmail) {
+      try {
+        // Welcome email to customer
+        console.log("[webhook] Sending welcome email to:", customerEmail);
+        await transporter.sendMail({
+          from: "Quetz.org 🌳 <hola@quetz.org>",
+          to: customerEmail,
+          subject: getSubjectLine(language),
+          html: buildWelcomeEmail(customerName, language, planName, amount, currency),
         });
+        console.log("[webhook] Welcome email sent successfully to:", customerEmail);
 
-        console.log(`Gift ${code} sent to ${recipientEmail}, confirmed to ${customerEmail}`);
+        // Notification email to team
+        console.log("[webhook] Sending team notification email...");
+        await transporter.sendMail({
+          from: "Quetz.org 🌳 <hola@quetz.org>",
+          to: "dgarrido@quetz.org",
+          subject: `[Quetz] New tree adoption — ${customerEmail}`,
+          html: `
+            <h2>New Checkout Completed</h2>
+            <table style="font-family:monospace;border-collapse:collapse;">
+              <tr><td style="padding:4px 12px 4px 0;color:#6b7280;">Session ID</td><td>${session.id}</td></tr>
+              <tr><td style="padding:4px 12px 4px 0;color:#6b7280;">Customer Email</td><td>${customerEmail}</td></tr>
+              <tr><td style="padding:4px 12px 4px 0;color:#6b7280;">Customer Name</td><td>${customerName}</td></tr>
+              <tr><td style="padding:4px 12px 4px 0;color:#6b7280;">Amount Total</td><td>${session.amount_total != null ? (session.amount_total / 100).toFixed(2) : "—"} ${session.currency?.toUpperCase() ?? ""}</td></tr>
+              <tr><td style="padding:4px 12px 4px 0;color:#6b7280;">Metadata</td><td><pre>${JSON.stringify(metadata, null, 2)}</pre></td></tr>
+            </table>
+          `,
+        });
+        console.log("[webhook] Team notification sent");
 
-        // 5) Telegram notification
-        await sendTelegramNotification(
-          `🎁 GIFT → ${recipientName}`,
-          customerEmail,
-          planName || "Tree Gift",
-          amount,
-          currency
-        );
-      } catch (giftErr) {
-        console.error("Failed to process gift:", giftErr);
+        console.log("[webhook] Sending Telegram...");
+        await sendTelegramNotification(customerName, customerEmail, planName, amount, currency);
+        console.log("[webhook] Telegram sent");
+      } catch (mailErr: any) {
+        console.error("[webhook] EMAIL ERROR:", mailErr.message, mailErr.stack);
       }
     } else {
-      // ── REGULAR PURCHASE FLOW ──────────────────────────────────────────────
+      console.warn("[webhook] No customerEmail in session — skipping email send");
+    }
+
+    // ── CREATE DB RECORD ──────────────────────────────────────────────────
+    console.log("[webhook] Creating adoption record...");
+    try {
       if (customerEmail) {
-        try {
-          // Welcome email to customer
-          await transporter.sendMail({
-            from: "Quetz.org 🌳 <hola@quetz.org>",
-            to: customerEmail,
-            subject: getSubjectLine(language),
-            html: buildWelcomeEmail(customerName, language, planName, amount, currency),
+        let user = await prisma.user.findUnique({ where: { email: customerEmail } });
+        if (!user) {
+          user = await prisma.user.create({
+            data: {
+              email: customerEmail,
+              name: customerName || null,
+            },
           });
+          console.log("[webhook] New user created:", user.id);
+        } else {
+          console.log("[webhook] Existing user found:", user.id);
+        }
 
-          // Notification email to team
-          await transporter.sendMail({
-            from: "Quetz.org 🌳 <hola@quetz.org>",
-            to: "dgarrido@quetz.org",
-            subject: `[Quetz] New tree adoption — ${customerEmail}`,
-            html: `
-              <h2>New Checkout Completed</h2>
-              <table style="font-family:monospace;border-collapse:collapse;">
-                <tr><td style="padding:4px 12px 4px 0;color:#6b7280;">Session ID</td><td>${session.id}</td></tr>
-                <tr><td style="padding:4px 12px 4px 0;color:#6b7280;">Customer Email</td><td>${customerEmail}</td></tr>
-                <tr><td style="padding:4px 12px 4px 0;color:#6b7280;">Customer Name</td><td>${customerName}</td></tr>
-                <tr><td style="padding:4px 12px 4px 0;color:#6b7280;">Amount Total</td><td>${session.amount_total != null ? (session.amount_total / 100).toFixed(2) : "—"} ${session.currency?.toUpperCase() ?? ""}</td></tr>
-                <tr><td style="padding:4px 12px 4px 0;color:#6b7280;">Metadata</td><td><pre>${JSON.stringify(metadata, null, 2)}</pre></td></tr>
-              </table>
-            `,
+        const treeId = metadata.treeId;
+        const planId = metadata.planId || metadata.treeId;
+        const qty = parseInt(metadata.quantity || "1", 10);
+
+        if (session.mode === "subscription" && session.subscription) {
+          console.log("[webhook] Creating subscription record for:", planId);
+          await prisma.subscription.create({
+            data: {
+              userId: user.id,
+              planId: planId || "cafe",
+              planName: planName || metadata.planName || "Plan",
+              treesPerMonth: parseInt(metadata.treesPerMonth || "1", 10),
+              priceEurMonth: amount,
+              stripeSubscriptionId: String(session.subscription),
+              status: "active",
+            },
           });
-
-          console.log("Welcome emails sent to:", customerEmail);
-          await sendTelegramNotification(customerName, customerEmail, planName, amount, currency);
-        } catch (mailErr) {
-          console.error("Failed to send welcome email:", mailErr);
-        }
-      }
-
-      // ── CREATE DB RECORD ──────────────────────────────────────────────────
-      try {
-        if (customerEmail) {
-          let user = await prisma.user.findUnique({ where: { email: customerEmail } });
-          if (!user) {
-            user = await prisma.user.create({
-              data: {
-                email: customerEmail,
-                name: customerName || null,
-              },
-            });
+          console.log("[webhook] Subscription record created");
+        } else {
+          // One-time adoption — resolve treeId from metadata or species lookup (nullable fallback)
+          let resolvedTreeId: string | null = treeId ?? null;
+          if (!resolvedTreeId && planId) {
+            const tree = await prisma.tree.findUnique({ where: { species: planId } });
+            resolvedTreeId = tree?.id ?? null;
+            console.log("[webhook] Tree lookup by species", planId, "->", resolvedTreeId ?? "not found");
           }
-
-          const treeId = metadata.treeId;
-          const planId = metadata.planId || metadata.treeId;
-          const qty = parseInt(metadata.quantity || "1", 10);
-
-          if (session.mode === "subscription" && session.subscription) {
-            await prisma.subscription.create({
-              data: {
-                userId: user.id,
-                planId: planId || "cafe",
-                planName: planName || metadata.planName || "Plan",
-                treesPerMonth: parseInt(metadata.treesPerMonth || "1", 10),
-                priceEurMonth: amount,
-                stripeSubscriptionId: String(session.subscription),
-                status: "active",
-              },
-            });
-          } else {
-            // One-time adoption — resolve treeId from metadata or species lookup (nullable fallback)
-            let resolvedTreeId: string | null = treeId ?? null;
-            if (!resolvedTreeId && planId) {
-              const tree = await prisma.tree.findUnique({ where: { species: planId } });
-              resolvedTreeId = tree?.id ?? null;
-            }
-            if (!resolvedTreeId) {
-              const fallback = await prisma.tree.findFirst({ where: { active: true } });
-              resolvedTreeId = fallback?.id ?? null;
-            }
-            if (!resolvedTreeId) {
-              console.warn("[webhook] No tree found for planId:", planId, "— creating adoption without treeId");
-            }
-            await prisma.adoption.create({
-              data: {
-                userId: user.id,
-                treeId: resolvedTreeId,
-                quantity: qty,
-                amount,
-                currency: currency.toUpperCase(),
-                status: "active",
-              },
-            });
+          if (!resolvedTreeId) {
+            const fallback = await prisma.tree.findFirst({ where: { active: true } });
+            resolvedTreeId = fallback?.id ?? null;
+            console.log("[webhook] Fallback tree ->", resolvedTreeId ?? "none");
           }
+          if (!resolvedTreeId) {
+            console.warn("[webhook] No tree found for planId:", planId, "— creating adoption without treeId");
+          }
+          await prisma.adoption.create({
+            data: {
+              userId: user.id,
+              treeId: resolvedTreeId,
+              quantity: qty,
+              amount,
+              currency: currency.toUpperCase(),
+              status: "active",
+            },
+          });
+          console.log("[webhook] Adoption created for user:", user.id, "treeId:", resolvedTreeId);
         }
-      } catch (dbErr) {
-        console.error("[webhook] Failed to create DB record:", dbErr);
+      } else {
+        console.warn("[webhook] No customerEmail — skipping DB record creation");
       }
+    } catch (dbErr: any) {
+      console.error("[webhook] DB ERROR:", dbErr.message, dbErr.stack);
     }
   }
 
+  console.log("[webhook] Done — returning 200");
   return NextResponse.json({ received: true }, { status: 200 });
 }
