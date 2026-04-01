@@ -250,7 +250,7 @@ export default function TreesSection({ onSelectTree, isGiftMode = false }: Trees
                       className={`w-full bg-quetz-green text-white font-semibold py-3 px-4 rounded-xl hover:bg-green-700 transition-colors flex items-center justify-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}
                     >
                       <ShoppingCart className="w-5 h-5" />
-                      <span>{isGiftMode ? `➕ ${t('trees.addToGiftCart')}` : `➕ ${t('trees.addToCart')}`}</span>
+                      <span>{isGiftMode ? t('trees.addToGiftCart') : t('trees.addToCart')}</span>
                     </motion.button>
                   )}
                 </AnimatePresence>
