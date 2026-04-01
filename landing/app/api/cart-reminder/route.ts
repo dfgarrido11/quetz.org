@@ -223,12 +223,15 @@ export async function POST(request: Request) {
 
     const transporter = nodemailer.createTransport({
       host: 'smtp.zoho.eu',
-      port: 587,
-      secure: false,
+      port: 465,
+      secure: true,
       auth: {
         user: 'hola@quetz.org',
         pass: process.env.ZOHO_SMTP_PASSWORD,
       },
+      connectionTimeout: 30000,
+      greetingTimeout: 30000,
+      socketTimeout: 30000,
     });
 
     const { subject, html } = getEmailContent(userName, items, totalValue, cartUrl, language || 'es');
