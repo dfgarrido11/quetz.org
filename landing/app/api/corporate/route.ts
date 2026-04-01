@@ -6,12 +6,15 @@ import nodemailer from 'nodemailer';
 export async function POST(request: Request) {
   const transporter = nodemailer.createTransport({
     host: 'smtp.zoho.eu',
-    port: 587,
-    secure: false, // STARTTLS
+    port: 465,
+    secure: true,
     auth: {
       user: 'hola@quetz.org',
       pass: process.env.ZOHO_SMTP_PASSWORD,
     },
+    connectionTimeout: 30000,
+    greetingTimeout: 30000,
+    socketTimeout: 30000,
   });
   try {
     const { companyName, country, contactName, email, phone, employees, message } = await request.json();

@@ -95,9 +95,12 @@ export async function POST(req: NextRequest) {
     const c = confirmationText[lang] ?? confirmationText.es;
     const transporter = nodemailer.createTransport({
       host: "smtp.zoho.eu",
-      port: 587,
-      secure: false,
+      port: 465,
+      secure: true,
       auth: { user: "hola@quetz.org", pass: process.env.ZOHO_SMTP_PASSWORD },
+      connectionTimeout: 30000,
+      greetingTimeout: 30000,
+      socketTimeout: 30000,
     });
 
     transporter.sendMail({
