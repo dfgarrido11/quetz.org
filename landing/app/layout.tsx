@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import Providers from './providers';
 import GoogleAnalytics from './components/google-analytics';
+import MetaPixel from './components/meta-pixel';
 import CookieBanner from './components/cookie-banner';
 
 export const dynamic = 'force-dynamic';
@@ -80,6 +81,7 @@ export default function RootLayout({
       <body className="bg-quetz-cream">
         <Providers>{children}</Providers>
         <GoogleAnalytics />
+        <MetaPixel />
         <CookieBanner />
       </body>
     </html>

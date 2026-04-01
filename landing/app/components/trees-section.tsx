@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { Leaf, Plus, Minus, ShoppingCart, Check } from 'lucide-react';
 import { useLanguage } from '@/lib/language-context';
 import { useCartStore } from '@/lib/cart-store';
+import { metaPixel } from '@/app/components/meta-pixel';
 
 interface Tree {
   id: string;
@@ -228,14 +229,22 @@ export default function TreesSection({ onSelectTree, isGiftMode = false }: Trees
                       initial={{ scale: 1 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => {
+                        const qty = quantities[tree.id] || 1;
                         addItem({
                           type: 'one-time',
                           treeId: tree.id,
                           treeName: tree.name,
                           treeImage: tree.image,
-                          quantity: quantities[tree.id] || 1,
+                          quantity: qty,
                           pricePerUnit: BASE_PRICE,
                           isGift: isGiftMode,
+                        });
+                        metaPixel.trackAddToCart({
+                          content_name: tree.name,
+                          content_type: 'product',
+                          content_ids: [tree.id],
+                          value: BASE_PRICE * qty,
+                          currency: 'EUR',
                         });
                         setAddedToCart(prev => ({ ...prev, [tree.id]: true }));
                         if (!shouldReduceMotion) {
