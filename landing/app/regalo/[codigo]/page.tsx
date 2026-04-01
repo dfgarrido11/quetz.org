@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Gift, TreePine, CheckCircle, Loader2, ArrowRight, LogIn, UserPlus, Sparkles, Heart } from 'lucide-react';
@@ -39,10 +39,29 @@ export default function RegaloPage() {
   const [error, setError] = useState('');
   const [activating, setActivating] = useState(false);
   const [activated, setActivated] = useState(false);
+  const autoActivateAttempted = useRef(false);
 
   useEffect(() => {
     fetchGift();
   }, [codigo]);
+
+  // Auto-activate gift when user returns after login/register
+  useEffect(() => {
+    if (
+      sessionStatus === 'authenticated' &&
+      gift &&
+      gift.status === 'pending' &&
+      !activated &&
+      !activating &&
+      !autoActivateAttempted.current
+    ) {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('autoActivate') === '1') {
+        autoActivateAttempted.current = true;
+        handleActivate();
+      }
+    }
+  }, [sessionStatus, gift]);
 
   const fetchGift = async () => {
     try {
@@ -68,7 +87,7 @@ export default function RegaloPage() {
   const handleActivate = async () => {
     if (!session) {
       // Redirect to login with return URL
-      signIn(undefined, { callbackUrl: `/regalo/${codigo}` });
+      signIn(undefined, { callbackUrl: `${window.location.origin}/regalo/${codigo}?autoActivate=1` });
       return;
     }
 
@@ -254,14 +273,14 @@ export default function RegaloPage() {
                   {t('giftActivate.loginRequired')}
                 </p>
                 <button
-                  onClick={() => signIn(undefined, { callbackUrl: `/regalo/${codigo}` })}
+                  onClick={() => signIn(undefined, { callbackUrl: `${window.location.origin}/regalo/${codigo}?autoActivate=1` })}
                   className="w-full bg-quetz-green text-white font-semibold py-4 px-6 rounded-xl hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
                 >
                   <LogIn className="w-5 h-5" />
                   <span>{t('giftActivate.loginBtn')}</span>
                 </button>
                 <Link
-                  href={`/auth/registro?redirect=/regalo/${codigo}`}
+                  href={`/auth/registro?redirect=/regalo/${codigo}&autoActivate=1`}
                   className="w-full bg-gray-100 text-gray-900 font-semibold py-4 px-6 rounded-xl hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
                 >
                   <UserPlus className="w-5 h-5" />
