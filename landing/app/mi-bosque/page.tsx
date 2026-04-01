@@ -424,10 +424,17 @@ function AdoptionCard({ adoption }: { adoption: Adoption }) {
           </p>
         )}
 
+        {/* Certificate Button */}
+        <Link
+          href={`/certificado/${adoption.id}`}
+          className="mt-3 w-full flex items-center justify-center gap-2 py-2 px-4 bg-emerald-50 text-emerald-700 rounded-lg text-sm font-medium hover:bg-emerald-100 transition-colors"
+        >
+          <span>🏅 {t('myForest.viewCert')}</span>
+        </Link>
         {/* Gift Button */}
         <Link
           href={`/regalar?tree=${adoption.tree?.species}`}
-          className="mt-3 w-full flex items-center justify-center gap-2 py-2 px-4 bg-pink-50 text-pink-600 rounded-lg text-sm font-medium hover:bg-pink-100 transition-colors"
+          className="mt-2 w-full flex items-center justify-center gap-2 py-2 px-4 bg-pink-50 text-pink-600 rounded-lg text-sm font-medium hover:bg-pink-100 transition-colors"
         >
           <span>🎁 {t('myForest.giftThisTree')}</span>
         </Link>

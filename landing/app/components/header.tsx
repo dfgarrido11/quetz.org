@@ -34,7 +34,7 @@ export default function Header({ onOpenModal }: HeaderProps) {
     { name: 'Inicio', href: '#inicio' },
     { name: t('trees.title'), href: '#arboles' },
     { name: t('school.title').split('.')[0], href: '#escuela' },
-    { name: t('transparency.title'), href: '#transparencia' },
+    { name: t('transparency.title'), href: '/transparencia' },
   ];
 
   const shopLabel = t('header.shop') || 'Tienda';
