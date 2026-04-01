@@ -1,5 +1,4 @@
 export const dynamic = "force-dynamic";
-
 import NextAuth from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
 import CredentialsProvider from "next-auth/providers/credentials"
@@ -9,6 +8,12 @@ const handler = NextAuth({
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      authorization: {
+        params: {
+          // Prevent the double Google popup by using 'select_account' only once
+          prompt: "select_account",
+        },
+      },
     }),
     CredentialsProvider({
       name: "credentials",
@@ -30,7 +35,30 @@ const handler = NextAuth({
   callbacks: {
     async session({ session, token }) {
       return session
-    }
+    },
+    async redirect({ url, baseUrl }) {
+      // Allow redirects to quetz.org (production domain) and the base URL (Railway)
+      const allowedDomains = [
+        baseUrl,
+        'https://quetz.org',
+        'https://www.quetz.org',
+      ];
+      
+      // If the URL starts with any allowed domain, allow it
+      for (const domain of allowedDomains) {
+        if (url.startsWith(domain)) {
+          return url;
+        }
+      }
+      
+      // If it's a relative URL, append to baseUrl
+      if (url.startsWith('/')) {
+        return `${baseUrl}${url}`;
+      }
+      
+      // Default: redirect to baseUrl
+      return baseUrl;
+    },
   }
 })
 

@@ -38,7 +38,11 @@ function LoginContent() {
     setGoogleLoading(true);
     setError('');
     try {
-      await signIn('google', { redirect: true, callbackUrl: redirectTo });
+      // Use absolute URL to ensure callback goes to quetz.org, not railway domain
+      const absoluteCallbackUrl = typeof window !== 'undefined' 
+        ? `${window.location.origin}${redirectTo}`
+        : redirectTo;
+      await signIn('google', { redirect: true, callbackUrl: absoluteCallbackUrl });
     } catch (err) {
       setError(t('auth.googleError'));
       setGoogleLoading(false);
