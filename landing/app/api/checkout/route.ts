@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     const session = await stripe.checkout.sessions.create({
       mode: items.some((i: any) => i.recurring) ? "subscription" : "payment",
       line_items: lineItems,
-      success_url: `${process.env.NEXTAUTH_URL}/mi-bosque?success=true`,
+      success_url: `${process.env.NEXTAUTH_URL}/mi-bosque?cart=success`,
       cancel_url: `${process.env.NEXTAUTH_URL}/carrito`,
       customer_email: body.email || undefined,
       metadata: language ? { language } : {},

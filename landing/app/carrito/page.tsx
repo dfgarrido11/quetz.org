@@ -202,6 +202,16 @@ export default function CartPage() {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Cart Items */}
           <div className="lg:col-span-2 space-y-6">
+            {/* Mixed cart warning */}
+            {subscriptionItems.length > 0 && oneTimeItems.length > 0 && (
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
+                <span className="text-amber-500 text-lg flex-shrink-0">⚠️</span>
+                <div>
+                  <p className="text-sm font-semibold text-amber-800">{t('cart.mixedCartTitle')}</p>
+                  <p className="text-xs text-amber-700 mt-1">{t('cart.mixedCartDesc')}</p>
+                </div>
+              </div>
+            )}
             {/* Subscriptions */}
             {subscriptionItems.length > 0 && (
               <div>

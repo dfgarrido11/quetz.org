@@ -11,13 +11,18 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const { items, recipientName, recipientEmail, occasion, message, senderEmail, language } = body
 
-    const isSubscription = items.some((i: any) => i.planId || i.recurring || i.type === 'subscription')
-    const hasGift = items.some((i: any) => i.isGift === true)
+    // Stripe does NOT allow mixing subscription and one-time items in the same session.
+    const subscriptionItems = items.filter((i: any) => i.planId || i.type === 'subscription')
+    const oneTimeItems = items.filter((i: any) => !i.planId && i.type !== 'subscription')
+    const isSubscription = subscriptionItems.length > 0
+    // If mixed cart: process subscriptions first (safety net; UI should prevent this)
+    const itemsToProcess = isSubscription ? subscriptionItems : oneTimeItems
+    const hasGift = itemsToProcess.some((i: any) => i.isGift === true)
 
-    const lineItems = items.map((item: any) => {
+    const lineItems = itemsToProcess.map((item: any) => {
       const priceData: any = {
         currency: "eur",
-        product_data: { name: item.name || item.planName || "Árbol quetz.org" },
+        product_data: { name: item.name || item.planName || item.treeName || "Árbol quetz.org" },
         unit_amount: Math.round((item.pricePerUnit || item.price || 5) * 100),
       }
       if (isSubscription) {
@@ -30,13 +35,13 @@ export async function POST(req: NextRequest) {
     if (language) metadata.language = language
 
     // Pass purchase details for webhook DB record creation
-    const firstItem = items[0]
+    const firstItem = itemsToProcess[0]
     if (firstItem) {
       if (firstItem.planId) metadata.planId = firstItem.planId
       if (firstItem.treeId) metadata.treeId = firstItem.treeId
       if (firstItem.planName || firstItem.treeName) metadata.planName = firstItem.planName || firstItem.treeName || ''
       if (firstItem.treesPerMonth) metadata.treesPerMonth = String(firstItem.treesPerMonth)
-      const totalQty = items.reduce((s: number, i: any) => s + (i.quantity || 1), 0)
+      const totalQty = itemsToProcess.reduce((s: number, i: any) => s + (i.quantity || 1), 0)
       metadata.quantity = String(totalQty)
     }
 
@@ -52,7 +57,7 @@ export async function POST(req: NextRequest) {
     const session = await stripe.checkout.sessions.create({
       mode: isSubscription ? "subscription" : "payment",
       line_items: lineItems,
-      success_url: `${process.env.NEXTAUTH_URL}/mi-bosque?success=true`,
+      success_url: `${process.env.NEXTAUTH_URL}/mi-bosque?cart=success`,
       cancel_url: `${process.env.NEXTAUTH_URL}/carrito`,
       metadata,
     })
