@@ -273,31 +273,330 @@ model CorporateLead {
 model Subscription {
   id                    String    @id @default(cuid())
   userId                String
-  
+
   // Plan details
   planId                String    // cafe, bosquePequeno, bosqueGrande
   planName              String
   treesPerMonth         Int       @default(1)
   priceEurMonth         Float
-  
+
   // Stripe IDs
   stripeCustomerId      String?
   stripeSubscriptionId  String?   @unique
   stripePriceId         String?
-  
+
   // Status
   status                String    @default("pending") // pending, active, paused, cancelled, expired
   currentPeriodStart    DateTime?
   currentPeriodEnd      DateTime?
   cancelAtPeriodEnd     Boolean   @default(false)
   cancelledAt           DateTime?
-  
+
   // Totals
   totalTreesDelivered   Int       @default(0)
   totalAmountPaid       Float     @default(0)
-  
+
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
-  
+
   user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ========== OUTREACH CAMPAIGNS ==========
+
+model OutreachCampaign {
+  id          String   @id @default(cuid())
+
+  // Campaign details
+  name        String
+  subject     String
+  message     String   @db.Text
+
+  // Sender configuration
+  senderEmail String   @default("hola@quetz.org")
+  senderName  String   @default("Quetz Team")
+  replyTo     String?  // Custom reply-to address
+
+  // Targeting
+  targetType  String   @default("corporate") // corporate, individual
+
+  // Status
+  status      String   @default("draft") // draft, scheduled, sending, completed, paused
+
+  // Scheduling
+  scheduledAt DateTime?
+  startedAt   DateTime?
+  completedAt DateTime?
+
+  // Results tracking
+  totalSent   Int      @default(0)
+  totalDelivered Int   @default(0)
+  totalBounced Int     @default(0)
+  totalOpened Int      @default(0)
+  totalClicked Int     @default(0)
+  totalReplied Int     @default(0)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  outreachLeads OutreachLead[]
+}
+
+model OutreachLead {
+  id              String   @id @default(cuid())
+  campaignId      String
+
+  // Contact info
+  email           String
+  name            String?
+  company         String?
+  position        String?
+  country         String?
+
+  // Status tracking
+  status          String   @default("pending") // pending, sent, delivered, opened, clicked, replied, bounced, unsubscribed
+  sentAt          DateTime?
+  deliveredAt     DateTime?
+  openedAt        DateTime?
+  clickedAt       DateTime?
+  repliedAt       DateTime?
+  bouncedAt       DateTime?
+  unsubscribedAt  DateTime?
+
+  // Email tracking
+  messageId       String?  // Email provider message ID
+  trackingId      String?  // Unique tracking identifier
+
+  // Response data
+  responseSubject String?
+  responseMessage String?  @db.Text
+
+  // Automation fields
+  automatedLeadId String?  // Reference to automated lead source
+  sequenceId      String?  // Current automation sequence
+  sequenceStep    Int      @default(0)
+  nextActionAt    DateTime? // When next action should happen
+  score           Int      @default(0) // Lead quality score 0-100
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  campaign        OutreachCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  automatedLead   AutomatedLead?   @relation(fields: [automatedLeadId], references: [id])
+  sequence        AutomationSequence? @relation(fields: [sequenceId], references: [id])
+
+  @@unique([campaignId, email])
+}
+
+// ========== LEAD AUTOMATION SYSTEM ==========
+
+model AutomatedLead {
+  id                    String   @id @default(cuid())
+
+  // Company information
+  company               String
+  website               String?
+  domain                String?
+  industry              String?
+  description           String?  @db.Text
+
+  // Company details
+  employees             String?  // "50-200", "200-500", etc.
+  revenue               String?  // "$1M-10M", "$10M-100M", etc.
+  country               String?
+  city                  String?
+
+  // Lead source and context
+  source                String   // "LinkedIn", "Google News", "Job Boards", etc.
+  sourceUrl             String?
+  sustainabilityMention String?  @db.Text
+  foundKeywords         String[] // ["carbon neutral", "ESG", "sustainability"]
+
+  // Scoring and qualification
+  score                 Int      @default(0) // 0-100 quality score
+  confidence            Int      @default(0) // 0-100 confidence in data
+
+  // Processing status
+  status                String   @default("new") // new, enriched, qualified, contacted, converted, rejected
+  enrichedAt            DateTime?
+  qualifiedAt           DateTime?
+  contactedAt           DateTime?
+
+  // Contact enrichment
+  contactsFound         Json?    // Array of contact objects
+  emailsFound           String[] // Found email addresses
+
+  // Automation tracking
+  lastProcessedAt       DateTime?
+  errorCount            Int      @default(0)
+  lastError             String?
+
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  // Relations
+  outreachLeads         OutreachLead[]
+  enrichmentData        LeadEnrichment[]
+  touchpoints           LeadTouchpoint[]
+}
+
+model LeadEnrichment {
+  id                String   @id @default(cuid())
+  automatedLeadId   String
+
+  // Enrichment source and data
+  source            String   // "Clearbit", "Hunter", "LinkedIn", "Manual"
+  data              Json     // Raw enrichment data
+  processedAt       DateTime @default(now())
+
+  // Specific enriched fields
+  emails            String[]
+  phoneNumbers      String[]
+  socialProfiles    Json?    // LinkedIn, Twitter, etc.
+  technologies      String[] // Tech stack used by company
+  competitors       String[] // Company competitors
+
+  automatedLead     AutomatedLead @relation(fields: [automatedLeadId], references: [id], onDelete: Cascade)
+
+  createdAt         DateTime @default(now())
+}
+
+model LeadTouchpoint {
+  id                String   @id @default(cuid())
+  automatedLeadId   String
+
+  // Touchpoint details
+  type              String   // "email", "linkedin", "phone", "website_visit"
+  channel           String   // "outreach", "inbound", "social", "referral"
+  description       String?  @db.Text
+
+  // Outcome tracking
+  status            String   // "sent", "delivered", "opened", "clicked", "replied", "bounced"
+  response          String?  @db.Text
+  responseType      String?  // "positive", "negative", "neutral", "out_of_office"
+
+  // Automation context
+  campaignId        String?
+  sequenceId        String?
+  sequenceStep      Int?
+
+  // Timing
+  scheduledAt       DateTime?
+  executedAt        DateTime?
+  respondedAt       DateTime?
+
+  automatedLead     AutomatedLead @relation(fields: [automatedLeadId], references: [id], onDelete: Cascade)
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model AutomationSequence {
+  id                String   @id @default(cuid())
+
+  // Sequence configuration
+  name              String
+  description       String?  @db.Text
+  type              String   // "outreach", "nurture", "reactivation"
+  language          String   @default("es") // "es", "en", "de", "fr"
+
+  // Sequence settings
+  active            Boolean  @default(true)
+  steps             Json     // Array of sequence steps with timing and content
+
+  // Targeting criteria
+  targetIndustries  String[] // Industries this sequence targets
+  targetCountries   String[] // Countries this sequence targets
+  minScore          Int      @default(0) // Minimum lead score required
+  maxScore          Int      @default(100) // Maximum lead score for this sequence
+
+  // Performance tracking
+  totalEnrollments  Int      @default(0)
+  completionRate    Float    @default(0.0) // Percentage that complete sequence
+  responseRate      Float    @default(0.0) // Percentage that respond
+  conversionRate    Float    @default(0.0) // Percentage that convert
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  outreachLeads     OutreachLead[]
+  performanceData   SequencePerformance[]
+}
+
+model SequencePerformance {
+  id                String   @id @default(cuid())
+  sequenceId        String
+
+  // Performance data
+  date              DateTime
+  enrollments       Int      @default(0)
+  completions       Int      @default(0)
+  responses         Int      @default(0)
+  conversions       Int      @default(0)
+  unsubscribes     Int      @default(0)
+  bounces          Int      @default(0)
+
+  sequence          AutomationSequence @relation(fields: [sequenceId], references: [id], onDelete: Cascade)
+
+  @@unique([sequenceId, date])
+}
+
+// ========== ANALYTICS AND PERFORMANCE ==========
+
+model LeadSource {
+  id                String   @id @default(cuid())
+
+  // Source information
+  name              String   @unique // "LinkedIn", "Google News", "Job Boards"
+  category          String   // "social", "news", "jobs", "referral"
+  url               String?
+
+  // Performance metrics
+  totalLeads        Int      @default(0)
+  qualifiedLeads    Int      @default(0)
+  convertedLeads    Int      @default(0)
+  averageScore      Float    @default(0.0)
+
+  // Configuration
+  active            Boolean  @default(true)
+  scrapingFrequency String   @default("daily") // "hourly", "daily", "weekly"
+  lastScrapedAt     DateTime?
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model AutomationMetrics {
+  id                String   @id @default("singleton")
+
+  // Daily metrics
+  date              DateTime @unique @default(now())
+
+  // Lead generation
+  leadsGenerated    Int      @default(0)
+  leadsEnriched     Int      @default(0)
+  leadsQualified    Int      @default(0)
+
+  // Outreach performance
+  emailsSent        Int      @default(0)
+  emailsDelivered   Int      @default(0)
+  emailsOpened      Int      @default(0)
+  emailsClicked     Int      @default(0)
+  emailsReplied     Int      @default(0)
+
+  // Conversion funnel
+  meetingsBooked    Int      @default(0)
+  proposalsSent     Int      @default(0)
+  dealsCreated      Int      @default(0)
+  dealsClosed       Int      @default(0)
+  revenue           Float    @default(0.0)
+
+  // Efficiency metrics
+  averageScore      Float    @default(0.0)
+  responseRate      Float    @default(0.0)
+  conversionRate    Float    @default(0.0)
+  costPerLead       Float    @default(0.0)
+
+  updatedAt         DateTime @updatedAt
 }
