@@ -190,8 +190,8 @@ function EnhancedLivingFallback({
   );
 }
 
-// Ultra-safe 3D component that only loads when everything is perfect
-function Safe3DQuetzito({
+// Tu Quetzito Auténtico en 3D - Carga el verdadero personaje
+function AuthenticQuetzito3DLoader({
   position,
   width,
   height,
@@ -202,6 +202,7 @@ function Safe3DQuetzito({
   height: number;
   onError: () => void;
 }) {
+  const [AuthenticQuetzito3D, setAuthenticQuetzito3D] = useState<any>(null);
   const [Canvas, setCanvas] = useState<any>(null);
   const [isReady, setIsReady] = useState(false);
 
@@ -216,21 +217,23 @@ function Safe3DQuetzito({
         if (!gl) throw new Error('WebGL not supported');
 
         // Load dependencies very carefully
-        const [fiberModule, dreiModule, threeModule] = await Promise.all([
+        const [fiberModule, authenticQuetzitoModule] = await Promise.all([
           import('@react-three/fiber').catch(() => null),
-          import('@react-three/drei').catch(() => null),
-          import('three').catch(() => null)
+          import('./AuthenticQuetzito3D').catch(() => null)
         ]);
 
-        if (!mounted || !fiberModule || !dreiModule || !threeModule) {
+        if (!mounted || !fiberModule || !authenticQuetzitoModule) {
           throw new Error('3D modules failed to load');
         }
 
         setCanvas(fiberModule.Canvas);
+        setAuthenticQuetzito3D(() => authenticQuetzitoModule.AuthenticQuetzito3D);
         setIsReady(true);
 
+        console.log('🎬 ¡TU QUETZITO AUTÉNTICO 3D CARGADO EXITOSAMENTE!');
+
       } catch (error) {
-        console.log('3D not available, using enhanced fallback');
+        console.log('🦜 3D Quetzito no disponible, usando versión mejorada');
         if (mounted) onError();
       }
     };
@@ -244,28 +247,40 @@ function Safe3DQuetzito({
     };
   }, [onError]);
 
-  if (!isReady || !Canvas) return null;
+  if (!isReady || !Canvas || !AuthenticQuetzito3D) return null;
 
-  // Simplified 3D scene - very basic to avoid errors
+  // Mapeo de posiciones a variantes
+  const getVariant = () => {
+    switch (position) {
+      case 'hero': return 'hero';
+      case 'trees': return 'teacher';
+      case 'chat': return 'hero';
+      default: return 'hero';
+    }
+  };
+
+  // Tu Quetzito Auténtico en escena 3D
   return (
     <Canvas
       camera={{ position: [0, 0, 5], fov: 50 }}
       gl={{
-        antialias: false, // Reduce complexity
+        antialias: true,
         alpha: true,
-        powerPreference: "default" // Don't force high performance
+        powerPreference: "high-performance"
       }}
       onError={onError}
       style={{ background: 'transparent' }}
     >
-      <ambientLight intensity={0.6} />
-      <directionalLight position={[10, 10, 5]} intensity={0.4} />
+      <ambientLight intensity={0.4} />
+      <directionalLight position={[5, 5, 5]} intensity={0.6} />
+      <directionalLight position={[-5, 2, 3]} intensity={0.3} />
 
-      {/* Very simple animated sphere as placeholder */}
-      <mesh>
-        <sphereGeometry args={[1, 16, 16]} />
-        <meshStandardMaterial color="#22c55e" />
-      </mesh>
+      <AuthenticQuetzito3D
+        position={[0, 0, 0]}
+        scale={1.2}
+        variant={getVariant()}
+        isActive={true}
+      />
     </Canvas>
   );
 }
@@ -283,14 +298,14 @@ export default function RobustLivingQuetzito({
   useEffect(() => {
     setMounted(true);
 
-    // Try to upgrade to 3D after page is stable (if user wants)
+    // Try to upgrade to 3D after page is stable
     const upgradeTimer = setTimeout(() => {
       // Only try 3D on capable devices
-      if (navigator.hardwareConcurrency >= 4 && window.innerWidth > 768) {
-        console.log('🎬 Attempting 3D upgrade for Quetzito...');
-        // setMode('3d'); // Commented out for now - keeping in enhanced mode
+      if (navigator.hardwareConcurrency >= 2 && window.innerWidth > 640) {
+        console.log('🎬 Cargando TU QUETZITO AUTÉNTICO en 3D...');
+        setMode('3d'); // ¡Activado! - Cargar el verdadero Quetzito 3D
       }
-    }, 3000);
+    }, 2000);
 
     return () => clearTimeout(upgradeTimer);
   }, []);
@@ -303,12 +318,12 @@ export default function RobustLivingQuetzito({
   const handleClick = () => {
     onClick?.();
 
-    // Fun click responses
+    // Fun click responses for the authentic Quetzito
     const responses = [
-      '🎬 ¡Quetzito viviente te saluda!',
-      '🦜 ¡Estoy respirando y parpadeando para ti!',
-      '✨ ¡Observa como sigo tu cursor!',
-      '💚 ¡Soy tu guardián viviente!'
+      '🎬 ¡Hola! ¡Soy TU QUETZITO auténtico en 3D!',
+      '🦜 ¡Respiro, parpadeo y vivo para ti!',
+      '✨ ¡Observa como sigo tu cursor como un personaje real!',
+      '💚 ¡Soy tu guardián viviente de Zacapa!'
     ];
 
     console.log(responses[Math.floor(Math.random() * responses.length)]);
@@ -331,13 +346,15 @@ export default function RobustLivingQuetzito({
     case '3d':
       return (
         <div className={`relative ${className}`} style={{ width, height }}>
-          <Safe3DQuetzito
+          <AuthenticQuetzito3DLoader
             position={position}
             width={width}
             height={height}
             onError={handle3DError}
           />
-          <div className="absolute top-1 right-1 text-xs font-bold text-green-500">3D</div>
+          <div className="absolute top-1 right-1 text-xs font-bold text-quetz-green bg-white/80 px-1 rounded">
+            TU QUETZITO 3D
+          </div>
         </div>
       );
 
