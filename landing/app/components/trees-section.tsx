@@ -7,7 +7,21 @@ import Image from 'next/image';
 import { Leaf, Plus, Minus, ShoppingCart, Check } from 'lucide-react';
 import { useLanguage } from '@/lib/language-context';
 import { useCartStore } from '@/lib/cart-store';
+import dynamic from 'next/dynamic';
 import { metaPixel } from '@/app/components/meta-pixel';
+
+// Dynamic import for 3D Quetzito
+const QuetzitoEngine = dynamic(
+  () => import('@/components/quetzito/QuetzitoEngine'),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-full flex items-center justify-center animate-pulse">
+        🦜
+      </div>
+    )
+  }
+);
 
 interface Tree {
   id: string;
@@ -60,7 +74,11 @@ export default function TreesSection({ onSelectTree, isGiftMode = false }: Trees
   };
 
   return (
-    <section id="arboles" className={`py-20 sm:py-28 bg-white relative overflow-hidden ${isRTL ? 'rtl' : 'ltr'}`}>
+    <section
+      id="arboles"
+      className={`py-20 sm:py-28 bg-white relative overflow-hidden ${isRTL ? 'rtl' : 'ltr'}`}
+      data-quetzito-section="trees"
+    >
       {/* Quetzito Maestro - Mascot Guide */}
       <motion.div
         initial={{ opacity: 0, x: isRTL ? 100 : -100 }}
@@ -82,25 +100,40 @@ export default function TreesSection({ onSelectTree, isGiftMode = false }: Trees
             </p>
           </motion.div>
           
-          {/* Mascot Image */}
+          {/* 3D Quetzito - Teacher Mode */}
           <motion.div
-            animate={{ 
-              y: [0, -10, 0],
-              rotate: [-2, 2, -2]
-            }}
-            transition={{
-              duration: 4,
-              repeat: Infinity,
-              ease: 'easeInOut'
-            }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: inView ? 1 : 0 }}
+            transition={{ duration: 0.5, delay: 1 }}
             className="w-20 md:w-28 h-28 md:h-36 relative"
           >
-            <Image
-              src="/mascot/quetzito-aventurero.png"
-              alt="Quetzito Aventurero"
-              fill
-              className="object-contain object-center drop-shadow-xl mascot-float-hero"
-              sizes="(max-width: 768px) 80px, 112px"
+            <QuetzitoEngine
+              position="trees"
+              width={112}
+              height={144}
+              className="w-full h-full"
+              fallback={
+                <motion.div
+                  animate={{
+                    y: [0, -10, 0],
+                    rotate: [-2, 2, -2]
+                  }}
+                  transition={{
+                    duration: 4,
+                    repeat: Infinity,
+                    ease: 'easeInOut'
+                  }}
+                  className="w-full h-full relative"
+                >
+                  <Image
+                    src="/mascot/quetzito-aventurero.png"
+                    alt="Quetzito Aventurero"
+                    fill
+                    className="object-contain object-center drop-shadow-xl mascot-float-hero"
+                    sizes="(max-width: 768px) 80px, 112px"
+                  />
+                </motion.div>
+              }
             />
           </motion.div>
         </div>
