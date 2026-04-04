@@ -4,6 +4,29 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import Image from 'next/image';
 import { useLanguage } from '@/lib/language-context';
+import dynamic from 'next/dynamic';
+import { useQuetzitoScrollTrigger, useQuetzitoMouseTracking } from '@/hooks/use-quetzito-context';
+
+// Lazy load 3D component for performance
+const QuetzitoEngine = dynamic(
+  () => import('@/components/quetzito/QuetzitoEngine'),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-40 h-48 xl:w-52 xl:h-64 flex items-center justify-center">
+        <div className="animate-pulse">
+          <Image
+            src="/mascot/quetzito-aventurero.png"
+            alt="Quetzito aventurero"
+            width={160}
+            height={192}
+            className="object-contain opacity-50"
+          />
+        </div>
+      </div>
+    )
+  }
+);
 
 
 interface HeroSectionProps {
@@ -14,8 +37,16 @@ export default function HeroSection({ onOpenModal }: HeroSectionProps) {
   const { t, isRTL } = useLanguage();
   const shouldReduceMotion = useReducedMotion();
 
+  // Enable Quetzito interactions
+  useQuetzitoScrollTrigger();
+  useQuetzitoMouseTracking();
+
   return (
-    <section id="inicio" className={`relative h-screen w-full overflow-hidden ${isRTL ? 'rtl' : 'ltr'}`}>
+    <section
+      id="inicio"
+      className={`relative h-screen w-full overflow-hidden ${isRTL ? 'rtl' : 'ltr'}`}
+      data-quetzito-section="hero"
+    >
       <div className="absolute inset-0">
         <Image
           src="/photos/hero.jpg"
@@ -107,21 +138,32 @@ export default function HeroSection({ onOpenModal }: HeroSectionProps) {
         </motion.div>
       </div>
 
-      {/* Quetzito - LEFT SIDE */}
+      {/* Quetzito 3D - LEFT SIDE */}
       <motion.div
         initial={{ opacity: 0, x: -80, scale: 0.5 }}
         animate={{ opacity: 1, x: 0, scale: 1 }}
         transition={{ duration: 1.2, delay: 1.0, type: 'spring', bounce: 0.3 }}
-        className="absolute hidden md:block left-4 md:left-12 lg:left-20 bottom-8 md:bottom-16 pointer-events-none z-10"
+        className="absolute hidden md:block left-4 md:left-12 lg:left-20 bottom-8 md:bottom-16 z-10"
       >
         <div className="flex flex-col items-center">
           <div className="relative w-40 md:w-52 lg:w-64 h-52 md:h-64 lg:h-80">
-            <Image
-              src="/mascot/quetzito-aventurero.png"
-              alt="Quetzito aventurero"
-              fill
-              className="object-contain mascot-float-hero drop-shadow-[0_8px_32px_rgba(0,0,0,0.25)] hover:scale-110 transition-transform duration-300 cursor-pointer"
-              sizes="(max-width: 768px) 160px, (max-width: 1024px) 208px, 256px"
+            <QuetzitoEngine
+              position="hero"
+              width={256}
+              height={320}
+              className="transition-transform hover:scale-110 cursor-pointer"
+              onClick={() => {
+                console.log('🎉 ¡Quetzito 3D héroe activado!');
+              }}
+              fallback={
+                <Image
+                  src="/mascot/quetzito-aventurero.png"
+                  alt="Quetzito aventurero"
+                  fill
+                  className="object-contain mascot-float-hero drop-shadow-[0_8px_32px_rgba(0,0,0,0.25)] hover:scale-110 transition-transform duration-300 cursor-pointer"
+                  sizes="(max-width: 768px) 160px, (max-width: 1024px) 208px, 256px"
+                />
+              }
             />
           </div>
           <div className="w-32 h-4 mx-auto -mt-2 rounded-full blur-lg bg-green-500/20 mascot-glow" />
