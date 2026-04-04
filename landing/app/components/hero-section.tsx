@@ -7,9 +7,9 @@ import { useLanguage } from '@/lib/language-context';
 import dynamic from 'next/dynamic';
 import { useQuetzitoScrollTrigger, useQuetzitoMouseTracking } from '@/hooks/use-quetzito-context';
 
-// Lazy load 3D component for performance
-const QuetzitoEngine = dynamic(
-  () => import('@/components/quetzito/QuetzitoEngine'),
+// Load the LIVING 3D Quetzito
+const LivingQuetzitoEngine = dynamic(
+  () => import('@/components/quetzito/LivingQuetzitoEngine'),
   {
     ssr: false,
     loading: () => (
@@ -17,7 +17,7 @@ const QuetzitoEngine = dynamic(
         <div className="animate-pulse">
           <Image
             src="/mascot/quetzito-aventurero.png"
-            alt="Quetzito aventurero"
+            alt="Quetzito aventurero cargando..."
             width={160}
             height={192}
             className="object-contain opacity-50"
@@ -147,23 +147,14 @@ export default function HeroSection({ onOpenModal }: HeroSectionProps) {
       >
         <div className="flex flex-col items-center">
           <div className="relative w-40 md:w-52 lg:w-64 h-52 md:h-64 lg:h-80">
-            <QuetzitoEngine
+            <LivingQuetzitoEngine
               position="hero"
               width={256}
               height={320}
               className="transition-transform hover:scale-110 cursor-pointer"
               onClick={() => {
-                console.log('🎉 ¡Quetzito 3D héroe activado!');
+                console.log('🎬 ¡QUETZITO VIVIENTE HÉROE ACTIVADO! ¡Respira, parpadea y te mira!');
               }}
-              fallback={
-                <Image
-                  src="/mascot/quetzito-aventurero.png"
-                  alt="Quetzito aventurero"
-                  fill
-                  className="object-contain mascot-float-hero drop-shadow-[0_8px_32px_rgba(0,0,0,0.25)] hover:scale-110 transition-transform duration-300 cursor-pointer"
-                  sizes="(max-width: 768px) 160px, (max-width: 1024px) 208px, 256px"
-                />
-              }
             />
           </div>
           <div className="w-32 h-4 mx-auto -mt-2 rounded-full blur-lg bg-green-500/20 mascot-glow" />

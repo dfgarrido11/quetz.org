@@ -10,14 +10,14 @@ import { useCartStore } from '@/lib/cart-store';
 import dynamic from 'next/dynamic';
 import { metaPixel } from '@/app/components/meta-pixel';
 
-// Dynamic import for 3D Quetzito
-const QuetzitoEngine = dynamic(
-  () => import('@/components/quetzito/QuetzitoEngine'),
+// Dynamic import for LIVING 3D Quetzito
+const LivingQuetzitoEngine = dynamic(
+  () => import('@/components/quetzito/LivingQuetzitoEngine'),
   {
     ssr: false,
     loading: () => (
       <div className="w-full h-full flex items-center justify-center animate-pulse">
-        🦜
+        <span className="text-2xl">🦜</span>
       </div>
     )
   }
@@ -100,40 +100,21 @@ export default function TreesSection({ onSelectTree, isGiftMode = false }: Trees
             </p>
           </motion.div>
           
-          {/* 3D Quetzito - Teacher Mode */}
+          {/* QUETZITO VIVIENTE - Modo Profesor */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: inView ? 1 : 0 }}
             transition={{ duration: 0.5, delay: 1 }}
             className="w-20 md:w-28 h-28 md:h-36 relative"
           >
-            <QuetzitoEngine
+            <LivingQuetzitoEngine
               position="trees"
               width={112}
               height={144}
               className="w-full h-full"
-              fallback={
-                <motion.div
-                  animate={{
-                    y: [0, -10, 0],
-                    rotate: [-2, 2, -2]
-                  }}
-                  transition={{
-                    duration: 4,
-                    repeat: Infinity,
-                    ease: 'easeInOut'
-                  }}
-                  className="w-full h-full relative"
-                >
-                  <Image
-                    src="/mascot/quetzito-aventurero.png"
-                    alt="Quetzito Aventurero"
-                    fill
-                    className="object-contain object-center drop-shadow-xl mascot-float-hero"
-                    sizes="(max-width: 768px) 80px, 112px"
-                  />
-                </motion.div>
-              }
+              onClick={() => {
+                console.log('🎓 ¡QUETZITO PROFESOR VIVIENTE! ¡Enseña con vida real!');
+              }}
             />
           </motion.div>
         </div>
