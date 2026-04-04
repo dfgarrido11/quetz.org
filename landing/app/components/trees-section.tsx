@@ -10,9 +10,9 @@ import { useCartStore } from '@/lib/cart-store';
 import dynamic from 'next/dynamic';
 import { metaPixel } from '@/app/components/meta-pixel';
 
-// Dynamic import for LIVING 3D Quetzito
-const LivingQuetzitoEngine = dynamic(
-  () => import('@/components/quetzito/LivingQuetzitoEngine'),
+// Dynamic import for ROBUST LIVING Quetzito
+const RobustLivingQuetzito = dynamic(
+  () => import('@/components/quetzito/RobustLivingQuetzito'),
   {
     ssr: false,
     loading: () => (
@@ -107,13 +107,13 @@ export default function TreesSection({ onSelectTree, isGiftMode = false }: Trees
             transition={{ duration: 0.5, delay: 1 }}
             className="w-20 md:w-28 h-28 md:h-36 relative"
           >
-            <LivingQuetzitoEngine
+            <RobustLivingQuetzito
               position="trees"
               width={112}
               height={144}
               className="w-full h-full"
               onClick={() => {
-                console.log('🎓 ¡QUETZITO PROFESOR VIVIENTE! ¡Enseña con vida real!');
+                console.log('🎓 ¡QUETZITO PROFESOR ROBUSTO! ¡Enseña con vida real sin errores!');
               }}
             />
           </motion.div>

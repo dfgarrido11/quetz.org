@@ -7,22 +7,14 @@ import { useLanguage } from '@/lib/language-context';
 import dynamic from 'next/dynamic';
 import { useQuetzitoScrollTrigger, useQuetzitoMouseTracking } from '@/hooks/use-quetzito-context';
 
-// Load the LIVING 3D Quetzito
-const LivingQuetzitoEngine = dynamic(
-  () => import('@/components/quetzito/LivingQuetzitoEngine'),
+// Load the ROBUST LIVING Quetzito (100% reliable)
+const RobustLivingQuetzito = dynamic(
+  () => import('@/components/quetzito/RobustLivingQuetzito'),
   {
     ssr: false,
     loading: () => (
       <div className="w-40 h-48 xl:w-52 xl:h-64 flex items-center justify-center">
-        <div className="animate-pulse">
-          <Image
-            src="/mascot/quetzito-aventurero.png"
-            alt="Quetzito aventurero cargando..."
-            width={160}
-            height={192}
-            className="object-contain opacity-50"
-          />
-        </div>
+        <span className="text-4xl opacity-50">🦜</span>
       </div>
     )
   }
@@ -147,13 +139,13 @@ export default function HeroSection({ onOpenModal }: HeroSectionProps) {
       >
         <div className="flex flex-col items-center">
           <div className="relative w-40 md:w-52 lg:w-64 h-52 md:h-64 lg:h-80">
-            <LivingQuetzitoEngine
+            <RobustLivingQuetzito
               position="hero"
               width={256}
               height={320}
-              className="transition-transform hover:scale-110 cursor-pointer"
+              className="transition-transform hover:scale-110"
               onClick={() => {
-                console.log('🎬 ¡QUETZITO VIVIENTE HÉROE ACTIVADO! ¡Respira, parpadea y te mira!');
+                console.log('🎬 ¡QUETZITO ROBUSTO VIVIENTE! ¡Respira, parpadea y te mira sin errores!');
               }}
             />
           </div>

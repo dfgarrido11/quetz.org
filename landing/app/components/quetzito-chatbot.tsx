@@ -7,9 +7,9 @@ import { X, Send, Loader2 } from 'lucide-react';
 import { useLanguage } from '@/lib/language-context';
 import dynamic from 'next/dynamic';
 
-// Dynamic import for LIVING 3D Quetzito component
-const LivingQuetzitoEngine = dynamic(
-  () => import('@/components/quetzito/LivingQuetzitoEngine'),
+// Dynamic import for ROBUST LIVING Quetzito component
+const RobustLivingQuetzito = dynamic(
+  () => import('@/components/quetzito/RobustLivingQuetzito'),
   {
     ssr: false,
     loading: () => (
@@ -148,14 +148,14 @@ export default function QuetzitoChatbot() {
                 onClick={() => setIsOpen(true)}
                 className="relative w-20 h-20 rounded-full overflow-hidden shadow-2xl hover:shadow-quetz-green/30 transition-shadow border-4 border-white bg-gradient-to-br from-quetz-green to-green-600 cursor-pointer"
               >
-                <LivingQuetzitoEngine
+                <RobustLivingQuetzito
                   position="chat"
                   width={80}
                   height={80}
                   className="w-full h-full"
                   onClick={() => {
                     setIsOpen(true);
-                    console.log('💬 ¡QUETZITO CHAT VIVIENTE! ¡Te escucha con vida real!');
+                    console.log('💬 ¡QUETZITO CHAT ROBUSTO! ¡Te escucha sin errores!');
                   }}
                 />
               </motion.div>
@@ -192,7 +192,7 @@ export default function QuetzitoChatbot() {
               <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-quetz-green to-green-600 text-white shrink-0">
                 <div className="flex items-center gap-3">
                   <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-white/50">
-                    <LivingQuetzitoEngine
+                    <RobustLivingQuetzito
                       position="chat"
                       width={40}
                       height={40}
@@ -224,7 +224,7 @@ export default function QuetzitoChatbot() {
                   <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                     {msg.role === 'assistant' && (
                       <div className="w-7 h-7 rounded-full overflow-hidden shrink-0 mr-2 mt-1">
-                        <LivingQuetzitoEngine
+                        <RobustLivingQuetzito
                           position="chat"
                           width={28}
                           height={28}
