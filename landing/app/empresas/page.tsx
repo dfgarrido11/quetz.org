@@ -556,12 +556,12 @@ function CalculatorSection() {
       <div className="container">
         <SimpleSection>
           <div className="text-center mb-12">
-            <p className="text-[#52B788] font-[Montserrat] font-semibold text-sm tracking-[0.15em] uppercase mb-4">Calculadora de Impacto</p>
+            <p className="text-[#52B788] font-[Montserrat] font-semibold text-sm tracking-[0.15em] uppercase mb-4">Impact-Rechner</p>
             <h2 className="font-[Montserrat] font-800 text-3xl md:text-4xl text-white mb-4">
-              ¿Cuántos árboles necesita tu empresa?
+              Wie viele Bäume braucht Ihr Unternehmen?
             </h2>
             <p className="text-white/60 max-w-xl mx-auto">
-              Calcula tu compensación de CO₂ en segundos. Elige el modo que mejor se adapte a tu empresa.
+              Berechnen Sie Ihre CO₂-Kompensation in Sekunden. Wählen Sie den Modus, der am besten zu Ihrem Unternehmen passt.
             </p>
           </div>
         </SimpleSection>
@@ -578,7 +578,7 @@ function CalculatorSection() {
                     : 'text-white/50 hover:text-white'
                 }`}
               >
-                Por empleados
+                Nach Angestellten
               </button>
               <button
                 onClick={() => setMode('trees')}
@@ -588,7 +588,7 @@ function CalculatorSection() {
                     : 'text-white/50 hover:text-white'
                 }`}
               >
-                Por árboles
+                Nach Bäumen
               </button>
             </div>
 
@@ -598,7 +598,7 @@ function CalculatorSection() {
                 {mode === 'employees' ? (
                   <>
                     <label className="text-white/80 text-sm font-medium mb-3 block">
-                      Número de empleados:{' '}
+                      Anzahl Mitarbeiter:{' '}
                       <span className="text-[#52B788] font-[Montserrat] font-bold text-lg">{employees}</span>
                     </label>
                     <input
@@ -609,13 +609,13 @@ function CalculatorSection() {
                     />
                     <div className="flex justify-between text-white/30 text-xs mt-2"><span>5</span><span>500</span></div>
                     <p className="text-white/40 text-xs mt-3 text-center">
-                      Basado en ~8.4 t CO₂/empleado/año (desplazamiento + oficina, promedio UE)
+                      Basierend auf ~8,4 t CO₂/Mitarbeiter/Jahr (Anfahrt + Büro, EU-Durchschnitt)
                     </p>
                   </>
                 ) : (
                   <>
                     <label className="text-white/80 text-sm font-medium mb-3 block">
-                      Árboles al mes:{' '}
+                      Bäume pro Monat:{' '}
                       <span className="text-[#52B788] font-[Montserrat] font-bold text-lg">{trees}</span>
                     </label>
                     <input
@@ -632,10 +632,10 @@ function CalculatorSection() {
               {/* Results */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
                 {[
-                  { label: mode === 'employees' ? 'CO₂ compensado/año' : 'CO₂ / año', value: `${co2Offset.toFixed(1)} t`, icon: Leaf, highlight: true },
-                  { label: 'Árboles necesarios', value: activeTrees.toLocaleString('de-DE'), icon: TreePine, highlight: false },
-                  { label: 'Coste mensual', value: `€${monthlyCost.toLocaleString('de-DE')}`, icon: BarChart3, highlight: false },
-                  { label: 'Empleos creados', value: `${jobs}`, icon: Users, highlight: false },
+                  { label: mode === 'employees' ? 'CO₂ kompensiert/Jahr' : 'CO₂ / Jahr', value: `${co2Offset.toFixed(1)} t`, icon: Leaf, highlight: true },
+                  { label: 'Benötigte Bäume', value: activeTrees.toLocaleString('de-DE'), icon: TreePine, highlight: false },
+                  { label: 'Monatliche Kosten', value: `€${monthlyCost.toLocaleString('de-DE')}`, icon: BarChart3, highlight: false },
+                  { label: 'Geschaffene Arbeitsplätze', value: `${jobs}`, icon: Users, highlight: false },
                 ].map((item, i) => (
                   <div key={i} className={`text-center p-4 rounded-xl ${
                     item.highlight ? 'bg-[#52B788]/10 border border-[#52B788]/30' : ''
@@ -651,7 +651,7 @@ function CalculatorSection() {
               {mode === 'employees' && coveragePercent !== null && (
                 <div className="border-t border-white/10 pt-6">
                   <div className="flex justify-between text-sm mb-2">
-                    <span className="text-white/60">Cobertura de huella de carbono</span>
+                    <span className="text-white/60">CO₂-Fußabdruck Abdeckung</span>
                     <span className="text-[#52B788] font-bold">{coveragePercent}%</span>
                   </div>
                   <div className="h-3 bg-[#0D2818] rounded-full overflow-hidden">
@@ -661,7 +661,7 @@ function CalculatorSection() {
                     />
                   </div>
                   <p className="text-white/30 text-xs mt-2 text-center">
-                    Con {activeTrees} árboles/mes compensas el {coveragePercent}% de la huella de tus {employees} empleados
+                    Mit {activeTrees} Bäumen/Monat kompensieren Sie {coveragePercent}% des Fußabdrucks Ihrer {employees} Mitarbeiter
                   </p>
                 </div>
               )}
@@ -669,7 +669,7 @@ function CalculatorSection() {
               {/* School contribution highlight */}
               <div className="mt-6 bg-blue-900/30 border border-blue-500/20 rounded-xl p-4 text-center">
                 <p className="text-blue-300 text-sm">
-                  🏫 Tu plan contribuye <strong className="text-white">€{schoolTotal.toLocaleString('de-DE')}</strong> a la construcción de la Escuela de Jumuzna
+                  🏫 Ihr Plan trägt <strong className="text-white">€{schoolTotal.toLocaleString('de-DE')}</strong> zum Bau der Jumuzna-Schule bei
                 </p>
               </div>
 
@@ -679,7 +679,7 @@ function CalculatorSection() {
                   href="#contacto"
                   className="inline-flex items-center gap-2 bg-[#52B788] text-[#0D2818] font-bold px-8 py-3 rounded-xl hover:bg-[#40916C] transition-colors"
                 >
-                  Solicitar propuesta para {activeTrees} árboles/mes
+                  Angebot anfordern für {activeTrees} Bäume/Monat
                 </a>
               </div>
             </div>
