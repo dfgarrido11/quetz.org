@@ -10,7 +10,7 @@
  */
 
 import { useState, useEffect, useRef } from "react";
-import { motion, useInView } from "framer-motion";
+// Animations removed for performance
 import { TreePine, Users, School, MapPin, BarChart3, Shield, ArrowDown, Check, ChevronRight, Leaf, Globe, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -23,46 +23,17 @@ const IMAGES = {
   dashboard: "https://d2xsxph8kpxj0f.cloudfront.net/310419663030501357/hWt6Qa2JAiXm9muvwfCGAp/dashboard-mockup-AxefkSuahphtAKpcdH4tBU.webp",
 };
 
-/* ─── Animated Counter ─── */
-function AnimatedCounter({ end, suffix = "", duration = 2000 }: { end: number; suffix?: string; duration?: number }) {
-  const [count, setCount] = useState(0);
-  const ref = useRef<HTMLSpanElement>(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
-
-  useEffect(() => {
-    if (!isInView) return;
-    let start = 0;
-    const step = end / (duration / 16);
-    const timer = setInterval(() => {
-      start += step;
-      if (start >= end) {
-        setCount(end);
-        clearInterval(timer);
-      } else {
-        setCount(Math.floor(start));
-      }
-    }, 16);
-    return () => clearInterval(timer);
-  }, [isInView, end, duration]);
-
-  return <span ref={ref}>{count.toLocaleString("de-DE")}{suffix}</span>;
+/* ─── Simple Counter (No Animation) ─── */
+function SimpleCounter({ end, suffix = "" }: { end: number; suffix?: string }) {
+  return <span>{end.toLocaleString("de-DE")}{suffix}</span>;
 }
 
-/* ─── Section Wrapper ─── */
-function FadeInSection({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: "-80px" });
-
+/* ─── Simple Section Wrapper (No Animation) ─── */
+function SimpleSection({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 40 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.8, delay, ease: "easeOut" }}
-      className={className}
-    >
+    <div className={className}>
       {children}
-    </motion.div>
+    </div>
   );
 }
 
@@ -111,10 +82,7 @@ function HeroSection() {
 
       {/* Content */}
       <div className="relative z-10 container text-center pt-24">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.3 }}
+        <div
         >
           <p className="text-[#B7E4C7] font-[Montserrat] font-semibold text-sm tracking-[0.2em] uppercase mb-6">
             Nachhaltigkeitspartner für den deutschen Mittelstand
@@ -127,12 +95,9 @@ function HeroSection() {
             Jeder Baum schafft einen Arbeitsplatz. Jedes Abo finanziert eine Schule.
             100% transparent, GPS-getrackt, CSRD-konform.
           </p>
-        </motion.div>
+        </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.8 }}
+        <div
           className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16"
         >
           <a href="/empresas">
@@ -147,13 +112,10 @@ function HeroSection() {
               <ArrowDown className="ml-2 w-5 h-5" />
             </Button>
           </a>
-        </motion.div>
+        </div>
 
         {/* Stats bar */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1.2 }}
+        <div
           className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto"
         >
           {[
@@ -164,31 +126,27 @@ function HeroSection() {
           ].map((stat, i) => (
             <div key={i} className="text-center">
               <p className="font-[Montserrat] font-800 text-2xl md:text-3xl text-[#52B788]">
-                <AnimatedCounter end={stat.value} suffix={stat.suffix} />
+                <SimpleCounter end={stat.value} suffix={stat.suffix} />
               </p>
               <p className="text-white/60 text-xs md:text-sm mt-1">{stat.label}</p>
             </div>
           ))}
-        </motion.div>
+        </div>
       </div>
 
       {/* Quetzito flotando */}
-      <motion.img
+      <img
         src="/mascot/quetzito-aventurero.png"
         alt="Quetzito"
         className="absolute bottom-24 right-8 md:right-24 w-28 md:w-40 z-20 pointer-events-none drop-shadow-2xl mascot-float mascot-hover"
-        animate={{ y: [0, -18, 0], rotate: [-2, 2, -2] }}
-        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
       />
 
       {/* Scroll indicator */}
-      <motion.div
+      <div
         className="absolute bottom-8 left-1/2 -translate-x-1/2"
-        animate={{ y: [0, 10, 0] }}
-        transition={{ duration: 2, repeat: Infinity }}
       >
         <ArrowDown className="w-6 h-6 text-white/40" />
-      </motion.div>
+      </div>
     </section>
   );
 }
@@ -198,7 +156,7 @@ function ProblemSection() {
   return (
     <section className="relative py-24 md:py-32 bg-[#1B4332]" id="impact">
       <div className="container">
-        <FadeInSection>
+        <SimpleSection>
           <p className="text-[#B7E4C7] font-[Montserrat] font-semibold text-sm tracking-[0.15em] uppercase mb-4">Das Problem</p>
           <h2 className="font-[Montserrat] font-800 text-3xl md:text-5xl text-white leading-tight max-w-3xl mb-8">
             Guatemala hat 17% seiner Waldfläche verloren. 47% der Kinder brechen die Schule ab.
@@ -207,7 +165,7 @@ function ProblemSection() {
             Gleichzeitig suchen deutsche Unternehmen nach glaubwürdigen CSR-Projekten für ihr CSRD-Reporting.
             Die meisten Anbieter liefern nur CO₂-Zertifikate — ohne echten sozialen Impact.
           </p>
-        </FadeInSection>
+        </SimpleSection>
 
         <div className="grid md:grid-cols-3 gap-8">
           {[
@@ -215,7 +173,7 @@ function ProblemSection() {
             { icon: School, title: "Bildungskrise", desc: "47% der Kinder in ländlichen Gebieten schließen nicht einmal die Grundschule ab. Es fehlen Schulen und Lehrer.", color: "#E9C46A" },
             { icon: Shield, title: "Greenwashing", desc: "80% der CO₂-Kompensationsprojekte sind nicht verifizierbar. Unternehmen riskieren Reputationsschäden.", color: "#E76F51" },
           ].map((item, i) => (
-            <FadeInSection key={i} delay={i * 0.15}>
+            <SimpleSection key={i}>
               <div className="group">
                 <div className="w-14 h-14 rounded-full flex items-center justify-center mb-5" style={{ backgroundColor: `${item.color}20` }}>
                   <item.icon className="w-7 h-7" style={{ color: item.color }} />
@@ -223,7 +181,7 @@ function ProblemSection() {
                 <h3 className="font-[Montserrat] font-bold text-xl text-white mb-3">{item.title}</h3>
                 <p className="text-[#B7E4C7]/70 leading-relaxed">{item.desc}</p>
               </div>
-            </FadeInSection>
+            </SimpleSection>
           ))}
         </div>
       </div>
@@ -242,12 +200,12 @@ function SolutionSection() {
           <div className="absolute inset-0 bg-gradient-to-r from-[#081C15]/90 via-[#081C15]/70 to-transparent" />
         </div>
         <div className="relative z-10 container py-24">
-          <FadeInSection>
+          <SimpleSection>
             <p className="text-[#52B788] font-[Montserrat] font-semibold text-sm tracking-[0.15em] uppercase mb-4">Die Lösung</p>
             <h2 className="font-[Montserrat] font-800 text-3xl md:text-5xl text-white leading-tight max-w-2xl mb-8">
               Ein Baum = Ein Job = Ein Schritt zur Schule.
             </h2>
-          </FadeInSection>
+          </SimpleSection>
 
           <div className="grid sm:grid-cols-2 gap-6 max-w-2xl">
             {[
@@ -256,7 +214,7 @@ function SolutionSection() {
               { icon: School, title: "Schulbau", desc: "Überschüsse finanzieren den Bau einer Schule für 120 Kinder." },
               { icon: BarChart3, title: "CSRD-konform", desc: "Alle Daten für Ihr Nachhaltigkeitsreporting auf einem Dashboard." },
             ].map((item, i) => (
-              <FadeInSection key={i} delay={i * 0.1}>
+              <SimpleSection key={i}>
                 <div className="flex gap-4 items-start">
                   <div className="w-10 h-10 rounded-lg bg-[#52B788]/20 flex items-center justify-center shrink-0 mt-0.5">
                     <item.icon className="w-5 h-5 text-[#52B788]" />
@@ -266,7 +224,7 @@ function SolutionSection() {
                     <p className="text-white/60 text-sm leading-relaxed">{item.desc}</p>
                   </div>
                 </div>
-              </FadeInSection>
+              </SimpleSection>
             ))}
           </div>
         </div>
@@ -281,7 +239,7 @@ function TransparencySection() {
     <section className="relative py-24 md:py-32 bg-[#0D2818]" id="transparenz">
       <div className="container">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
-          <FadeInSection>
+          <SimpleSection>
             <p className="text-[#52B788] font-[Montserrat] font-semibold text-sm tracking-[0.15em] uppercase mb-4">Radikale Transparenz</p>
             <h2 className="font-[Montserrat] font-800 text-3xl md:text-4xl text-white leading-tight mb-6">
               Sehen Sie genau, wo Ihr Baum wächst.
@@ -307,9 +265,9 @@ function TransparencySection() {
                 </div>
               ))}
             </div>
-          </FadeInSection>
+          </SimpleSection>
 
-          <FadeInSection delay={0.2}>
+          <SimpleSection>
             <div className="relative">
               <div className="absolute -inset-4 bg-[#52B788]/10 rounded-2xl blur-xl" />
               <img
@@ -318,7 +276,7 @@ function TransparencySection() {
                 className="relative rounded-xl shadow-2xl shadow-black/40 w-full object-contain"
               />
             </div>
-          </FadeInSection>
+          </SimpleSection>
         </div>
       </div>
     </section>
@@ -336,15 +294,13 @@ function SchoolSection() {
         </div>
         <div className="relative z-10 container py-24">
           {/* Quetzito maestro */}
-          <motion.img
+          <img
             src="/mascot/quetzito-maestro.png"
             alt="Quetzito Maestro"
             className="hidden md:block absolute left-8 bottom-0 w-36 z-20 pointer-events-none drop-shadow-2xl mascot-float mascot-hover"
-            animate={{ y: [0, -12, 0] }}
-            transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
           />
           <div className="ml-auto max-w-xl">
-            <FadeInSection>
+            <SimpleSection>
               <p className="text-[#E9C46A] font-[Montserrat] font-semibold text-sm tracking-[0.15em] uppercase mb-4">Sozialer Impact</p>
               <h2 className="font-[Montserrat] font-800 text-3xl md:text-5xl text-white leading-tight mb-6">
                 120 Kinder warten auf ihre Schule.
@@ -357,18 +313,18 @@ function SchoolSection() {
               <div className="grid grid-cols-2 gap-6">
                 <div>
                   <p className="font-[Montserrat] font-800 text-3xl text-[#E9C46A]">
-                    <AnimatedCounter end={50000} suffix=" €" />
+                    <SimpleCounter end={50000} suffix=" €" />
                   </p>
                   <p className="text-white/50 text-sm mt-1">Ziel für den Schulbau</p>
                 </div>
                 <div>
                   <p className="font-[Montserrat] font-800 text-3xl text-[#E9C46A]">
-                    <AnimatedCounter end={120} />
+                    <SimpleCounter end={120} />
                   </p>
                   <p className="text-white/50 text-sm mt-1">Kinder erhalten Bildung</p>
                 </div>
               </div>
-            </FadeInSection>
+            </SimpleSection>
           </div>
         </div>
       </div>
@@ -388,16 +344,16 @@ function HowItWorksSection() {
   return (
     <section className="relative py-24 md:py-32 bg-[#2D6A4F]">
       <div className="container">
-        <FadeInSection>
+        <SimpleSection>
           <div className="text-center mb-16">
             <p className="text-[#B7E4C7] font-[Montserrat] font-semibold text-sm tracking-[0.15em] uppercase mb-4">So funktioniert's</p>
             <h2 className="font-[Montserrat] font-800 text-3xl md:text-4xl text-white">In 4 Schritten zum messbaren Impact</h2>
           </div>
-        </FadeInSection>
+        </SimpleSection>
 
         <div className="grid md:grid-cols-4 gap-8">
           {steps.map((step, i) => (
-            <FadeInSection key={i} delay={i * 0.12}>
+            <SimpleSection key={i}>
               <div className="relative">
                 <span className="font-[Montserrat] font-900 text-6xl text-[#52B788]/20">{step.num}</span>
                 <h3 className="font-[Montserrat] font-bold text-lg text-white mt-2 mb-2">{step.title}</h3>
@@ -408,7 +364,7 @@ function HowItWorksSection() {
                   </div>
                 )}
               </div>
-            </FadeInSection>
+            </SimpleSection>
           ))}
         </div>
       </div>
@@ -471,7 +427,7 @@ function PricingSection() {
   return (
     <section className="relative py-24 md:py-32 bg-[#1B4332]" id="preise">
       <div className="container">
-        <FadeInSection>
+        <SimpleSection>
           <div className="text-center mb-16">
             <p className="text-[#52B788] font-[Montserrat] font-semibold text-sm tracking-[0.15em] uppercase mb-4">Preise</p>
             <h2 className="font-[Montserrat] font-800 text-3xl md:text-4xl text-white mb-4">
@@ -481,11 +437,11 @@ function PricingSection() {
               Jeder Baum kostet €35/Monat. Davon fließen €5 direkt in den Schulbau.
             </p>
           </div>
-        </FadeInSection>
+        </SimpleSection>
 
         <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {plans.map((plan, i) => (
-            <FadeInSection key={i} delay={i * 0.12}>
+            <SimpleSection key={i}>
               <div className={`relative p-8 rounded-2xl h-full flex flex-col ${plan.highlight
                 ? "bg-[#52B788]/15 border-2 border-[#52B788]/40"
                 : "bg-[#0D2818]/60 border border-[#52B788]/10"
@@ -519,7 +475,7 @@ function PricingSection() {
                   </Button>
                 </a>
               </div>
-            </FadeInSection>
+            </SimpleSection>
           ))}
         </div>
       </div>
@@ -533,7 +489,7 @@ function EmployerBrandingSection() {
     <section className="relative py-24 md:py-32 bg-[#0D2818]">
       <div className="container">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
-          <FadeInSection>
+          <SimpleSection>
             <p className="text-[#E9C46A] font-[Montserrat] font-semibold text-sm tracking-[0.15em] uppercase mb-4">Employer Branding</p>
             <h2 className="font-[Montserrat] font-800 text-3xl md:text-4xl text-white leading-tight mb-6">
               Jeder Mitarbeiter bekommt seinen eigenen Baum.
@@ -556,9 +512,9 @@ function EmployerBrandingSection() {
                 </div>
               ))}
             </div>
-          </FadeInSection>
+          </SimpleSection>
 
-          <FadeInSection delay={0.2}>
+          <SimpleSection>
             <div className="relative">
               <div className="absolute -inset-4 bg-[#E9C46A]/5 rounded-2xl blur-xl" />
               <img
@@ -567,7 +523,7 @@ function EmployerBrandingSection() {
                 className="relative rounded-xl shadow-2xl shadow-black/40 w-full object-contain"
               />
             </div>
-          </FadeInSection>
+          </SimpleSection>
         </div>
       </div>
     </section>
@@ -582,14 +538,14 @@ function CalculatorSection() {
 
   const co2PerTree = 22; // kg/year
   const costPerTree = 35; // € one-time
-  const schoolContribution = 5; // €/tree/year
+  const schoolContribution = 7.5; // €/tree (30% of €25 goes to school)
   // Average EU employee emits ~8.4 t CO2/year (commute + office)
   const co2PerEmployee = 8400; // kg/year
   const treesNeededForEmployees = Math.ceil((employees * co2PerEmployee) / (co2PerTree * 12));
   const activeTrees = mode === 'employees' ? treesNeededForEmployees : trees;
   const co2Offset = (activeTrees * co2PerTree * 12) / 1000; // tonnes/year
   const monthlyCost = activeTrees * costPerTree;
-  const schoolYearly = activeTrees * schoolContribution * 12;
+  const schoolTotal = activeTrees * schoolContribution; // One-time school contribution
   const jobs = Math.max(1, Math.ceil(activeTrees / 10));
   const coveragePercent = mode === 'employees'
     ? Math.min(100, Math.round((co2Offset * 1000) / (employees * co2PerEmployee) * 100))
@@ -598,7 +554,7 @@ function CalculatorSection() {
   return (
     <section className="relative py-24 md:py-32 bg-[#1B4332]" id="calculadora">
       <div className="container">
-        <FadeInSection>
+        <SimpleSection>
           <div className="text-center mb-12">
             <p className="text-[#52B788] font-[Montserrat] font-semibold text-sm tracking-[0.15em] uppercase mb-4">Calculadora de Impacto</p>
             <h2 className="font-[Montserrat] font-800 text-3xl md:text-4xl text-white mb-4">
@@ -608,9 +564,9 @@ function CalculatorSection() {
               Calcula tu compensación de CO₂ en segundos. Elige el modo que mejor se adapte a tu empresa.
             </p>
           </div>
-        </FadeInSection>
+        </SimpleSection>
 
-        <FadeInSection delay={0.15}>
+        <SimpleSection>
           <div className="max-w-3xl mx-auto">
             {/* Mode toggle */}
             <div className="flex bg-[#0D2818] border border-[#52B788]/20 rounded-xl p-1 mb-6 max-w-sm mx-auto">
@@ -713,7 +669,7 @@ function CalculatorSection() {
               {/* School contribution highlight */}
               <div className="mt-6 bg-blue-900/30 border border-blue-500/20 rounded-xl p-4 text-center">
                 <p className="text-blue-300 text-sm">
-                  🏫 Tu plan contribuye <strong className="text-white">€{schoolYearly.toLocaleString('de-DE')}/año</strong> a la construcción de la Escuela de Jumuzna
+                  🏫 Tu plan contribuye <strong className="text-white">€{schoolTotal.toLocaleString('de-DE')}</strong> a la construcción de la Escuela de Jumuzna
                 </p>
               </div>
 
@@ -728,7 +684,7 @@ function CalculatorSection() {
               </div>
             </div>
           </div>
-        </FadeInSection>
+        </SimpleSection>
       </div>
     </section>
   );
@@ -748,7 +704,7 @@ function ContactSection() {
     <section className="relative py-24 md:py-32 bg-[#081C15]" id="kontakt">
       <div className="container">
         <div className="grid lg:grid-cols-2 gap-16">
-          <FadeInSection>
+          <SimpleSection>
             <p className="text-[#52B788] font-[Montserrat] font-semibold text-sm tracking-[0.15em] uppercase mb-4">Kontakt</p>
             <h2 className="font-[Montserrat] font-800 text-3xl md:text-4xl text-white leading-tight mb-6">
               Bereit, echten Impact zu schaffen?
@@ -768,9 +724,9 @@ function ContactSection() {
                 </div>
               ))}
             </div>
-          </FadeInSection>
+          </SimpleSection>
 
-          <FadeInSection delay={0.2}>
+          <SimpleSection>
             {submitted ? (
               <div className="bg-[#52B788]/10 border border-[#52B788]/30 rounded-2xl p-12 text-center">
                 <div className="w-16 h-16 rounded-full bg-[#52B788]/20 flex items-center justify-center mx-auto mb-6">
@@ -851,7 +807,7 @@ function ContactSection() {
                 </p>
               </form>
             )}
-          </FadeInSection>
+          </SimpleSection>
         </div>
       </div>
     </section>
