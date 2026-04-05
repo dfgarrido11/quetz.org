@@ -1,21 +1,21 @@
 ---
 name: AgentScope B2B Automation System
-description: Sistema multi-agente completo para automatización de ventas B2B con reforestación transparente
+description: Sistema multi-agente completo for automatización de ventas B2B with reforestación transparente
 type: implementation
 ---
 
-# 🕷️ AgentScope Swarm-First System para Quetz.org
+# 🕷️ AgentScope Swarm-First System for Quetz.org
 
 **Fecha**: 2026-04-04  
 **Autor**: Daniel (CEO Quetz.org) + Claude Code  
-**Estado**: Aprobado para implementación  
-**Launch Target**: Lunes 2026-04-07  
+**Estado**: Aprobado for implementación  
+**Launch Target**: Lunes 2026-04-08  
 
 ## 🎯 Resumen Ejecutivo
 
-Construcción de sistema multi-agente ultra-inteligente que automatiza todo el pipeline de ventas B2B para Quetz.org, desde lead generation hasta cierre de ventas, utilizando AgentScope Studio con 5 agentes especializados trabajando en paralelo.
+Construcción de sistema multi-agente ultra-inteligente que automatiza todo el pipeline de ventas B2B for Quetz.org, desde lead generation hasta cierre de ventas, utilizando AgentScope Studio with 5 agentes especializados trabajando en paralelo.
 
-**Objetivo**: Generar 8-12 clientes nuevos/mes (€15K+ revenue) con mínima intervención manual.
+**Objetivo**: Generar 8-12 clientes nuevos/mes (€15K+ revenue) with mínima intervención manual.
 
 ## 🏗️ Arquitectura del Sistema
 
@@ -25,7 +25,7 @@ Construcción de sistema multi-agente ultra-inteligente que automatiza todo el p
 - Coordinación central via MsgHub
 - Friday Assistant integrado
 - Real-time monitoring y control
-- Human-in-loop steering para deals >€1,250
+- Human-in-loop steering for deals >€1,250
 
 **2. Multi-Agent Swarm (5 Agentes Especializados)**
 
@@ -46,12 +46,12 @@ Construcción de sistema multi-agente ultra-inteligente que automatiza todo el p
 
 **Capabilities**:
 - LinkedIn Sales Navigator scraping (Phantombuster integration)
-- Google search automation para ESG news
+- Google search automation for ESG news
 - Company database APIs (Crunchbase, Apollo)
-- Monitoring Google Alerts para sustainability initiatives
+- Monitoring Google Alerts for sustainability initiatives
 
 **Input**: Criteria de búsqueda (industry, size, geography, keywords)
-**Output**: Lista calificada empresas con basic contact info
+**Output**: Lista calificada empresas with basic contact info
 **Performance Target**: 100+ empresas/día
 
 **Technical Implementation**:
@@ -87,7 +87,7 @@ class LeadHunterAgent(BaseAgent):
 - Decision maker identification
 
 **Input**: Raw company data from LeadHunter
-**Output**: Enriched profiles con email, score, sustainability readiness
+**Output**: Enriched profiles with email, score, sustainability readiness
 **Performance Target**: 90%+ email accuracy, 85%+ scoring precision
 
 **Technical Implementation**:
@@ -116,7 +116,7 @@ class EnrichmentAgent(BaseAgent):
 - Dynamic template generation
 
 **Input**: Enriched company profiles
-**Output**: Personalized email sequences ready para envío
+**Output**: Personalized email sequences ready for envío
 **Performance Target**: 15%+ response rate (vs 3% industry average)
 
 **Technical Implementation**:
@@ -144,11 +144,11 @@ class PersonalizerAgent(BaseAgent):
 - Optimal send time prediction por timezone
 - Follow-up sequence automation (15-day sequence)
 - Response tracking y análisis
-- Calendar integration para meetings
-- Escalation logic para Daniel
+- Calendar integration for meetings
+- Escalation logic for Daniel
 
 **Input**: Personalized email sequences
-**Output**: Scheduled campaigns con optimal timing
+**Output**: Scheduled campaigns with optimal timing
 **Performance Target**: 40%+ improvement en open rates vs. random timing
 
 ### 5. MonitorAgent 📊
@@ -159,12 +159,12 @@ class PersonalizerAgent(BaseAgent):
 - Conversion prediction modeling
 - A/B testing analysis
 - ROI calculation automático
-- Alert system para Daniel
+- Alert system for Daniel
 - Self-learning optimization
 
 **Input**: All system data y interactions
 **Output**: Performance reports, recommendations, alerts
-**Performance Target**: 95%+ prediction accuracy para high-value leads
+**Performance Target**: 95%+ prediction accuracy for high-value leads
 
 ## 🔄 Workflow Coordination
 
@@ -197,7 +197,7 @@ else:
     use_sequential_pipeline_mode()
 ```
 
-### Memory Management con AgentDB
+### Memory Management with AgentDB
 
 **Shared Context**:
 - Lead history y interactions
@@ -207,7 +207,7 @@ else:
 - Daniel preferences y overrides
 
 **Learning Algorithms**:
-- Pattern recognition para successful conversions
+- Pattern recognition for successful conversions
 - Personality-response correlation analysis
 - Optimal timing model training
 - Industry-specific adaptation
@@ -332,8 +332,8 @@ agents = {
 ## 📊 Performance Metrics & KPIs
 
 ### Week 1 Targets (Foundation)
-- **Lead Generation**: 500+ companies contacted
-- **Email Discovery**: 90%+ email accuracy
+- **Lead Generation**: 200+ companies contacted
+- **Email Discovery**: 90%+ email accuracy  
 - **Response Rate**: 10%+ (vs 3% baseline)
 - **Pipeline Setup**: 5 agents operational
 - **Integration**: Dashboard functional
@@ -341,16 +341,16 @@ agents = {
 ### Week 2 Targets (Learning)
 - **Response Rate**: 15%+ (optimized)
 - **Lead Scoring**: 85%+ accuracy
-- **A/B Testing**: 10+ variants tested
-- **Automation**: 90%+ hands-off operation
-- **Conversion**: 5+ qualified leads
+- **A/B Testing**: 5+ variants tested
+- **Automation**: 90%+ hands-off operation  
+- **Conversion**: 2+ qualified leads
 
 ### Week 3 Targets (Optimization)
-- **New Clients**: 8-12 closed deals
-- **Revenue**: €10K-€15K
-- **ROI**: 5,000%+ (investment vs returns)
+- **New Clients**: 2-3 closed deals (realistic B2B timeline)
+- **Revenue**: €2.5K-€3.8K
+- **ROI**: 1,000%+ (investment vs returns)
 - **System Intelligence**: Self-optimizing
-- **Prediction**: 95%+ lead score accuracy
+- **Prediction**: 90%+ lead score accuracy
 
 ## 🚨 Human-in-Loop Controls
 
@@ -387,7 +387,7 @@ interface DailyDashboard {
 - GDPR-compliant data handling
 - CAN-SPAM compliance for US
 - Unsubscribe links in all emails
-- Rate limiting para avoid spam flags
+- Rate limiting for avoid spam flags
 - Domain reputation monitoring
 
 ### LinkedIn Safety
@@ -399,7 +399,7 @@ interface DailyDashboard {
 
 ### Data Protection
 - Encrypted storage of all lead data
-- Regular backups con AgentDB
+- Regular backups with AgentDB
 - Access logging y audit trail
 - Personal data anonymization options
 - Right-to-deletion compliance
@@ -418,15 +418,20 @@ interface DailyDashboard {
 - Leads contacted: 2,500/month
 - Response rate: 15% = 375 responses
 - Qualified leads: 10% = 37 qualified
-- Conversion rate: 30% = 11 clients
+- Conversion rate: 8% = 3 clients (conservative B2B estimate)
 - Average deal: €1,250
-- **Monthly Revenue**: €13,750
+- **Monthly Revenue**: €3,750
+
+### Business Model Clarification
+- **Tree Adoption Revenue**: €25/tree (70% operations + growth)
+- **School Construction**: €7.50/tree (30% dedicated to Jumuzna school)
+- **Impact per Client**: 50 trees average = €1,250 total, €375 to school
 
 ### ROI Calculation
-- Investment: €316.99
-- Revenue: €13,750
-- Profit: €13,433
-- **ROI**: 4,240% monthly
+- Investment: €316.99/month
+- Revenue: €3,750/month
+- Profit: €3,433/month
+- **ROI**: 1,083% monthly (still excellent)
 
 ## 📋 Implementation Timeline
 
@@ -437,13 +442,13 @@ interface DailyDashboard {
 - [ ] Phantombuster workflows setup
 - [ ] Hunter.io + Clearbit APIs tested
 
-### Launch Monday (2026-04-07)
+### Launch Monday (2026-04-08)
 - **09:00**: System health check
 - **10:00**: Launch first hunting session (100 leads)
 - **12:00**: First enrichment batch processing
 - **14:00**: Personalization + scheduling
 - **16:00**: Monitor first responses
-- **18:00**: Daily review con Daniel
+- **18:00**: Daily review with Daniel
 
 ### Week 1 Daily Schedule
 **Monday**: Foundation launch + monitoring  
@@ -455,11 +460,11 @@ interface DailyDashboard {
 ## 🎯 Success Criteria
 
 ### Technical Success
-- [ ] All 5 agents operational sin errors
+- [ ] All 5 agents operational without errors
 - [ ] <100ms response time dashboard
-- [ ] 99.9% uptime durante business hours
+- [ ] 99.9% uptime during business hours
 - [ ] Zero manual intervention required for routine operations
-- [ ] Seamless integration con existing Quetz.org infrastructure
+- [ ] Seamless integration with existing Quetz.org infrastructure
 
 ### Business Success
 - [ ] 15%+ email response rate achieved
@@ -472,8 +477,8 @@ interface DailyDashboard {
 - [ ] Daniel time reduced to <30 min/day monitoring
 - [ ] Scalable system architecture proven
 - [ ] Competitive advantage established
-- [ ] Foundation set para expansion internacional
-- [ ] Team capacity freed para other strategic initiatives
+- [ ] Foundation set for international expansion
+- [ ] Team capacity freed for other strategic initiatives
 
 ## 🔄 Iteration Plan
 
@@ -485,9 +490,9 @@ interface DailyDashboard {
 
 ### Scaling Roadmap
 **Month 2**: Add German + Spanish market agents  
-**Month 3**: Integration con WhatsApp Business API  
+**Month 3**: Integration with WhatsApp Business API  
 **Month 4**: Expansion to 10+ agents parallel hunting  
-**Month 5**: Predictive analytics para market timing  
+**Month 5**: Predictive analytics for market timing  
 **Month 6**: Full AI-driven negotiation capabilities  
 
 ---
@@ -496,8 +501,8 @@ interface DailyDashboard {
 
 **Daniel (CEO Quetz.org)**: ✅ APPROVED  
 **System Architect (Claude Code)**: ✅ READY FOR IMPLEMENTATION  
-**Launch Date**: Monday, April 7, 2026  
-**First Review**: Friday, April 11, 2026  
+**Launch Date**: Monday, April 8, 2026  
+**First Review**: Friday, April 12, 2026  
 
 ---
 
