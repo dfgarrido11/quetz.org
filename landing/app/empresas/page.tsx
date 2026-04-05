@@ -536,15 +536,15 @@ function CalculatorSection() {
   const [employees, setEmployees] = useState(50);
   const [trees, setTrees] = useState(20);
 
-  const co2PerTree = 22; // kg/year
-  const costPerTree = 35; // € one-time
+  const co2PerTree = 25; // kg/year per tree (realistic)
+  const costPerTree = 25; // € one-time cost per tree
   const schoolContribution = 7.5; // €/tree (30% of €25 goes to school)
-  // Average EU employee emits ~8.4 t CO2/year (commute + office)
-  const co2PerEmployee = 8400; // kg/year
-  const treesNeededForEmployees = Math.ceil((employees * co2PerEmployee) / (co2PerTree * 12));
+  // Corporate carbon footprint per employee (office operations)
+  const co2PerEmployee = 1000; // kg/year (1 tonne per employee - realistic for SME)
+  const treesNeededForEmployees = Math.ceil((employees * co2PerEmployee) / co2PerTree);
   const activeTrees = mode === 'employees' ? treesNeededForEmployees : trees;
-  const co2Offset = (activeTrees * co2PerTree * 12) / 1000; // tonnes/year
-  const monthlyCost = activeTrees * costPerTree;
+  const co2Offset = (activeTrees * co2PerTree) / 1000; // tonnes/year
+  const monthlyCost = activeTrees * costPerTree; // One-time cost displayed as total
   const schoolTotal = activeTrees * schoolContribution; // One-time school contribution
   const jobs = Math.max(1, Math.ceil(activeTrees / 10));
   const coveragePercent = mode === 'employees'
@@ -609,7 +609,7 @@ function CalculatorSection() {
                     />
                     <div className="flex justify-between text-white/30 text-xs mt-2"><span>5</span><span>500</span></div>
                     <p className="text-white/40 text-xs mt-3 text-center">
-                      Basierend auf ~8,4 t CO₂/Mitarbeiter/Jahr (Anfahrt + Büro, EU-Durchschnitt)
+                      Basierend auf ~1 t CO₂/Mitarbeiter/Jahr (Bürooperationen, KMU-realistisch)
                     </p>
                   </>
                 ) : (
@@ -634,7 +634,7 @@ function CalculatorSection() {
                 {[
                   { label: mode === 'employees' ? 'CO₂ kompensiert/Jahr' : 'CO₂ / Jahr', value: `${co2Offset.toFixed(1)} t`, icon: Leaf, highlight: true },
                   { label: 'Benötigte Bäume', value: activeTrees.toLocaleString('de-DE'), icon: TreePine, highlight: false },
-                  { label: 'Monatliche Kosten', value: `€${monthlyCost.toLocaleString('de-DE')}`, icon: BarChart3, highlight: false },
+                  { label: 'Einmalige Investition', value: `€${monthlyCost.toLocaleString('de-DE')}`, icon: BarChart3, highlight: false },
                   { label: 'Geschaffene Arbeitsplätze', value: `${jobs}`, icon: Users, highlight: false },
                 ].map((item, i) => (
                   <div key={i} className={`text-center p-4 rounded-xl ${
