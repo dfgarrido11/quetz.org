@@ -536,16 +536,22 @@ function CalculatorSection() {
   const [employees, setEmployees] = useState(50);
   const [trees, setTrees] = useState(20);
 
-  const co2PerTree = 25; // kg/year per tree (realistic)
-  const costPerTree = 25; // € one-time cost per tree
-  const schoolContribution = 7.5; // €/tree (30% of €25 goes to school)
-  // Corporate carbon footprint per employee (office operations)
-  const co2PerEmployee = 1000; // kg/year (1 tonne per employee - realistic for SME)
-  const treesNeededForEmployees = Math.ceil((employees * co2PerEmployee) / co2PerTree);
-  const activeTrees = mode === 'employees' ? treesNeededForEmployees : trees;
-  const co2Offset = (activeTrees * co2PerTree) / 1000; // tonnes/year
-  const monthlyCost = activeTrees * costPerTree; // One-time cost displayed as total
-  const schoolTotal = activeTrees * schoolContribution; // One-time school contribution
+  // NEW SUBSCRIPTION MODEL - optimized for German Mittelstand
+  const costPerEmployeePerMonth = 25; // €/employee/month
+  const treesPerEmployeePerYear = 3; // trees allocated per employee annually
+  const treePrice = 25; // € per tree
+  const schoolPercentage = 0.30; // 30% goes to school
+
+  const monthlySubscription = employees * costPerEmployeePerMonth;
+  const annualSubscription = monthlySubscription * 12;
+  const treesAllocated = employees * treesPerEmployeePerYear;
+  const co2Offset = treesAllocated * 25 / 1000; // 25kg CO2 per tree per year, convert to tonnes
+  const schoolContribution = annualSubscription * schoolPercentage;
+
+  // For trees mode, use direct calculation
+  const activeTrees = mode === 'employees' ? treesAllocated : trees;
+  const monthlyCost = mode === 'employees' ? monthlySubscription : (trees * treePrice / 12);
+  const schoolTotal = mode === 'employees' ? schoolContribution : (trees * treePrice * schoolPercentage);
   const jobs = Math.max(1, Math.ceil(activeTrees / 10));
   const coveragePercent = mode === 'employees'
     ? Math.min(100, Math.round((co2Offset * 1000) / (employees * co2PerEmployee) * 100))
@@ -609,7 +615,7 @@ function CalculatorSection() {
                     />
                     <div className="flex justify-between text-white/30 text-xs mt-2"><span>5</span><span>500</span></div>
                     <p className="text-white/40 text-xs mt-3 text-center">
-                      Basierend auf ~1 t CO₂/Mitarbeiter/Jahr (Bürooperationen, KMU-realistisch)
+                      €25/Mitarbeiter/Monat - Flexibles Nachhaltigkeits-Abo für KMU
                     </p>
                   </>
                 ) : (
@@ -633,9 +639,9 @@ function CalculatorSection() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
                 {[
                   { label: mode === 'employees' ? 'CO₂ kompensiert/Jahr' : 'CO₂ / Jahr', value: `${co2Offset.toFixed(1)} t`, icon: Leaf, highlight: true },
-                  { label: 'Benötigte Bäume', value: activeTrees.toLocaleString('de-DE'), icon: TreePine, highlight: false },
-                  { label: 'Einmalige Investition', value: `€${monthlyCost.toLocaleString('de-DE')}`, icon: BarChart3, highlight: false },
-                  { label: 'Geschaffene Arbeitsplätze', value: `${jobs}`, icon: Users, highlight: false },
+                  { label: mode === 'employees' ? 'Bäume/Jahr zugeteilt' : 'Benötigte Bäume', value: activeTrees.toLocaleString('de-DE'), icon: TreePine, highlight: false },
+                  { label: mode === 'employees' ? 'Monatlicher Beitrag' : 'Monatliche Kosten', value: `€${monthlyCost.toLocaleString('de-DE')}`, icon: BarChart3, highlight: true },
+                  { label: 'Geschaffene Arbeitsplätze', value: `${Math.max(1, Math.ceil(activeTrees / 10))}`, icon: Users, highlight: false },
                 ].map((item, i) => (
                   <div key={i} className={`text-center p-4 rounded-xl ${
                     item.highlight ? 'bg-[#52B788]/10 border border-[#52B788]/30' : ''
@@ -661,7 +667,7 @@ function CalculatorSection() {
                     />
                   </div>
                   <p className="text-white/30 text-xs mt-2 text-center">
-                    Mit {activeTrees} Bäumen/Monat kompensieren Sie {coveragePercent}% des Fußabdrucks Ihrer {employees} Mitarbeiter
+                    Mit {activeTrees} Bäumen/Jahr und €{monthlySubscription}/Monat schaffen Sie nachhaltigen Impact für {employees} Mitarbeiter
                   </p>
                 </div>
               )}
@@ -669,7 +675,7 @@ function CalculatorSection() {
               {/* School contribution highlight */}
               <div className="mt-6 bg-blue-900/30 border border-blue-500/20 rounded-xl p-4 text-center">
                 <p className="text-blue-300 text-sm">
-                  🏫 Ihr Plan trägt <strong className="text-white">€{schoolTotal.toLocaleString('de-DE')}</strong> zum Bau der Jumuzna-Schule bei
+                  🏫 Ihr Abo trägt <strong className="text-white">€{schoolTotal.toLocaleString('de-DE')}/Jahr</strong> zum Bau der Jumuzna-Schule bei
                 </p>
               </div>
 
@@ -679,7 +685,10 @@ function CalculatorSection() {
                   href="#contacto"
                   className="inline-flex items-center gap-2 bg-[#52B788] text-[#0D2818] font-bold px-8 py-3 rounded-xl hover:bg-[#40916C] transition-colors"
                 >
-                  Angebot anfordern für {activeTrees} Bäume/Monat
+                  {mode === 'employees'
+                    ? `Nachhaltigkeits-Abo für €${monthlySubscription}/Monat starten`
+                    : `Angebot anfordern für ${activeTrees} Bäume`
+                  }
                 </a>
               </div>
             </div>
