@@ -541,6 +541,7 @@ function CalculatorSection() {
   const treesPerEmployeePerYear = 3; // trees allocated per employee annually
   const treePrice = 25; // € per tree
   const schoolPercentage = 0.30; // 30% goes to school
+  const co2PerEmployee = 8000; // kg CO₂ average per employee per year (Germany)
 
   const monthlySubscription = employees * costPerEmployeePerMonth;
   const annualSubscription = monthlySubscription * 12;
@@ -682,7 +683,7 @@ function CalculatorSection() {
               {/* CTA */}
               <div className="mt-6 text-center">
                 <a
-                  href="#contacto"
+                  href="#kontakt"
                   className="inline-flex items-center gap-2 bg-[#52B788] text-[#0D2818] font-bold px-8 py-3 rounded-xl hover:bg-[#40916C] transition-colors"
                 >
                   {mode === 'employees'
