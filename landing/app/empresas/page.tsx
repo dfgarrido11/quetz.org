@@ -134,13 +134,6 @@ function HeroSection() {
         </div>
       </div>
 
-      {/* Quetzito flotando */}
-      <img
-        src="/mascot/quetzito-aventurero.png"
-        alt="Quetzito"
-        className="absolute bottom-24 right-8 md:right-24 w-28 md:w-40 z-20 pointer-events-none drop-shadow-2xl mascot-float mascot-hover"
-      />
-
       {/* Scroll indicator */}
       <div
         className="absolute bottom-8 left-1/2 -translate-x-1/2"
@@ -293,12 +286,6 @@ function SchoolSection() {
           <div className="absolute inset-0 bg-gradient-to-l from-[#081C15]/90 via-[#081C15]/60 to-transparent" />
         </div>
         <div className="relative z-10 container py-24">
-          {/* Quetzito maestro */}
-          <img
-            src="/mascot/quetzito-maestro.png"
-            alt="Quetzito Maestro"
-            className="hidden md:block absolute left-8 bottom-0 w-36 z-20 pointer-events-none drop-shadow-2xl mascot-float mascot-hover"
-          />
           <div className="ml-auto max-w-xl">
             <SimpleSection>
               <p className="text-[#E9C46A] font-[Montserrat] font-semibold text-sm tracking-[0.15em] uppercase mb-4">Sozialer Impact</p>
@@ -386,7 +373,7 @@ function PricingSection() {
         "Firmen-Dashboard",
         "Monatlicher Impact-Report",
         "CSRD-Datenexport",
-        "Quetzito-Maskottchen für Ihre Kommunikation",
+        "Markenpaket für Ihre Kommunikation",
       ],
       highlight: false,
     },

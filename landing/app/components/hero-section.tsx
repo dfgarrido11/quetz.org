@@ -153,26 +153,7 @@ export default function HeroSection({ onOpenModal }: HeroSectionProps) {
         </div>
       </motion.div>
 
-      {/* Quetzita - RIGHT SIDE */}
-      <motion.div
-        initial={{ opacity: 0, x: 80, scale: 0.5 }}
-        animate={{ opacity: 1, x: 0, scale: 1 }}
-        transition={{ duration: 1.2, delay: 1.4, type: 'spring', bounce: 0.3 }}
-        className="absolute hidden md:block right-4 md:right-12 lg:right-20 bottom-8 md:bottom-16 pointer-events-none z-10"
-      >
-        <div className="flex flex-col items-center">
-          <div className="relative w-40 md:w-52 lg:w-64 h-52 md:h-64 lg:h-80">
-            <Image
-              src="/mascot/yupp-generated-image-839091.png"
-              alt="Quetzita"
-              fill
-              className="object-contain mascot-float-hero drop-shadow-[0_8px_32px_rgba(0,0,0,0.25)] hover:scale-110 transition-transform duration-300 cursor-pointer"
-              sizes="(max-width: 768px) 160px, (max-width: 1024px) 208px, 256px"
-            />
-          </div>
-          <div className="w-32 h-4 mx-auto -mt-2 rounded-full blur-lg bg-yellow-500/20 mascot-glow" />
-        </div>
-      </motion.div>
+
     </section>
   );
 }

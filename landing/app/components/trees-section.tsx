@@ -79,46 +79,6 @@ export default function TreesSection({ onSelectTree, isGiftMode = false }: Trees
       className={`py-20 sm:py-28 bg-white relative overflow-hidden ${isRTL ? 'rtl' : 'ltr'}`}
       data-quetzito-section="trees"
     >
-      {/* Quetzito Maestro - Mascot Guide */}
-      <motion.div
-        initial={{ opacity: 0, x: isRTL ? 100 : -100 }}
-        animate={inView ? { opacity: 1, x: 0 } : {}}
-        transition={{ duration: 0.8, delay: 0.5 }}
-        className={`hidden lg:block absolute ${isRTL ? 'right-0' : 'left-0'} top-1/2 -translate-y-1/2 z-10`}
-      >
-        <div className="relative">
-          {/* Speech Bubble */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={inView ? { opacity: 1, scale: 1 } : {}}
-            transition={{ duration: 0.5, delay: 1.2 }}
-            className={`absolute -top-16 ${isRTL ? 'right-20' : 'left-20'} bg-white rounded-2xl shadow-lg p-3 max-w-[180px] z-20`}
-          >
-            <div className={`absolute -bottom-2 ${isRTL ? 'right-6' : 'left-6'} w-4 h-4 bg-white transform rotate-45`} />
-            <p className="text-sm font-medium text-gray-800 relative z-10">
-              {t('mascot.hello')} {t('mascot.adopt')}
-            </p>
-          </motion.div>
-          
-          {/* QUETZITO VIVIENTE - Modo Profesor */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: inView ? 1 : 0 }}
-            transition={{ duration: 0.5, delay: 1 }}
-            className="w-20 md:w-28 h-28 md:h-36 relative"
-          >
-            <RobustLivingQuetzito
-              position="trees"
-              width={112}
-              height={144}
-              className="w-full h-full"
-              onClick={() => {
-                console.log('🎓 ¡QUETZITO PROFESOR ROBUSTO! ¡Enseña con vida real sin errores!');
-              }}
-            />
-          </motion.div>
-        </div>
-      </motion.div>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <motion.div
@@ -136,28 +96,7 @@ export default function TreesSection({ onSelectTree, isGiftMode = false }: Trees
             {t('trees.title')}
           </h2>
           
-          {/* Mobile Mascot */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={inView ? { opacity: 1, scale: 1 } : {}}
-            transition={{ duration: 0.6, delay: 0.8 }}
-            className="lg:hidden flex justify-center mt-6"
-          >
-            <div className={`flex items-center gap-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-full py-2 px-4 shadow-md ${isRTL ? 'flex-row-reverse' : ''}`}>
-              <div className="w-20 md:w-28 h-24 md:h-32 relative flex-shrink-0">
-                <Image
-                  src="/mascot/quetzito-maestro.png"
-                  alt="Quetzito Maestro"
-                  fill
-                  className="object-contain mascot-float-hero"
-                  sizes="(max-width: 768px) 80px, 112px"
-                />
-              </div>
-              <p className="text-sm font-medium text-gray-700">
-                {t('mascot.adopt')}
-              </p>
-            </div>
-          </motion.div>
+
         </motion.div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">

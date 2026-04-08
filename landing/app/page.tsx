@@ -18,6 +18,9 @@ import AdoptionModal from "./components/adoption-modal";
 import DonationModal from "./components/donation-modal";
 import ChatWidget from "./components/chat-widget";
 import Footer from "./components/footer";
+import dynamic from 'next/dynamic';
+
+const DisneyQuetzito = dynamic(() => import('./components/disney-quetzito'), { ssr: false });
 
 export default function Home() {
   const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
@@ -56,6 +59,7 @@ export default function Home() {
       <AdoptionModal isOpen={isAdoptionModalOpen} onClose={closeAdoptionModal} tree={selectedTree} />
       <DonationModal isOpen={isDonationModalOpen} onClose={closeDonationModal} />
       <ChatWidget />
+      <DisneyQuetzito />
     </>
   );
 }

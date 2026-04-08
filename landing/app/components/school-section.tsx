@@ -100,35 +100,6 @@ export default function SchoolSection({ onOpenDonation }: SchoolSectionProps) {
         <div className="absolute inset-0 bg-black/60" />
       </div>
 
-      {/* Quetzita Maestra - aparece desde la derecha al hacer scroll */}
-      <motion.div
-        initial={{ opacity: 0, x: isRTL ? -100 : 100 }}
-        animate={inView ? { opacity: 1, x: 0 } : {}}
-        transition={{ duration: 0.8, delay: 0.6 }}
-        className={`hidden lg:block absolute ${isRTL ? 'left-0' : 'right-0'} bottom-0 z-10 pointer-events-none`}
-      >
-        <motion.div
-          animate={shouldReduceMotion ? {} : {
-            y: [0, -10, 0],
-            rotate: [2, -2, 2],
-          }}
-          transition={{
-            duration: 4,
-            repeat: Infinity,
-            ease: 'easeInOut',
-            repeatType: 'mirror' as const,
-          }}
-          className="relative w-24 md:w-32 h-36 md:h-44 drop-shadow-2xl"
-        >
-          <Image
-            src="/mascot/quetzito-maestro.png"
-            alt="Quetzita Maestra"
-            fill
-            className="object-contain object-bottom mascot-peek"
-            sizes="(max-width: 768px) 96px, 128px"
-          />
-        </motion.div>
-      </motion.div>
 
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 text-center">
         <motion.div
