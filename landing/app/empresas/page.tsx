@@ -50,10 +50,16 @@ function Navbar() {
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? "bg-[#081C15]/90 backdrop-blur-md shadow-lg" : "bg-transparent"}`}>
       <div className="container flex items-center justify-between py-4">
-        <a href="#" className="flex items-center gap-2">
-          <Leaf className="w-7 h-7 text-[#52B788]" />
-          <span className="font-[Montserrat] font-bold text-xl text-white tracking-tight">quetz.org</span>
-        </a>
+        <div className="flex items-center gap-4">
+          <a href="/" className="flex items-center gap-1.5 text-white/70 hover:text-white text-sm font-medium transition-colors" title="Zur Startseite">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+            Startseite
+          </a>
+          <a href="#" className="flex items-center gap-2">
+            <Leaf className="w-7 h-7 text-[#52B788]" />
+            <span className="font-[Montserrat] font-bold text-xl text-white tracking-tight">quetz.org</span>
+          </a>
+        </div>
         <div className="hidden md:flex items-center gap-8">
           <a href="#impact" className="text-white/80 hover:text-white text-sm font-medium transition-colors">Impact</a>
           <a href="#transparenz" className="text-white/80 hover:text-white text-sm font-medium transition-colors">Transparenz</a>

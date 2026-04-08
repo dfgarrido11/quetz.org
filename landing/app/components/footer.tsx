@@ -71,7 +71,7 @@ export default function Footer() {
 
           <div className={`flex flex-col items-center gap-4 ${isRTL ? 'md:items-start' : 'md:items-end'}`}>
             <div className={`flex items-center gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
-              <a href="https://instagram.com/quetz.org" target="_blank" rel="noopener noreferrer" className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors">
+              <a href="https://instagram.com/quetzorg" target="_blank" rel="noopener noreferrer" className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors">
                 <Instagram className="w-5 h-5" />
               </a>
               <a href="https://facebook.com/quetz.org" target="_blank" rel="noopener noreferrer" className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors">
