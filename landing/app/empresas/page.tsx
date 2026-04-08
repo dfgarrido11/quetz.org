@@ -370,7 +370,7 @@ function PricingSection() {
   const plans = [
     {
       name: "Starter",
-      price: "175",
+      price: "125",
       period: "/ Monat",
       trees: "5 Bäume / Monat",
       desc: "Perfekt für kleine Teams und den Einstieg in nachhaltiges CSR.",
@@ -385,7 +385,7 @@ function PricingSection() {
     },
     {
       name: "Business",
-      price: "625",
+      price: "500",
       period: "/ Monat",
       trees: "20 Bäume / Monat",
       desc: "Für Unternehmen, die CSR ernst nehmen und Mitarbeiter einbinden.",
@@ -427,7 +427,7 @@ function PricingSection() {
               Investieren Sie in echten Impact
             </h2>
             <p className="text-[#B7E4C7]/60 max-w-xl mx-auto">
-              Jeder Baum kostet €35/Monat. Davon fließen €5 direkt in den Schulbau.
+              Jeder Baum kostet €25. Davon fließen 30% direkt in den Schulbau.
             </p>
           </div>
         </SimpleSection>
@@ -471,6 +471,34 @@ function PricingSection() {
             </SimpleSection>
           ))}
         </div>
+
+        {/* Price Breakdown */}
+        <SimpleSection>
+          <div className="mt-16 max-w-3xl mx-auto">
+            <h3 className="font-[Montserrat] font-bold text-xl text-white text-center mb-8">
+              Wohin fließt jeder Euro?
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              {[
+                { label: "Baum & Pflanzung", pct: "30%", amount: "€7,50", icon: "🌱" },
+                { label: "Gehalt Waldwächter", pct: "25%", amount: "€6,25", icon: "👨\u200d🌾" },
+                { label: "Schulbaufonds", pct: "30%", amount: "€7,50", icon: "🏫" },
+                { label: "Technologie & GPS", pct: "10%", amount: "€2,50", icon: "📍" },
+                { label: "Betrieb & Admin", pct: "5%", amount: "€1,25", icon: "⚙️" },
+              ].map((item, i) => (
+                <div key={i} className="bg-[#0D2818]/60 border border-[#52B788]/10 rounded-xl p-4 text-center">
+                  <span className="text-2xl">{item.icon}</span>
+                  <p className="font-[Montserrat] font-800 text-xl text-[#52B788] mt-2">{item.pct}</p>
+                  <p className="text-white/70 text-xs mt-1">{item.label}</p>
+                  <p className="text-white/40 text-xs mt-1">{item.amount}</p>
+                </div>
+              ))}
+            </div>
+            <p className="text-center text-white/30 text-xs mt-4">
+              Basierend auf €25 pro Baum – 100% transparent, 0% Greenwashing
+            </p>
+          </div>
+        </SimpleSection>
       </div>
     </section>
   );
@@ -533,7 +561,7 @@ function CalculatorSection() {
   const costPerEmployeePerMonth = 25; // €/employee/month
   const treesPerEmployeePerYear = 3; // trees allocated per employee annually
   const treePrice = 25; // € per tree
-  const schoolPercentage = 0.30; // 30% goes to school
+  const schoolPercentage = 0.30; // 30% goes to school fund
   const co2PerEmployee = 8000; // kg CO₂ average per employee per year (Germany)
 
   const monthlySubscription = employees * costPerEmployeePerMonth;
