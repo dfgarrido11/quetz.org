@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
     const aiRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ***REMOVED***}`,
+        'Authorization': `Bearer ***REMOVED***`,
         'HTTP-Referer': 'https://www.quetz.org',
         'X-Title': 'quetz.org - Quetzito',
         'Content-Type': 'application/json',
