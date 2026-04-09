@@ -176,7 +176,7 @@ async function loadCorporateContacts(): Promise<CorporateContact[]> {
       {
         first_name: 'Sarah',
         last_name: 'Müller',
-        email: 'dfgarrido11@gmail.com', // Tu email personal para testing
+        email: 'dgarrido@quetz.org', // Tu email personal para testing
         company_name: 'GreenTech Solutions',
         position: 'CSR Manager',
         city: 'Düsseldorf',

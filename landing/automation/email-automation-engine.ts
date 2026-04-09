@@ -274,7 +274,7 @@ class EmailAutomationEngine {
         to: [lead.email],
         subject: emailContent.subject,
         html: emailContent.html,
-        replyTo: 'hola@quetz.org',
+        replyTo: 'dgarrido@quetz.org',
         headers: {
           'X-Sequence-ID': lead.sequenceId,
           'X-Step': step.stepNumber.toString(),

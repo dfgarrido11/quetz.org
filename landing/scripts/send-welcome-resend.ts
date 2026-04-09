@@ -79,7 +79,7 @@ async function sendWelcomeEmailResend(
       from: 'Quetz 🌱 <hola@quetz.org>',
       to: [toEmail],
       subject: `¡Bienvenido/a a Quetz! Tu árbol ya está en camino 🌱`,
-      replyTo: 'hola@quetz.org', // ✅ Reply-To configurado
+      replyTo: 'dgarrido@quetz.org', // ✅ Reply-To configurado
       html: `
 <!DOCTYPE html>
 <html>

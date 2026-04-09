@@ -45,7 +45,7 @@ async function testCreateCampaign() {
         message: '<html><body>Test message</body></html>',
         senderEmail: 'hola@quetz.org',
         senderName: 'Equipo Quetz',
-        replyTo: 'hola@quetz.org',
+        replyTo: 'dgarrido@quetz.org',
         targetType: 'corporate',
         status: 'draft',
       },

@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 
-const ADMIN_EMAIL = 'dfgarrido11@gmail.com'
+const ADMIN_EMAIL = 'dgarrido@quetz.org'
 
 export async function GET() {
   const session = await getServerSession(authOptions)

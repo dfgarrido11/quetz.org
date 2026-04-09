@@ -111,7 +111,7 @@ async function createCampaign() {
         message: template.htmlContent,
         senderEmail: 'hola@quetz.org',
         senderName: 'Equipo Quetz',
-        replyTo: 'hola@quetz.org',
+        replyTo: 'dgarrido@quetz.org',
         targetType: 'corporate',
         status: 'draft',
       },
@@ -395,7 +395,7 @@ async function sendTestEmail() {
       to: [email],
       subject: `[TEST] ${emailTemplate.subject}`,
       html: personalizedHtml,
-      replyTo: 'hola@quetz.org',
+      replyTo: 'dgarrido@quetz.org',
     });
 
     if (error) {

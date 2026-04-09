@@ -17,7 +17,7 @@ async function sendDailySummary() {
       from: 'Claude AI Assistant <hola@quetz.org>',
       to: ['dgarrido@quetz.org'],
       subject: '🚀 RESUMEN EJECUTIVO: Sistema B2B Automático LISTO para el Lunes',
-      replyTo: 'hola@quetz.org',
+      replyTo: 'dgarrido@quetz.org',
       html: `
 <!DOCTYPE html>
 <html>
