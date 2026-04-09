@@ -8,16 +8,15 @@ export async function POST(req: NextRequest) {
     if (!message?.text || !message?.chat?.id) {
       return NextResponse.json({ ok: true })
     }
-
     chatId = message.chat.id
     const userText = message.text
 
-    // Llamar a OpenRouter con Gemma 4
-    console.log('OPENROUTER_API_KEY exists:', !!process.env.OPENROUTER_API_KEY, 'length:', process.env.OPENROUTER_API_KEY?.length)
+    const apiKey = process.env.OPENROUTER_API_KEY
+
     const aiRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ***REMOVED***`,
+        'Authorization': `Bearer ${apiKey}`,
         'HTTP-Referer': 'https://www.quetz.org',
         'X-Title': 'quetz.org - Quetzito',
         'Content-Type': 'application/json',
@@ -27,16 +26,11 @@ export async function POST(req: NextRequest) {
         messages: [
           {
             role: 'system',
-            content: `Eres Quetzito 🌱, el asistente amigable de quetz.org.
-Ayudas con adopción de árboles nativos en Guatemala (Zacapa), planes de suscripción
-(Plan Café €5/mes 1 árbol, Bosque Pequeño €12/mes 3 árboles, Bosque Grande €35/mes 10 árboles),
-y el proyecto de la escuela de Jumuzna para 120 niños (meta €50,000).
-Responde siempre en el idioma del usuario. Sé cálido, breve y motivador.
-Web: https://www.quetz.org`
+            content: 'Eres Quetzito, el asistente de quetz.org. Ayudas con adopción de árboles en Guatemala. Sé breve y amigable.'
           },
           { role: 'user', content: userText }
         ],
-        max_tokens: 500,
+        max_tokens: 300,
       }),
     })
 
@@ -44,7 +38,6 @@ Web: https://www.quetz.org`
     const reply = aiData.choices?.[0]?.message?.content
       || `ERROR: ${JSON.stringify(aiData)}`
 
-    // Enviar respuesta al usuario en Telegram
     await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -53,12 +46,13 @@ Web: https://www.quetz.org`
 
     return NextResponse.json({ ok: true })
   } catch (err) {
-    console.error('Telegram webhook error:', err)
-    await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: chatId, text: `CATCH ERROR: ${err}` }),
-    })
+    if (chatId) {
+      await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: chatId, text: `ERROR: ${err}` }),
+      })
+    }
     return NextResponse.json({ ok: true })
   }
 }
