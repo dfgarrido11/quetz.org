@@ -56,7 +56,7 @@ export async function POST(request: Request) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemma-3-27b-it',
+        model: 'google/gemma-4-26b-a4b-it:free',
         max_tokens: 512,
         stream: true,
         messages: [
