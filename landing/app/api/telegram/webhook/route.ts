@@ -13,6 +13,7 @@ export async function POST(req: NextRequest) {
     const userText = message.text
 
     // Llamar a OpenRouter con Gemma 4
+    console.log('OPENROUTER_API_KEY exists:', !!process.env.OPENROUTER_API_KEY, 'length:', process.env.OPENROUTER_API_KEY?.length)
     const aiRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
