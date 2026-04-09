@@ -1,9 +1,6 @@
 export const dynamic = "force-dynamic";
 
 import { NextResponse } from 'next/server';
-import Anthropic from '@anthropic-ai/sdk';
-
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 const SYSTEM_PROMPT = `Eres Quetzito (o Quetzita), la mascota de Quetz.org — una plataforma de adopción de árboles en Zacapa, Guatemala.
 
@@ -50,24 +47,62 @@ export async function POST(request: Request) {
 
     const systemWithContext = `${SYSTEM_PROMPT}\n\nMASCOTA ACTIVA: ${mascot === 'quetzita' ? 'Quetzita (temas de escuela y niños)' : 'Quetzito (temas de árboles y donaciones)'}\nIDIOMA DETECTADO: ${language}`;
 
-    const stream = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 512,
-      system: systemWithContext,
-      messages,
-      stream: true,
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        'HTTP-Referer': 'https://www.quetz.org',
+        'X-Title': 'quetz.org - Quetzito',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'google/gemma-3-27b-it',
+        max_tokens: 512,
+        stream: true,
+        messages: [
+          { role: 'system', content: systemWithContext },
+          ...messages,
+        ],
+      }),
     });
 
+    if (!response.ok || !response.body) {
+      const errorText = await response.text();
+      console.error('OpenRouter error:', errorText);
+      return NextResponse.json({ error: 'Error al procesar el mensaje' }, { status: 500 });
+    }
+
     const encoder = new TextEncoder();
+    const decoder = new TextDecoder();
     const readable = new ReadableStream({
       async start(controller) {
-        for await (const chunk of stream) {
-          if (
-            chunk.type === 'content_block_delta' &&
-            chunk.delta.type === 'text_delta'
-          ) {
-            controller.enqueue(encoder.encode(chunk.delta.text));
+        const reader = response.body!.getReader();
+        let buffer = '';
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop() ?? '';
+            for (const line of lines) {
+              const trimmed = line.trim();
+              if (!trimmed.startsWith('data:')) continue;
+              const data = trimmed.slice(5).trim();
+              if (data === '[DONE]') continue;
+              try {
+                const parsed = JSON.parse(data);
+                const text = parsed.choices?.[0]?.delta?.content;
+                if (text) {
+                  controller.enqueue(encoder.encode(text));
+                }
+              } catch {
+                // skip malformed SSE lines
+              }
+            }
           }
+        } finally {
+          reader.releaseLock();
         }
         controller.close();
       },
@@ -76,7 +111,7 @@ export async function POST(request: Request) {
     return new Response(readable, {
       headers: { 'Content-Type': 'text/plain; charset=utf-8' },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Chat API error:', error);
     return NextResponse.json({ error: 'Error al procesar el mensaje' }, { status: 500 });
   }
