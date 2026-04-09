@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest) {
+  let chatId: number | undefined
   try {
     const body = await req.json()
     const message = body?.message
@@ -8,7 +9,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true })
     }
 
-    const chatId = message.chat.id
+    chatId = message.chat.id
     const userText = message.text
 
     // Llamar a OpenRouter con Gemma 4
@@ -39,7 +40,8 @@ Web: https://www.quetz.org`
     })
 
     const aiData = await aiRes.json()
-    const reply = aiData.choices?.[0]?.message?.content || '¡Hola! Soy Quetzito 🌱 Visita www.quetz.org para adoptar tu árbol.'
+    const reply = aiData.choices?.[0]?.message?.content
+      || `ERROR: ${JSON.stringify(aiData)}`
 
     // Enviar respuesta al usuario en Telegram
     await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
@@ -51,6 +53,11 @@ Web: https://www.quetz.org`
     return NextResponse.json({ ok: true })
   } catch (err) {
     console.error('Telegram webhook error:', err)
+    await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: chatId, text: `CATCH ERROR: ${err}` }),
+    })
     return NextResponse.json({ ok: true })
   }
 }
