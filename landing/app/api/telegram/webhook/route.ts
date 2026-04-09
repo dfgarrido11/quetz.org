@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
     chatId = message.chat.id
     const userText = message.text
 
-    const apiKey = process.env['OPENROUTER_API_KEY']
+    const apiKey = process.env.OR_API_KEY
 
     const aiRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
