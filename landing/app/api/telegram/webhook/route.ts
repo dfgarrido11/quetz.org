@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemma-4-26b-a4b-it:free',
+        model: 'deepseek/deepseek-chat',
         messages: [
           {
             role: 'system',
