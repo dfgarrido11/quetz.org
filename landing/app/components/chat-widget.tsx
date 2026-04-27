@@ -41,6 +41,15 @@ const LANG_GREETINGS: Record<Lang, string> = {
   ar: 'مرحباً! 🌿 أنا كيتزيتو، دليلك في Quetz.org. هل تريد تبني شجرة أو معرفة المزيد عن خططنا أو اكتشاف مدرسة خومزنا؟',
 };
 
+// TODO: wire up QUETZITA_GREETINGS when Quetzita gets a dedicated entry-point (separate button/route)
+const QUETZITA_GREETINGS: Record<Lang, string> = {
+  es: '¡Hola! 🌿 Soy Quetzita, guardiana de la escuela Jumuzna en Quetz.org. ¿Quieres conocer nuestra escuela, el impacto social o cómo ayudar?',
+  de: 'Hallo! 🌿 Ich bin Quetzita, Hüterin der Jumuzna-Schule bei Quetz.org. Möchtest du mehr über unsere Schule, den sozialen Einfluss oder wie du helfen kannst erfahren?',
+  en: 'Hello! 🌿 I\'m Quetzita, guardian of the Jumuzna school at Quetz.org. Want to learn about our school, its social impact, or how to help?',
+  fr: 'Bonjour ! 🌿 Je suis Quetzita, gardienne de l\'école Jumuzna chez Quetz.org. Tu veux en savoir plus sur notre école, son impact social ou comment aider ?',
+  ar: 'مرحباً! 🌿 أنا كيتزيتا، حارسة مدرسة خومزنا في Quetz.org. هل تريد معرفة المزيد عن مدرستنا أو تأثيرها الاجتماعي أو كيفية المساعدة؟',
+};
+
 const VOICE_LANGS: Record<Lang, string> = {
   es: 'es-ES', de: 'de-DE', en: 'en-US', fr: 'fr-FR', ar: 'ar-SA',
 };
@@ -91,12 +100,21 @@ export default function ChatWidget() {
     }
   }, [siteLanguage]);
 
-  // Init greeting + speech synthesis
+  // Init speech synthesis once
   useEffect(() => {
-    const initial = siteLanguage as Lang ?? browserLang();
-    setMessages([{ role: 'assistant', content: LANG_GREETINGS[initial] }]);
     if (typeof window !== 'undefined') synthRef.current = window.speechSynthesis;
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Set greeting in the correct language as soon as siteLanguage is known.
+  // Runs again if siteLanguage changes (e.g. after LanguageProvider reads cookie/browser),
+  // but never resets the conversation once the user has sent a message.
+  useEffect(() => {
+    const targetLang = (siteLanguage as Lang | undefined) ?? browserLang();
+    setMessages(prev => {
+      if (prev.some(m => m.role === 'user')) return prev;
+      return [{ role: 'assistant', content: LANG_GREETINGS[targetLang] ?? LANG_GREETINGS.es }];
+    });
+  }, [siteLanguage]);
 
   // Scroll to bottom on new messages
   useEffect(() => {

@@ -58,7 +58,8 @@ export default function QuetzitoChatbot() {
     if (isOpen && messages.length === 0) {
       setMessages([{ role: 'assistant', content: welcomeMessage }]);
     }
-  }, [isOpen]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, welcomeMessage]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

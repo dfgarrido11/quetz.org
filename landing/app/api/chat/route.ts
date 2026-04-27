@@ -37,10 +37,10 @@ Proyecto en Guatemala:
 - Dashboard de seguimiento en tiempo real con GPS
 
 IDIOMA:
-- Detectas automáticamente el idioma del usuario por su mensaje
-- SIEMPRE respondes en el mismo idioma que el usuario
+- El idioma activo del usuario viene indicado por el sistema al final de este prompt.
+- Responde SIEMPRE en ese idioma a menos que el usuario escriba explícitamente en otro — en ese caso cambia al idioma del usuario.
 - Idiomas soportados: español (ES), alemán (DE), inglés (EN), francés (FR), árabe (AR)
-- Si el idioma es árabe, escribes de derecha a izquierda
+- Si el idioma activo es árabe, escribe de derecha a izquierda
 
 MASCOTA ACTIVA (indicado por el sistema):
 - Como Quetzito: experto en árboles, plantación, CO₂, donaciones, planes
@@ -64,7 +64,11 @@ export async function POST(request: Request) {
   try {
     const { messages, language, mascot } = await request.json();
 
-    const systemWithContext = `${SYSTEM_PROMPT}\n\nMASCOTA ACTIVA: ${mascot === 'quetzita' ? 'Quetzita (temas de escuela y niños)' : 'Quetzito (temas de árboles y donaciones)'}\nIDIOMA DETECTADO: ${language}`;
+    const langNames: Record<string, string> = {
+      es: 'español', de: 'alemán', en: 'inglés', fr: 'francés', ar: 'árabe',
+    };
+    const langLabel = langNames[language] ?? language;
+    const systemWithContext = `${SYSTEM_PROMPT}\n\nMASCOTA ACTIVA: ${mascot === 'quetzita' ? 'Quetzita (temas de escuela y niños)' : 'Quetzito (temas de árboles y donaciones)'}\nIDIOMA ACTIVO: ${language} (${langLabel}). Responde SIEMPRE en ${langLabel} a menos que el usuario escriba explícitamente en otro idioma — en ese caso cambia al idioma del usuario.`;
 
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
