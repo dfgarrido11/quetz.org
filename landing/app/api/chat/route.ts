@@ -56,8 +56,8 @@ export async function POST(request: Request) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemma-4-26b-a4b-it:free',
-        max_tokens: 512,
+        model: 'openai/gpt-4o-mini',
+        max_tokens: 1024,
         stream: true,
         messages: [
           { role: 'system', content: systemWithContext },
@@ -68,8 +68,11 @@ export async function POST(request: Request) {
 
     if (!response.ok || !response.body) {
       const errorText = await response.text();
-      console.error('OpenRouter error:', errorText);
-      return NextResponse.json({ error: 'Error al procesar el mensaje' }, { status: 500 });
+      console.error(`OpenRouter error — status ${response.status}:`, errorText);
+      return NextResponse.json(
+        { error: '⚠️ Quetzito ist gerade müde, bitte versuche es in einem Moment nochmal.' },
+        { status: 500 }
+      );
     }
 
     const encoder = new TextEncoder();
@@ -113,6 +116,9 @@ export async function POST(request: Request) {
     });
   } catch (error: unknown) {
     console.error('Chat API error:', error);
-    return NextResponse.json({ error: 'Error al procesar el mensaje' }, { status: 500 });
+    return NextResponse.json(
+      { error: '⚠️ Quetzito ist gerade müde, bitte versuche es in einem Moment nochmal.' },
+      { status: 500 }
+    );
   }
 }
