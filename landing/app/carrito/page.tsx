@@ -27,6 +27,7 @@ import { useCartStore, CartItem, SpeciesSelection } from '@/lib/cart-store';
 import { useLanguage } from '@/lib/language-context';
 import { metaPixel } from '@/app/components/meta-pixel';
 import { useCartAbandonment } from '@/lib/use-cart-abandonment';
+import { PLAN_CAFE_SPECIES } from '@/lib/plans'; // single source of truth para especies por plan
 
 const ALL_TREE_SPECIES = [
   { id: 'pino', name: 'Pino', image: '/trees/pino.jpg' },
@@ -40,9 +41,6 @@ const ALL_TREE_SPECIES = [
   { id: 'naranja', name: 'Naranja', image: '/trees/naranja.jpg' },
   { id: 'limon', name: 'Limón', image: '/trees/limon.jpg' },
 ];
-
-// Plan Café solo permite Pino o Ciprés
-const PLAN_CAFE_SPECIES = ['pino', 'cipres'];
 
 // Función para obtener las especies disponibles según el plan
 const getSpeciesForPlan = (planName: string) => {

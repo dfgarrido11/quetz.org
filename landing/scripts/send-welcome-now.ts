@@ -63,7 +63,7 @@ async function main() {
               </h2>
 
               <p style="color:#4a4a4a; font-size:16px; line-height:1.6; margin:0 0 20px;">
-                Gracias por tu apoyo. Tu suscripción al <strong>${planName}</strong> ya está activa y cada mes recibirás <strong>${treesPerMonth} árbol de café plantado</strong> en Guatemala — cuidado por una familia local y cultivando un futuro más verde.
+                Gracias por tu apoyo. Tu suscripción al <strong>${planName}</strong> ya está activa y cada mes recibirás <strong>${treesPerMonth} árbol plantado en Zacapa, Guatemala</strong> — cuidado por una familia local y cultivando un futuro más verde.
               </p>
 
               <div style="background-color:#d8f3dc; border-radius:8px; padding:20px; margin:24px 0;">
