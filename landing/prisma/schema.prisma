@@ -600,3 +600,16 @@ model AutomationMetrics {
 
   updatedAt         DateTime @updatedAt
 }
+
+// ========== SYSTEM HEALTH MONITORING ==========
+
+model SystemHealthLog {
+  id           String    @id @default(cuid())
+  timestamp    DateTime  @default(now())
+  checkType    String    // "health_check" | "diagnosis" | "recovery"
+  status       String    // "ok" | "fail" | "recovered"
+  errorMessage String?   @db.Text
+  diagnosis    String?   @db.Text
+  resolvedAt   DateTime?
+  metadata     Json?
+}
