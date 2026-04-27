@@ -43,6 +43,19 @@ interface DashboardStats {
   schoolRaised: number;
   schoolGoal: number;
   schoolProgress: number;
+  schoolGrossEur: number;
+  schoolStripeFeeEur: number;
+  schoolNetEur: number;
+  recentSchoolContributions: {
+    id: string;
+    grossEur: number;
+    stripeFeeEur: number;
+    netEur: number;
+    schoolFundEur: number;
+    stripeFeeEstimated: boolean;
+    userEmail: string;
+    createdAt: string;
+  }[];
   treesAdopted: number;
   treesFromGifts: number;
   totalTrees: number;
@@ -326,33 +339,86 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* ROW 4 — School Progress */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-        <div className="flex items-center gap-2 mb-2">
+      {/* ROW 4 — School Fund */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-5">
+        <div className="flex items-center gap-2">
           <School className="w-5 h-5 text-[#2D6A4F]" />
-          <h2 className="font-semibold text-gray-900">Escuela Jumuzna — Progreso de Construcción</h2>
+          <h2 className="font-semibold text-gray-900">Fondo Escuela Jumuzna — Calculado sobre neto Stripe</h2>
         </div>
-        <div className="flex items-end justify-between mb-3">
-          <div>
-            <p className="text-3xl font-bold text-[#2D6A4F]">{eur(stats.schoolRaised)}</p>
-            <p className="text-sm text-gray-500 mt-0.5">recaudados de {eur(stats.schoolGoal)} objetivo</p>
+
+        {/* Progress bar */}
+        <div>
+          <div className="flex items-end justify-between mb-3">
+            <div>
+              <p className="text-3xl font-bold text-[#2D6A4F]">{eur(stats.schoolRaised)}</p>
+              <p className="text-sm text-gray-500 mt-0.5">recaudados de {eur(stats.schoolGoal)} objetivo</p>
+            </div>
+            <p className="text-4xl font-black text-gray-200">{stats.schoolProgress.toFixed(0)}%</p>
           </div>
-          <p className="text-4xl font-black text-gray-200">{stats.schoolProgress.toFixed(0)}%</p>
+          <div className="h-4 bg-gray-100 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-[#2D6A4F] to-[#52B788] rounded-full transition-all duration-700"
+              style={{ width: `${Math.max(stats.schoolProgress, 0.5)}%` }}
+            />
+          </div>
+          <div className="flex justify-between text-xs text-gray-400 mt-1.5">
+            <span>€0</span>
+            <span className="text-[#2D6A4F] font-medium">{eur(stats.schoolRaised)}</span>
+            <span>{eur(stats.schoolGoal)}</span>
+          </div>
         </div>
-        <div className="h-4 bg-gray-100 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-gradient-to-r from-[#2D6A4F] to-[#52B788] rounded-full transition-all duration-700"
-            style={{ width: `${Math.max(stats.schoolProgress, 0.5)}%` }}
-          />
+
+        {/* Breakdown */}
+        <div className="grid grid-cols-4 gap-3 pt-1">
+          {[
+            { label: 'Bruto recibido', value: eur(stats.schoolGrossEur), note: 'clientes pagaron' },
+            { label: 'Fees Stripe', value: eur(stats.schoolStripeFeeEur), note: 'retenidos por Stripe' },
+            { label: 'Neto', value: eur(stats.schoolNetEur), note: 'bruto − fees' },
+            { label: 'Fondo Escuela (30%)', value: eur(stats.schoolRaised), note: 'neto × 30%' },
+          ].map(({ label, value, note }) => (
+            <div key={label} className="bg-gray-50 rounded-xl p-3 border border-gray-100">
+              <p className="text-lg font-bold text-gray-900">{value}</p>
+              <p className="text-xs text-gray-500 mt-0.5">{label}</p>
+              <p className="text-xs text-[#2D6A4F] font-medium">{note}</p>
+            </div>
+          ))}
         </div>
-        <div className="flex justify-between text-xs text-gray-400 mt-1.5">
-          <span>€0</span>
-          <span className="text-[#2D6A4F] font-medium">{eur(stats.schoolRaised)}</span>
-          <span>{eur(stats.schoolGoal)}</span>
-        </div>
-        <p className="text-xs text-gray-400 mt-3">
-          Fondo social (30% de ingresos totales) · {stats.totalTrees} árboles plantados generan este fondo automáticamente
-        </p>
+
+        {/* Last 10 contributions */}
+        {stats.recentSchoolContributions.length > 0 && (
+          <div>
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Últimas contribuciones individuales</p>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="text-gray-400 border-b border-gray-100">
+                    <th className="text-left py-1.5 pr-3 font-medium">Usuario</th>
+                    <th className="text-right py-1.5 pr-3 font-medium">Bruto</th>
+                    <th className="text-right py-1.5 pr-3 font-medium">Fee</th>
+                    <th className="text-right py-1.5 pr-3 font-medium">Neto</th>
+                    <th className="text-right py-1.5 pr-3 font-medium">Fondo</th>
+                    <th className="text-left py-1.5 font-medium">Fecha</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {stats.recentSchoolContributions.map(c => (
+                    <tr key={c.id} className="border-b border-gray-50 hover:bg-gray-50">
+                      <td className="py-1.5 pr-3 text-gray-600 max-w-[140px] truncate">{c.userEmail}</td>
+                      <td className="py-1.5 pr-3 text-right text-gray-700">{eur(c.grossEur ?? 0)}</td>
+                      <td className="py-1.5 pr-3 text-right text-gray-500">
+                        {eur(c.stripeFeeEur ?? 0)}
+                        {c.stripeFeeEstimated && <span className="text-amber-500 ml-1" title="Estimado">~</span>}
+                      </td>
+                      <td className="py-1.5 pr-3 text-right text-gray-700">{eur(c.netEur ?? 0)}</td>
+                      <td className="py-1.5 pr-3 text-right font-semibold text-[#2D6A4F]">{eur(c.schoolFundEur ?? 0)}</td>
+                      <td className="py-1.5 text-gray-400">{new Date(c.createdAt).toLocaleDateString('es-ES')}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ROW 5 — Pipeline */}

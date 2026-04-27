@@ -145,6 +145,13 @@ model Adoption {
   incomeType           String   @default("subscription") // subscription
   socialFundPercentage Float    @default(0.3)  // 30%
   socialFundAmount     Float    @default(0)
+
+  // School fund — calculated from Stripe net (gross - fee) × 30%
+  grossEur             Float?   // amount_total / 100 from Stripe
+  stripeFeeEur         Float?   // real fee from balance_transaction (or conservative estimate)
+  netEur               Float?   // grossEur - stripeFeeEur
+  schoolFundEur        Float?   // netEur * 0.30
+  stripeFeeEstimated   Boolean  @default(false) // true = fee was estimated, not real
   
   // Status
   status              String   @default("pending") // pending, paid, active, completed, cancelled

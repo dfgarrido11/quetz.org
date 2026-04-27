@@ -941,6 +941,54 @@ function buildGiftConfirmationEmail(
 </html>`;
 }
 
+// Fetch real Stripe fee from balance_transaction; falls back to conservative
+// estimate (1.5% + €0.25) if the PaymentIntent or balance_transaction is
+// unavailable. Sets stripeFeeEstimated=true for audit purposes.
+async function resolveSchoolFund(
+  stripe: Stripe,
+  paymentIntentId: string | null,
+  grossEur: number
+): Promise<{
+  grossEur: number;
+  stripeFeeEur: number;
+  netEur: number;
+  schoolFundEur: number;
+  stripeFeeEstimated: boolean;
+}> {
+  let stripeFeeEur: number;
+  let stripeFeeEstimated = false;
+
+  if (paymentIntentId) {
+    try {
+      const pi = await stripe.paymentIntents.retrieve(paymentIntentId, {
+        expand: ["latest_charge.balance_transaction"],
+      });
+      const charge = pi.latest_charge as Stripe.Charge | null;
+      const bt = charge?.balance_transaction as Stripe.BalanceTransaction | null;
+      if (bt && typeof bt.fee === "number") {
+        stripeFeeEur = bt.fee / 100;
+        console.log("[school_fund] Real Stripe fee:", stripeFeeEur, "PI:", paymentIntentId);
+      } else {
+        stripeFeeEur = Math.round((grossEur * 0.015 + 0.25) * 100) / 100;
+        stripeFeeEstimated = true;
+        console.log("[school_fund] No balance_transaction — estimate:", stripeFeeEur);
+      }
+    } catch (err: any) {
+      console.error("[school_fund] PI retrieve failed:", err.message, "— estimate");
+      stripeFeeEur = Math.round((grossEur * 0.015 + 0.25) * 100) / 100;
+      stripeFeeEstimated = true;
+    }
+  } else {
+    stripeFeeEur = Math.round((grossEur * 0.015 + 0.25) * 100) / 100;
+    stripeFeeEstimated = true;
+    console.log("[school_fund] No paymentIntentId — estimate:", stripeFeeEur);
+  }
+
+  const netEur = Math.round((grossEur - stripeFeeEur) * 100) / 100;
+  const schoolFundEur = Math.round(netEur * 0.30 * 100) / 100;
+  return { grossEur, stripeFeeEur, netEur, schoolFundEur, stripeFeeEstimated };
+}
+
 export async function POST(req: NextRequest) {
   console.log("[webhook] POST received");
 
@@ -1068,6 +1116,11 @@ export async function POST(req: NextRequest) {
         }
 
         const fallbackTree = await prisma.tree.findFirst({ where: { active: true } });
+        const invoicePiId = typeof invoice.payment_intent === "string"
+          ? invoice.payment_intent
+          : (invoice.payment_intent as Stripe.PaymentIntent | null)?.id ?? null;
+        const invoiceFund = await resolveSchoolFund(stripe, invoicePiId, invoiceAmount);
+
         await prisma.adoption.create({
           data: {
             userId: user.id,
@@ -1076,9 +1129,14 @@ export async function POST(req: NextRequest) {
             amount: invoiceAmount,
             currency: invoiceCurrency.toUpperCase(),
             status: "active",
+            grossEur: invoiceFund.grossEur,
+            stripeFeeEur: invoiceFund.stripeFeeEur,
+            netEur: invoiceFund.netEur,
+            schoolFundEur: invoiceFund.schoolFundEur,
+            stripeFeeEstimated: invoiceFund.stripeFeeEstimated,
           },
         });
-        console.log("[webhook] Adoption created (invoice) for user:", user.id);
+        console.log("[webhook] Adoption created (invoice) for user:", user.id, "| schoolFund:", invoiceFund.schoolFundEur, "estimated:", invoiceFund.stripeFeeEstimated);
       }
     } catch (dbErr: any) {
       console.error("[webhook] DB ERROR (invoice):", dbErr.message, dbErr.stack);
@@ -1302,6 +1360,11 @@ export async function POST(req: NextRequest) {
           if (!resolvedTreeId) {
             console.warn("[webhook] No tree found for planId:", planId, "— creating adoption without treeId");
           }
+          const sessionPiId = typeof session.payment_intent === "string"
+            ? session.payment_intent
+            : null;
+          const fund = await resolveSchoolFund(stripe, sessionPiId, amount);
+
           await prisma.adoption.create({
             data: {
               userId: user.id,
@@ -1310,9 +1373,14 @@ export async function POST(req: NextRequest) {
               amount,
               currency: currency.toUpperCase(),
               status: "active",
+              grossEur: fund.grossEur,
+              stripeFeeEur: fund.stripeFeeEur,
+              netEur: fund.netEur,
+              schoolFundEur: fund.schoolFundEur,
+              stripeFeeEstimated: fund.stripeFeeEstimated,
             },
           });
-          console.log("[webhook] Adoption created for user:", user.id, "treeId:", resolvedTreeId);
+          console.log("[webhook] Adoption created for user:", user.id, "treeId:", resolvedTreeId, "| schoolFund:", fund.schoolFundEur, "estimated:", fund.stripeFeeEstimated);
         }
       } else {
         console.warn("[webhook] No customerEmail — skipping DB record creation");

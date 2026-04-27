@@ -62,14 +62,14 @@ export default function SchoolSection({ onOpenDonation }: SchoolSectionProps) {
   const { t, isRTL, language } = useLanguage();
 
   useEffect(() => {
-    fetch('/api/stats')
+    fetch('/api/school-fund')
       .then(res => res.json())
       .then(data => {
-        if (data.success && data.school) {
+        if (typeof data.collected === 'number') {
           setSchoolData({
-            raisedEur: data.school.raisedEur || FALLBACK_RAISED,
-            goalEur: data.school.goalEur || FALLBACK_GOAL,
-            progress: data.school.progress || (FALLBACK_RAISED / FALLBACK_GOAL) * 100,
+            raisedEur: data.collected,
+            goalEur: data.goal,
+            progress: data.percent,
           });
         }
       })

@@ -39,6 +39,8 @@ export async function GET() {
       recentGifts,
       recentAdoptions,
       corporateLeads,
+      schoolFundBreakdown,
+      recentSchoolContributions,
     ] = await Promise.all([
       // Gift revenue (paid, sent, or activated)
       safeQuery(
@@ -123,6 +125,29 @@ export async function GET() {
         () => prisma.corporateLead.findMany({ orderBy: { createdAt: 'desc' }, take: 50 }),
         []
       ),
+
+      // School fund breakdown — real Stripe net values from Adoption records
+      safeQuery(
+        () => prisma.adoption.aggregate({
+          _sum: { grossEur: true, stripeFeeEur: true, netEur: true, schoolFundEur: true },
+          where: {
+            status: { in: ['active', 'paid', 'completed'] },
+            schoolFundEur: { not: null },
+          },
+        }),
+        { _sum: { grossEur: 0, stripeFeeEur: 0, netEur: 0, schoolFundEur: 0 } }
+      ),
+
+      // Last 10 individual school fund contributions
+      safeQuery(
+        () => prisma.adoption.findMany({
+          where: { schoolFundEur: { not: null }, status: { in: ['active', 'paid', 'completed'] } },
+          orderBy: { createdAt: 'desc' },
+          take: 10,
+          include: { user: { select: { name: true, email: true } } },
+        }),
+        []
+      ),
     ])
 
     // ── Revenue calculations ────────────────────────────────────────────────
@@ -132,9 +157,15 @@ export async function GET() {
     const mrr             = mrrAgg._sum.priceEurMonth ?? 0
     const totalRevenue    = giftRevenue + adoptionRevenue + donationRevenue
     const socialFund      = totalRevenue * 0.30
-    const schoolRaised    = socialFund
-    const schoolGoal      = 50000
-    const schoolProgress  = schoolGoal > 0 ? Math.min((schoolRaised / schoolGoal) * 100, 100) : 0
+
+    // Real school fund — from Stripe net values tracked per adoption
+    const sfBreakdown = schoolFundBreakdown._sum
+    const schoolGrossEur    = Math.round((sfBreakdown.grossEur    ?? 0) * 100) / 100
+    const schoolStripeFeeEur= Math.round((sfBreakdown.stripeFeeEur?? 0) * 100) / 100
+    const schoolNetEur      = Math.round((sfBreakdown.netEur      ?? 0) * 100) / 100
+    const schoolRaised      = Math.round((sfBreakdown.schoolFundEur ?? 0) * 100) / 100
+    const schoolGoal        = 50000
+    const schoolProgress    = schoolGoal > 0 ? Math.min((schoolRaised / schoolGoal) * 100, 100) : 0
 
     // ── Tree / impact calculations ──────────────────────────────────────────
     const totalTrees    = treesAdoptedCount + treesFromGiftsCount
@@ -190,10 +221,23 @@ export async function GET() {
         mrr,
         socialFund,
 
-        // School
+        // School fund — real Stripe-net based
         schoolRaised,
         schoolGoal,
         schoolProgress,
+        schoolGrossEur,
+        schoolStripeFeeEur,
+        schoolNetEur,
+        recentSchoolContributions: (recentSchoolContributions as any[]).map(a => ({
+          id: a.id,
+          grossEur: a.grossEur,
+          stripeFeeEur: a.stripeFeeEur,
+          netEur: a.netEur,
+          schoolFundEur: a.schoolFundEur,
+          stripeFeeEstimated: a.stripeFeeEstimated,
+          userEmail: a.user?.email ?? '—',
+          createdAt: a.createdAt.toISOString(),
+        })),
 
         // Trees & impact
         treesAdopted: treesAdoptedCount,
