@@ -5,8 +5,6 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
-const ADMIN_EMAIL = 'dgarrido@quetz.org'
-
 async function safeQuery<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
   try {
     return await fn()
@@ -18,7 +16,16 @@ async function safeQuery<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
 export async function GET() {
   const session = await getServerSession(authOptions)
 
-  if (!session?.user?.email || session.user.email !== ADMIN_EMAIL) {
+  if (!session?.user?.email) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const sessionUser = await prisma.user.findUnique({
+    where: { email: session.user.email },
+    select: { role: true },
+  })
+
+  if (sessionUser?.role !== 'admin') {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
