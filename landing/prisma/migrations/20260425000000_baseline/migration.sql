@@ -1,0 +1,3 @@
+-- Baseline migration: represents the existing schema already in production
+-- This file is intentionally empty — the database already has all these tables.
+-- Marked as applied via: npx prisma migrate resolve --applied 20260425000000_baseline
