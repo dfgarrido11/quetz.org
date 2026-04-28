@@ -2,6 +2,9 @@ export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server"
 import Stripe from "stripe"
+import { PLAN_CAFE_SPECIES } from "@/lib/plans"
+
+const PLAN_CAFE_ID = "cafe"
 
 export async function POST(req: NextRequest) {
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -30,6 +33,18 @@ export async function POST(req: NextRequest) {
       }
       return { price_data: priceData, quantity: item.quantity || 1 }
     })
+
+    // Validate Plan Café species constraint before touching Stripe
+    for (const item of itemsToProcess) {
+      if ((item.planId === PLAN_CAFE_ID || item.id === PLAN_CAFE_ID) && item.treeId) {
+        if (!PLAN_CAFE_SPECIES.includes(item.treeId)) {
+          return NextResponse.json(
+            { error: `Plan Café solo admite las especies: ${PLAN_CAFE_SPECIES.join(", ")}. La especie "${item.treeId}" no está disponible en este plan.` },
+            { status: 400 }
+          )
+        }
+      }
+    }
 
     const metadata: Record<string, string> = {}
     if (language) metadata.language = language

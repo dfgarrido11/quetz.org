@@ -11,32 +11,44 @@ export const PLAN_CAFE_SPECIES: Species[] = ['pino', 'cipres'];
 const ALL_SPECIES_LIST = [...ALL_SPECIES] as Species[];
 
 export const PLANS = {
-  PLAN_CAFE: {
+  cafe: {
     id: 'cafe',
     name: 'Plan Café',
+    nameDE: 'Kaffee-Plan',
     priceEur: 5,
+    interval: 'monthly' as const,
     treesPerMonth: 1,
     allowedSpecies: PLAN_CAFE_SPECIES,
+    namingNote: 'Nombre por precio (cuesta como un café), NO por especie',
   },
-  PLAN_BOSQUE_PEQUENO: {
-    id: 'bosquePequeno',
+  bosquePequeno: {
+    id: 'bosque-pequeno',
     name: 'Plan Bosque Pequeño',
+    nameDE: 'Kleiner Wald',
     priceEur: 12,
+    interval: 'monthly' as const,
     treesPerMonth: 3,
     allowedSpecies: ALL_SPECIES_LIST,
   },
-  PLAN_BOSQUE_GRANDE: {
-    id: 'bosqueGrande',
+  bosqueGrande: {
+    id: 'bosque-grande',
     name: 'Plan Bosque Grande',
+    nameDE: 'Großer Wald',
     priceEur: 35,
+    interval: 'monthly' as const,
     treesPerMonth: 10,
     allowedSpecies: ALL_SPECIES_LIST,
   },
-  GIFT_ADOPTION: {
-    id: 'regalo',
+  gift: {
+    id: 'gift',
     name: 'Adopción regalo',
+    nameDE: 'Geschenk-Adoption',
     priceEur: 25,
-    treesPerMonth: 0,
+    interval: 'one-time' as const,
+    treesPerMonth: 1,
     allowedSpecies: ALL_SPECIES_LIST,
   },
 } as const;
+
+export const SCHOOL_FUND_PERCENT = 0.30;  // 30% del NETO va a escuela
+export const SCHOOL_FUND_GOAL_EUR = 50000;
