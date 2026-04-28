@@ -28,6 +28,9 @@ export const authOptions: NextAuthOptions = {
           where: { email: credentials.email },
         });
 
+        // TODO Bug B-001: User created via Stripe webhook has no passwordHash.
+        // Credentials login fails silently for buyers who never set a password.
+        // Needs flow: 'forgot password' or 'set password after purchase'.
         if (!user || !user.passwordHash) {
           throw new Error('Credenciales inválidas');
         }

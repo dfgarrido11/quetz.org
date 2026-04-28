@@ -17,7 +17,7 @@ export async function GET() {
       orderBy: { createdAt: 'desc' },
     });
 
-    return NextResponse.json(gifts);
+    return NextResponse.json({ gifts });
   } catch (err: any) {
     console.error('[gifts/sent GET]', err);
     return NextResponse.json({ error: err.message }, { status: 500 });
