@@ -2,8 +2,18 @@
 import { useEffect, useState } from 'react';
 import { useLanguage } from '@/lib/language-context';
 import { motion } from 'framer-motion';
-import { TreePine, Users, Leaf, School, DollarSign, MapPin, Heart, CheckCircle, Clock } from 'lucide-react';
+import { TreePine, Users, Leaf, School, DollarSign, MapPin, Heart, CheckCircle, Clock, TrendingUp, CreditCard, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
+
+interface StripeStats {
+  mrr: number;
+  totalRevenue: number;
+  activeSubscribers: number;
+  oneTimeRevenue: number;
+  currency: string;
+  lastUpdated: string;
+  error?: string;
+}
 
 interface Stats {
   treesAdopted: number;
@@ -55,12 +65,20 @@ export default function TransparenciaPage() {
   const { t, language } = useLanguage();
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [stripeStats, setStripeStats] = useState<StripeStats | null>(null);
+  const [stripeLoading, setStripeLoading] = useState(true);
 
   useEffect(() => {
     fetch('/api/public-stats')
       .then((r) => r.json())
       .then(setStats)
       .finally(() => setLoading(false));
+
+    fetch('/api/stripe/mrr')
+      .then((r) => r.json())
+      .then(setStripeStats)
+      .catch(() => setStripeStats(null))
+      .finally(() => setStripeLoading(false));
   }, []);
 
   const currentPhaseIndex = stats ? phases.indexOf(stats.schoolPhase) : 0;
@@ -89,6 +107,91 @@ export default function TransparenciaPage() {
               En quetz.org no hay letra pequeña. Aquí puedes ver exactamente qué pasa con cada adopción, cada euro y cada árbol.
             </p>
           </motion.div>
+        </div>
+      </section>
+
+      {/* Stripe MRR — Real Revenue */}
+      <section className="py-12 px-4 bg-white border-b border-gray-100">
+        <div className="max-w-5xl mx-auto">
+          <div className="flex items-center gap-2 justify-center mb-2">
+            <TrendingUp className="w-5 h-5 text-emerald-600" />
+            <h2 className="text-xl font-bold text-gray-900">Ingresos reales — directo desde Stripe</h2>
+          </div>
+          <p className="text-gray-400 text-center text-xs mb-8">
+            Datos en tiempo real · sin redondeos · sin letra pequeña
+          </p>
+
+          {stripeLoading ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="bg-gray-50 rounded-2xl p-6 animate-pulse h-28" />
+              ))}
+            </div>
+          ) : stripeStats && !stripeStats.error ? (
+            <>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                {[
+                  {
+                    icon: TrendingUp,
+                    label: 'MRR (Ingresos recurrentes/mes)',
+                    value: `€${stripeStats.mrr.toLocaleString('de-DE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`,
+                    color: 'emerald',
+                    tooltip: 'Suma de todas las suscripciones activas, normalizadas a mensual',
+                  },
+                  {
+                    icon: DollarSign,
+                    label: 'Total recaudado (histórico)',
+                    value: `€${stripeStats.totalRevenue.toLocaleString('de-DE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`,
+                    color: 'blue',
+                    tooltip: 'Todos los cobros exitosos desde el inicio',
+                  },
+                  {
+                    icon: Users,
+                    label: 'Suscriptores activos',
+                    value: stripeStats.activeSubscribers.toString(),
+                    color: 'violet',
+                    tooltip: 'Personas con suscripción mensual activa ahora mismo',
+                  },
+                  {
+                    icon: CreditCard,
+                    label: 'Pagos únicos',
+                    value: `€${stripeStats.oneTimeRevenue.toLocaleString('de-DE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`,
+                    color: 'amber',
+                    tooltip: 'Adopciones y donaciones de una sola vez',
+                  },
+                ].map(({ icon: Icon, label, value, color }) => (
+                  <motion.div
+                    key={label}
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className={`bg-${color}-50 border border-${color}-100 rounded-2xl p-5 text-center`}
+                  >
+                    <div className={`w-10 h-10 bg-${color}-100 rounded-xl flex items-center justify-center mx-auto mb-3`}>
+                      <Icon className={`w-5 h-5 text-${color}-600`} />
+                    </div>
+                    <p className={`text-2xl font-bold text-${color}-700 tabular-nums`}>{value}</p>
+                    <p className="text-xs text-gray-500 mt-1 leading-tight">{label}</p>
+                  </motion.div>
+                ))}
+              </div>
+              <p className="text-center text-xs text-gray-400 flex items-center justify-center gap-1">
+                <RefreshCw className="w-3 h-3" />
+                Actualizado: {new Date(stripeStats.lastUpdated).toLocaleString('es-ES', {
+                  day: '2-digit', month: '2-digit', year: 'numeric',
+                  hour: '2-digit', minute: '2-digit',
+                })}
+                {' '}· Caché 5 min
+              </p>
+            </>
+          ) : (
+            <div className="text-center py-8 text-gray-400 text-sm">
+              <DollarSign className="w-8 h-8 mx-auto mb-2 opacity-30" />
+              <p>Datos Stripe no disponibles en este momento.</p>
+              {stripeStats?.error && (
+                <p className="text-xs text-red-400 mt-1">{stripeStats.error}</p>
+              )}
+            </div>
+          )}
         </div>
       </section>
 

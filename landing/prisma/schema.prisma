@@ -99,6 +99,11 @@ model Tree {
   impactFamilies  Float    @default(0.1) // families benefited per tree
   priceBaseEur    Float    @default(25)  // base price in EUR
   
+  // Location (GPS for individual plantation plot)
+  latitude    Float?
+  longitude   Float?
+  plotArea    String?   // e.g. "Sektor A — Finca Jumuzna"
+
   // Media
   image       String
   iconUrl     String?

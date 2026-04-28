@@ -4,6 +4,8 @@ import Stripe from "stripe";
 import { NextRequest, NextResponse } from "next/server";
 import { sendEmail } from "@/lib/email";
 import { prisma } from "@/lib/prisma";
+import { renderWelcomeEmail } from "@/emails/render";
+import { getWelcomeSubject } from "@/emails/welcome-tree-adoption";
 
 function getSubjectLine(language: string | undefined): string {
   if (language === "en") return "🌳 Your tree has a name! Welcome to the Quetz family";
@@ -1021,10 +1023,17 @@ export async function POST(req: NextRequest) {
     if (invoiceEmail) {
       try {
         console.log("[webhook] Sending welcome email (invoice) to:", invoiceEmail);
+        const invoiceEmailHtml = await renderWelcomeEmail({
+          customerName: invoiceName,
+          language: invoiceLanguage,
+          planName: invoicePlanName,
+          amount: invoiceAmount,
+          currency: invoiceCurrency,
+        });
         await sendEmail(
           invoiceEmail,
-          getSubjectLine(invoiceLanguage),
-          buildWelcomeEmail(invoiceName, invoiceLanguage, invoicePlanName, invoiceAmount, invoiceCurrency)
+          getWelcomeSubject(invoiceLanguage),
+          invoiceEmailHtml
         );
         console.log("[webhook] Welcome email sent successfully (invoice) to:", invoiceEmail);
 
@@ -1212,47 +1221,12 @@ export async function POST(req: NextRequest) {
     }
   } else {
     // ── REGULAR PURCHASE FLOW ──────────────────────────────────────────────
-    if (customerEmail) {
-      try {
-        // Welcome email to customer
-        console.log("[webhook] Sending welcome email to:", customerEmail);
-        await sendEmail(
-          customerEmail,
-          getSubjectLine(language),
-          buildWelcomeEmail(customerName, language, planName, amount, currency)
-        );
-        console.log("[webhook] Welcome email sent successfully to:", customerEmail);
+    // Step 1: Create DB record first (so we can pass tree/adoption data to email)
+    let createdAdoptionId: string | null = null;
+    let resolvedTree: { id: string; nameEs: string; nameDe: string | null; nameEn: string | null; nameFr: string | null; species: string; latitude: number | null; longitude: number | null; plotArea: string | null; image: string } | null = null;
+    let resolvedFarmer: { name: string; photoUrl: string | null } | null = null;
 
-        // Notification email to team
-        console.log("[webhook] Sending team notification email...");
-        await sendEmail(
-          "dgarrido@quetz.org",
-          `[Quetz] New tree adoption — ${customerEmail}`,
-          `
-            <h2>New Checkout Completed</h2>
-            <table style="font-family:monospace;border-collapse:collapse;">
-              <tr><td style="padding:4px 12px 4px 0;color:#6b7280;">Session ID</td><td>${session.id}</td></tr>
-              <tr><td style="padding:4px 12px 4px 0;color:#6b7280;">Customer Email</td><td>${customerEmail}</td></tr>
-              <tr><td style="padding:4px 12px 4px 0;color:#6b7280;">Customer Name</td><td>${customerName}</td></tr>
-              <tr><td style="padding:4px 12px 4px 0;color:#6b7280;">Amount Total</td><td>${session.amount_total != null ? (session.amount_total / 100).toFixed(2) : "—"} ${session.currency?.toUpperCase() ?? ""}</td></tr>
-              <tr><td style="padding:4px 12px 4px 0;color:#6b7280;">Metadata</td><td><pre>${JSON.stringify(metadata, null, 2)}</pre></td></tr>
-            </table>
-          `
-        );
-        console.log("[webhook] Team notification sent");
-
-        console.log("[webhook] Sending Telegram...");
-        await sendTelegramNotification(customerName, customerEmail, planName, amount, currency);
-        console.log("[webhook] Telegram sent");
-      } catch (mailErr: any) {
-        console.error("[webhook] EMAIL ERROR:", mailErr.message, mailErr.stack);
-      }
-    } else {
-      console.warn("[webhook] No customerEmail in session — skipping email send");
-    }
-
-    // ── CREATE DB RECORD ──────────────────────────────────────────────────
-    console.log("[webhook] Creating adoption record...");
+    console.log("[webhook] Creating adoption/subscription record...");
     try {
       if (customerEmail) {
         let user = await prisma.user.findUnique({ where: { email: customerEmail } });
@@ -1286,12 +1260,20 @@ export async function POST(req: NextRequest) {
             },
           });
           console.log("[webhook] Subscription record created");
+
+          // Resolve tree for email enrichment (no GPS CTA for subscriptions)
+          if (planId) {
+            resolvedTree = await prisma.tree.findUnique({ where: { species: planId } }) ?? null;
+          }
+          if (!resolvedTree) {
+            resolvedTree = await prisma.tree.findFirst({ where: { active: true } }) ?? null;
+          }
         } else {
-          // One-time adoption — resolve treeId from metadata or species lookup (nullable fallback)
+          // One-time adoption — resolve treeId from metadata or species lookup
           let resolvedTreeId: string | null = treeId ?? null;
           if (!resolvedTreeId && planId) {
-            const tree = await prisma.tree.findUnique({ where: { species: planId } });
-            resolvedTreeId = tree?.id ?? null;
+            const t = await prisma.tree.findUnique({ where: { species: planId } });
+            resolvedTreeId = t?.id ?? null;
             console.log("[webhook] Tree lookup by species", planId, "->", resolvedTreeId ?? "not found");
           }
           if (!resolvedTreeId) {
@@ -1302,7 +1284,8 @@ export async function POST(req: NextRequest) {
           if (!resolvedTreeId) {
             console.warn("[webhook] No tree found for planId:", planId, "— creating adoption without treeId");
           }
-          await prisma.adoption.create({
+
+          const adoption = await prisma.adoption.create({
             data: {
               userId: user.id,
               treeId: resolvedTreeId,
@@ -1312,13 +1295,82 @@ export async function POST(req: NextRequest) {
               status: "active",
             },
           });
-          console.log("[webhook] Adoption created for user:", user.id, "treeId:", resolvedTreeId);
+          createdAdoptionId = adoption.id;
+          console.log("[webhook] Adoption created:", adoption.id, "treeId:", resolvedTreeId);
+
+          // Fetch full tree + farmer for email enrichment
+          if (resolvedTreeId) {
+            resolvedTree = await prisma.tree.findUnique({ where: { id: resolvedTreeId } }) ?? null;
+          }
+          if (adoption.farmerId) {
+            const farmer = await prisma.farmer.findUnique({ where: { id: adoption.farmerId } });
+            if (farmer) resolvedFarmer = { name: farmer.name, photoUrl: farmer.photoUrl ?? null };
+          }
         }
       } else {
         console.warn("[webhook] No customerEmail — skipping DB record creation");
       }
     } catch (dbErr: any) {
       console.error("[webhook] DB ERROR:", dbErr.message, dbErr.stack);
+    }
+
+    // Step 2: Send email WITH tree/adoption data
+    if (customerEmail) {
+      try {
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "https://quetz.org";
+        const micrositeUrl = createdAdoptionId ? `${baseUrl}/baum/${createdAdoptionId}` : undefined;
+
+        console.log("[webhook] Rendering cinematic welcome email for:", customerEmail);
+        const welcomeHtml = await renderWelcomeEmail({
+          customerName,
+          language,
+          planName,
+          amount,
+          currency,
+          tree: resolvedTree ?? undefined,
+          adoption: createdAdoptionId
+            ? {
+                id: createdAdoptionId,
+                farmer: resolvedFarmer ?? undefined,
+              }
+            : undefined,
+          micrositeUrl,
+          baseUrl,
+        });
+
+        console.log("[webhook] Sending welcome email to:", customerEmail);
+        await sendEmail(customerEmail, getWelcomeSubject(language), welcomeHtml);
+        console.log("[webhook] Welcome email sent successfully to:", customerEmail);
+
+        // Notification email to team
+        console.log("[webhook] Sending team notification email...");
+        await sendEmail(
+          "dgarrido@quetz.org",
+          `[Quetz] New tree adoption — ${customerEmail}`,
+          `
+            <h2>New Checkout Completed</h2>
+            <table style="font-family:monospace;border-collapse:collapse;">
+              <tr><td style="padding:4px 12px 4px 0;color:#6b7280;">Session ID</td><td>${session.id}</td></tr>
+              <tr><td style="padding:4px 12px 4px 0;color:#6b7280;">Adoption ID</td><td>${createdAdoptionId ?? "subscription"}</td></tr>
+              <tr><td style="padding:4px 12px 4px 0;color:#6b7280;">Customer Email</td><td>${customerEmail}</td></tr>
+              <tr><td style="padding:4px 12px 4px 0;color:#6b7280;">Customer Name</td><td>${customerName}</td></tr>
+              <tr><td style="padding:4px 12px 4px 0;color:#6b7280;">Tree</td><td>${resolvedTree ? `${resolvedTree.nameEs} (${resolvedTree.species})` : "—"}</td></tr>
+              <tr><td style="padding:4px 12px 4px 0;color:#6b7280;">Microsite</td><td>${micrositeUrl ?? "—"}</td></tr>
+              <tr><td style="padding:4px 12px 4px 0;color:#6b7280;">Amount Total</td><td>${session.amount_total != null ? (session.amount_total / 100).toFixed(2) : "—"} ${session.currency?.toUpperCase() ?? ""}</td></tr>
+              <tr><td style="padding:4px 12px 4px 0;color:#6b7280;">Metadata</td><td><pre>${JSON.stringify(metadata, null, 2)}</pre></td></tr>
+            </table>
+          `
+        );
+        console.log("[webhook] Team notification sent");
+
+        console.log("[webhook] Sending Telegram...");
+        await sendTelegramNotification(customerName, customerEmail, planName, amount, currency);
+        console.log("[webhook] Telegram sent");
+      } catch (mailErr: any) {
+        console.error("[webhook] EMAIL ERROR:", mailErr.message, mailErr.stack);
+      }
+    } else {
+      console.warn("[webhook] No customerEmail in session — skipping email send");
     }
   }
 
