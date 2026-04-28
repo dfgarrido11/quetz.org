@@ -1247,19 +1247,30 @@ export async function POST(req: NextRequest) {
         const qty = parseInt(metadata.quantity || "1", 10);
 
         if (session.mode === "subscription" && session.subscription) {
-          console.log("[webhook] Creating subscription record for:", planId);
-          await prisma.subscription.create({
-            data: {
-              userId: user.id,
-              planId: planId || "cafe",
-              planName: planName || metadata.planName || "Plan",
-              treesPerMonth: parseInt(metadata.treesPerMonth || "1", 10),
-              priceEurMonth: amount,
-              stripeSubscriptionId: String(session.subscription),
-              status: "active",
-            },
+          const stripeSubId = String(session.subscription);
+          console.log("[webhook] Subscription path — stripeSubId:", stripeSubId, "planId:", planId);
+
+          const existingSub = await prisma.subscription.findUnique({
+            where: { stripeSubscriptionId: stripeSubId },
           });
-          console.log("[webhook] Subscription record created");
+
+          if (existingSub) {
+            console.log("[webhook] Idempotent: subscription already exists for", stripeSubId, "— skipping create");
+          } else {
+            const parsedTrees = parseInt(metadata.treesPerMonth || "1", 10);
+            await prisma.subscription.create({
+              data: {
+                userId: user.id,
+                planId: planId || "cafe",
+                planName: planName || "Plan",
+                treesPerMonth: Number.isFinite(parsedTrees) ? parsedTrees : 1,
+                priceEurMonth: amount,
+                stripeSubscriptionId: stripeSubId,
+                status: "active",
+              },
+            });
+            console.log("[webhook] Subscription record created:", stripeSubId);
+          }
 
           // Resolve tree for email enrichment (no GPS CTA for subscriptions)
           if (planId) {
@@ -1285,18 +1296,30 @@ export async function POST(req: NextRequest) {
             console.warn("[webhook] No tree found for planId:", planId, "— creating adoption without treeId");
           }
 
-          const adoption = await prisma.adoption.create({
-            data: {
-              userId: user.id,
-              treeId: resolvedTreeId,
-              quantity: qty,
-              amount,
-              currency: currency.toUpperCase(),
-              status: "active",
-            },
+          const existingAdoption = await prisma.adoption.findUnique({
+            where: { stripeSessionId: session.id },
           });
-          createdAdoptionId = adoption.id;
-          console.log("[webhook] Adoption created:", adoption.id, "treeId:", resolvedTreeId);
+
+          if (existingAdoption) {
+            console.log("[webhook] Idempotent: adoption already exists for session", session.id, "— skipping create");
+            createdAdoptionId = existingAdoption.id;
+          } else {
+            const safeQty = Number.isFinite(qty) && qty > 0 ? qty : 1;
+            console.log("[webhook] Creating adoption — sessionId:", session.id, "treeId:", resolvedTreeId, "qty:", safeQty, "amount:", amount);
+            const adoption = await prisma.adoption.create({
+              data: {
+                userId: user.id,
+                treeId: resolvedTreeId,
+                quantity: safeQty,
+                amount,
+                currency: currency.toUpperCase(),
+                status: "active",
+                stripeSessionId: session.id,
+              },
+            });
+            createdAdoptionId = adoption.id;
+            console.log("[webhook] Adoption created:", adoption.id, "sessionId:", session.id);
+          }
 
           // Fetch full tree + farmer for email enrichment
           if (resolvedTreeId) {
@@ -1311,7 +1334,15 @@ export async function POST(req: NextRequest) {
         console.warn("[webhook] No customerEmail — skipping DB record creation");
       }
     } catch (dbErr: any) {
-      console.error("[webhook] DB ERROR:", dbErr.message, dbErr.stack);
+      console.error("[webhook] DB ERROR", JSON.stringify({
+        path: session.mode === "subscription" ? "subscription" : "adoption",
+        sessionId: session.id,
+        mode: session.mode,
+        emailHint: customerEmail ? customerEmail.slice(0, 4) + "***" : null,
+        metadata,
+        prismaCode: dbErr.code ?? null,
+        message: dbErr.message ?? null,
+      }));
     }
 
     // Step 2: Send email WITH tree/adoption data
