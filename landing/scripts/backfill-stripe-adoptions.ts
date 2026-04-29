@@ -32,6 +32,26 @@ async function findOrCreateUser(email: string, name: string): Promise<string> {
   return user.id;
 }
 
+type DbTree = { id: string; species: string; nameEs: string; nameDe: string | null; nameEn: string | null };
+
+async function loadAllTrees(): Promise<DbTree[]> {
+  return prisma.tree.findMany({ select: { id: true, species: true, nameEs: true, nameDe: true, nameEn: true } });
+}
+
+function resolveTreeFromDescription(description: string, allTrees: DbTree[]): string | null {
+  const desc = description.toLowerCase();
+  // Exact species match first
+  for (const t of allTrees) {
+    if (desc.includes(t.species.toLowerCase())) return t.id;
+  }
+  // Fuzzy match on multilingual names
+  for (const t of allTrees) {
+    const names = [t.nameEs, t.nameDe, t.nameEn].filter(Boolean) as string[];
+    if (names.some((n) => desc.includes(n.toLowerCase()))) return t.id;
+  }
+  return null;
+}
+
 async function resolveTreeId(planId?: string): Promise<string | null> {
   if (planId) {
     const tree = await prisma.tree.findUnique({ where: { species: planId } });
@@ -67,6 +87,9 @@ async function main() {
   }
 
   log(`Found ${sessions.length} completed paid sessions to evaluate.`);
+
+  const allTrees = await loadAllTrees();
+  log(`Loaded ${allTrees.length} trees for description matching.`);
 
   let created = 0, skipped = 0, errors = 0;
 
@@ -138,42 +161,82 @@ async function main() {
       continue;
     }
 
-    // ── ONE-TIME ADOPTION ────────────────────────────────────────────────────
-    const existingAdoption = await prisma.adoption.findUnique({
-      where: { stripeSessionId: id },
+    // ── ONE-TIME ADOPTION (per line item) ───────────────────────────────────
+    // Check if already processed (legacy: bare session ID or suffixed _0)
+    const legacyCheck = await prisma.adoption.findFirst({
+      where: {
+        stripeSessionId: { in: [id, `${id}_0`] },
+      },
     });
-
-    if (existingAdoption) {
-      log(`SKIPPED  [adoption-exists] ${id} — adoption ${existingAdoption.id} already in DB`);
+    if (legacyCheck) {
+      log(`SKIPPED  [adoption-exists] ${id} — already in DB (stripeSessionId=${legacyCheck.stripeSessionId})`);
       skipped++;
       continue;
     }
 
-    log(`CREATING [adoption] ${id} — ${customerEmail} — €${amount} ${currency} — planId=${planId ?? 'none'} qty=${qty}`);
-    if (!DRY_RUN) {
-      try {
-        const userId = await findOrCreateUser(customerEmail, customerName);
-        const treeId = await resolveTreeId(planId);
-        const adoption = await prisma.adoption.create({
-          data: {
-            userId,
-            treeId,
-            quantity: qty,
-            amount,
-            currency,
-            status: 'active',
-            stripeSessionId: id,
-          },
-        });
-        log(`  → Adoption created: ${adoption.id} (treeId=${treeId})`);
-        created++;
-      } catch (e: any) {
-        err(`  → Failed to create adoption for ${id}: ${e.message} (code: ${e.code})`);
-        errors++;
+    // Fetch line items from Stripe
+    let lineItems: Stripe.LineItem[] = [];
+    try {
+      const li = await stripe.checkout.sessions.listLineItems(id, { limit: 100 });
+      lineItems = li.data;
+    } catch (e: any) {
+      warn(`Could not fetch line items for ${id}: ${e.message} — falling back to metadata`);
+    }
+
+    // Fallback: treat as a single line item using session-level metadata
+    if (lineItems.length === 0) {
+      lineItems = [{
+        id: 'fallback',
+        object: 'item',
+        amount_total: session.amount_total ?? 0,
+        currency: session.currency ?? 'eur',
+        description: planName,
+        quantity: qty,
+      } as unknown as Stripe.LineItem];
+    }
+
+    log(`PROCESSING [adoption] ${id} — ${customerEmail} — ${lineItems.length} line item(s)`);
+
+    const userId = await findOrCreateUser(customerEmail, customerName);
+
+    for (let i = 0; i < lineItems.length; i++) {
+      const item = lineItems[i];
+      const itemStripeId = `${id}_${i}`;
+      const itemDescription = item.description ?? planName;
+      const itemQty = item.quantity ?? 1;
+      const itemAmount = item.amount_total != null ? item.amount_total / 100 : amount / lineItems.length;
+
+      // Resolve tree: description match first, then metadata planId fallback
+      let itemTreeId = resolveTreeFromDescription(itemDescription, allTrees);
+      if (!itemTreeId) {
+        itemTreeId = await resolveTreeId(planId);
       }
-    } else {
-      log(`  → [dry-run] Would create Adoption: treeId=${planId ?? 'fallback'} qty=${qty} amount=${amount}`);
-      created++;
+
+      log(`  [${i}] stripeSessionId=${itemStripeId} desc="${itemDescription}" qty=${itemQty} amount=${itemAmount} treeId=${itemTreeId ?? 'none'}`);
+
+      if (!DRY_RUN) {
+        try {
+          const adoption = await prisma.adoption.create({
+            data: {
+              userId,
+              treeId: itemTreeId,
+              quantity: itemQty,
+              amount: itemAmount,
+              currency,
+              status: 'active',
+              stripeSessionId: itemStripeId,
+            },
+          });
+          log(`  → Adoption created: ${adoption.id}`);
+          created++;
+        } catch (e: any) {
+          err(`  → Failed to create adoption ${itemStripeId}: ${e.message} (code: ${e.code})`);
+          errors++;
+        }
+      } else {
+        log(`  → [dry-run] Would create Adoption: treeId=${itemTreeId ?? 'fallback'} qty=${itemQty} amount=${itemAmount}`);
+        created++;
+      }
     }
   }
 

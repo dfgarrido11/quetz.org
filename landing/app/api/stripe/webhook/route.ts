@@ -1280,54 +1280,109 @@ export async function POST(req: NextRequest) {
             resolvedTree = await prisma.tree.findFirst({ where: { active: true } }) ?? null;
           }
         } else {
-          // One-time adoption — resolve treeId from metadata or species lookup
-          let resolvedTreeId: string | null = treeId ?? null;
-          if (!resolvedTreeId && planId) {
-            const t = await prisma.tree.findUnique({ where: { species: planId } });
-            resolvedTreeId = t?.id ?? null;
-            console.log("[webhook] Tree lookup by species", planId, "->", resolvedTreeId ?? "not found");
-          }
-          if (!resolvedTreeId) {
-            const fallback = await prisma.tree.findFirst({ where: { active: true } });
-            resolvedTreeId = fallback?.id ?? null;
-            console.log("[webhook] Fallback tree ->", resolvedTreeId ?? "none");
-          }
-          if (!resolvedTreeId) {
-            console.warn("[webhook] No tree found for planId:", planId, "— creating adoption without treeId");
-          }
-
-          const existingAdoption = await prisma.adoption.findUnique({
-            where: { stripeSessionId: session.id },
+          // One-time adoption — 1 Adoption record per line item
+          // Load all trees once for description-based matching
+          const allTrees = await prisma.tree.findMany({
+            select: { id: true, species: true, nameEs: true, nameDe: true, nameEn: true },
           });
 
-          if (existingAdoption) {
-            console.log("[webhook] Idempotent: adoption already exists for session", session.id, "— skipping create");
-            createdAdoptionId = existingAdoption.id;
-          } else {
-            const safeQty = Number.isFinite(qty) && qty > 0 ? qty : 1;
-            console.log("[webhook] Creating adoption — sessionId:", session.id, "treeId:", resolvedTreeId, "qty:", safeQty, "amount:", amount);
-            const adoption = await prisma.adoption.create({
-              data: {
-                userId: user.id,
-                treeId: resolvedTreeId,
-                quantity: safeQty,
-                amount,
-                currency: currency.toUpperCase(),
-                status: "active",
-                stripeSessionId: session.id,
-              },
-            });
-            createdAdoptionId = adoption.id;
-            console.log("[webhook] Adoption created:", adoption.id, "sessionId:", session.id);
+          function resolveTreeFromDescription(description: string): string | null {
+            const desc = description.toLowerCase();
+            for (const t of allTrees) {
+              if (desc.includes(t.species.toLowerCase())) return t.id;
+            }
+            for (const t of allTrees) {
+              const names = [t.nameEs, t.nameDe, t.nameEn].filter(Boolean) as string[];
+              if (names.some((n) => desc.includes(n.toLowerCase()))) return t.id;
+            }
+            return null;
           }
 
-          // Fetch full tree + farmer for email enrichment
-          if (resolvedTreeId) {
-            resolvedTree = await prisma.tree.findUnique({ where: { id: resolvedTreeId } }) ?? null;
+          async function resolveTreeIdFallback(pid?: string): Promise<string | null> {
+            if (pid) {
+              const t = await prisma.tree.findUnique({ where: { species: pid } });
+              if (t) return t.id;
+              const fuzzy = await prisma.tree.findFirst({ where: { species: { contains: pid } } });
+              if (fuzzy) return fuzzy.id;
+            }
+            const fallback = await prisma.tree.findFirst({ where: { active: true } });
+            return fallback?.id ?? null;
           }
-          if (adoption.farmerId) {
-            const farmer = await prisma.farmer.findUnique({ where: { id: adoption.farmerId } });
-            if (farmer) resolvedFarmer = { name: farmer.name, photoUrl: farmer.photoUrl ?? null };
+
+          // Idempotency check: already processed if bare ID or first-item suffix exists
+          const existingCheck = await prisma.adoption.findFirst({
+            where: { stripeSessionId: { in: [session.id, `${session.id}_0`] } },
+          });
+
+          if (existingCheck) {
+            console.log("[webhook] Idempotent: adoption already exists for session", session.id, "— skipping create");
+            createdAdoptionId = existingCheck.id;
+            if (existingCheck.treeId) {
+              resolvedTree = await prisma.tree.findUnique({ where: { id: existingCheck.treeId } }) ?? null;
+            }
+          } else {
+            // Fetch line items
+            let lineItems: import("stripe").Stripe.LineItem[] = [];
+            try {
+              const li = await stripe.checkout.sessions.listLineItems(session.id, { limit: 100 });
+              lineItems = li.data;
+            } catch (liErr: any) {
+              console.warn("[webhook] listLineItems failed:", liErr.message, "— falling back to metadata");
+            }
+
+            if (lineItems.length === 0) {
+              // Fallback: single synthetic line item from session metadata
+              const safeQty = Number.isFinite(qty) && qty > 0 ? qty : 1;
+              lineItems = [{
+                id: "fallback",
+                object: "item" as const,
+                amount_total: session.amount_total ?? 0,
+                currency: session.currency ?? "eur",
+                description: metadata.planName || planName,
+                quantity: safeQty,
+              } as unknown as import("stripe").Stripe.LineItem];
+            }
+
+            console.log("[webhook] Processing", lineItems.length, "line item(s) for session", session.id);
+
+            for (let i = 0; i < lineItems.length; i++) {
+              const item = lineItems[i];
+              const itemStripeId = `${session.id}_${i}`;
+              const itemDescription = item.description ?? planName;
+              const itemQty = item.quantity ?? 1;
+              const itemAmount = item.amount_total != null ? item.amount_total / 100 : amount / lineItems.length;
+
+              let itemTreeId = resolveTreeFromDescription(itemDescription);
+              if (!itemTreeId) itemTreeId = await resolveTreeIdFallback(planId);
+
+              console.log("[webhook] Line item", i, "— desc:", itemDescription, "treeId:", itemTreeId, "qty:", itemQty, "amount:", itemAmount);
+
+              const adoption = await prisma.adoption.create({
+                data: {
+                  userId: user.id,
+                  treeId: itemTreeId,
+                  quantity: itemQty,
+                  amount: itemAmount,
+                  currency: currency.toUpperCase(),
+                  status: "active",
+                  stripeSessionId: itemStripeId,
+                },
+              });
+
+              console.log("[webhook] Adoption created:", adoption.id, "stripeSessionId:", itemStripeId);
+
+              // Use first item for email context
+              if (i === 0) {
+                createdAdoptionId = adoption.id;
+                if (itemTreeId) {
+                  resolvedTree = await prisma.tree.findUnique({ where: { id: itemTreeId } }) ?? null;
+                }
+                if (adoption.farmerId) {
+                  const farmer = await prisma.farmer.findUnique({ where: { id: adoption.farmerId } });
+                  if (farmer) resolvedFarmer = { name: farmer.name, photoUrl: farmer.photoUrl ?? null };
+                }
+              }
+            }
           }
         }
       } else {
