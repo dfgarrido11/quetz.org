@@ -113,7 +113,7 @@ export default function MiBosquePage() {
         
         if (adoptRes.ok) {
           const data = await adoptRes.json();
-          setAdoptions(data.adoptions || []);
+          setAdoptions(data || []);
         }
         if (giftsRes.ok) {
           const data = await giftsRes.json();
@@ -121,7 +121,7 @@ export default function MiBosquePage() {
         }
         if (subsRes.ok) {
           const data = await subsRes.json();
-          setSubscriptions(data.subscriptions || []);
+          setSubscriptions(data || []);
         }
       } catch (error) {
         console.error('Error fetching data:', error);
