@@ -358,7 +358,7 @@ const QuetzDashboard: React.FC = () => {
         {/* Footer */}
         <div className="mt-8 text-center text-gray-500 text-sm">
           <p>🤖 Sistema automatizado funcionando 24/7 para hacer crecer Quetz</p>
-          <p className="mt-1">💚 Esos niños nos necesitan - cada lead cuenta para la escuela de Jumuzna</p>
+          <p className="mt-1">💚 Esos niños nos necesitan - cada lead cuenta para la escuela en Zacapa</p>
         </div>
       </div>
     </div>

@@ -697,7 +697,7 @@ function CalculatorSection() {
               {/* School contribution highlight */}
               <div className="mt-6 bg-blue-900/30 border border-blue-500/20 rounded-xl p-4 text-center">
                 <p className="text-blue-300 text-sm">
-                  🏫 Ihr Abo trägt <strong className="text-white">€{schoolTotal.toLocaleString('de-DE')}/Jahr</strong> zum Bau der Jumuzna-Schule bei
+                  🏫 Ihr Abo trägt <strong className="text-white">€{schoolTotal.toLocaleString('de-DE')}/Jahr</strong> zum Bau der Schule in Zacapa bei
                 </p>
               </div>
 

@@ -515,7 +515,7 @@ function getCorporateEmailTemplateSpanish(): EmailTemplate {
                 <ul style="color:#2d6a4f; font-size:15px; line-height:1.8; margin:0; padding-left:20px;">
                   <li><strong>Impacto medible:</strong> Cada árbol captura 25kg de CO₂ anualmente</li>
                   <li><strong>Transparencia total:</strong> Fotos y updates del progreso</li>
-                  <li><strong>💚 Esos niños nos necesitan:</strong> Ayudas a construir la escuela de Jumuzna para 120 niños</li>
+                  <li><strong>💚 Esos niños nos necesitan:</strong> Ayudas a construir la escuela en Zacapa para 120 niños</li>
                   <li><strong>RSE auténtica:</strong> Historias reales que puedes compartir</li>
                 </ul>
               </div>
@@ -626,7 +626,7 @@ function getCorporateEmailTemplateEnglish(): EmailTemplate {
                 <ul style="color:#2d6a4f; font-size:15px; line-height:1.8; margin:0; padding-left:20px;">
                   <li><strong>Measurable impact:</strong> Each tree captures 25kg of CO₂ annually</li>
                   <li><strong>Full transparency:</strong> Photos and progress updates</li>
-                  <li><strong>💚 These children need us:</strong> Help build Jumuzna school for 120 children</li>
+                  <li><strong>💚 These children need us:</strong> Help build a school in Zacapa for 120 children</li>
                   <li><strong>Authentic CSR:</strong> Real stories you can share</li>
                 </ul>
               </div>
@@ -737,7 +737,7 @@ function getCorporateEmailTemplateGerman(): EmailTemplate {
                 <ul style="color:#2d6a4f; font-size:15px; line-height:1.8; margin:0; padding-left:20px;">
                   <li><strong>Messbare Wirkung:</strong> Jeder Baum bindet 25kg CO₂ jährlich</li>
                   <li><strong>Vollständige Transparenz:</strong> Fotos und Updates zum Fortschritt</li>
-                  <li><strong>💚 Diese Kinder brauchen uns:</strong> Hilfe beim Bau der Jumuzna-Schule für 120 Kinder</li>
+                  <li><strong>💚 Diese Kinder brauchen uns:</strong> Hilfe beim Bau der Schule in Zacapa für 120 Kinder</li>
                   <li><strong>Authentische CSR:</strong> Echte Geschichten, die Sie teilen können</li>
                 </ul>
               </div>

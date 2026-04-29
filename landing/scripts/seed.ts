@@ -157,7 +157,7 @@ const farmers = [
     id: 'farmer-1',
     name: 'Don José García',
     photoUrl: '/photos/farmer-jose.jpg',
-    location: 'Aldea Jumuzna, Zacapa',
+    location: 'Zacapa, Guatemala',
     storyEs: 'José lleva 35 años cultivando la tierra de Zacapa. "Mi padre me enseñó a respetar cada árbol", dice mientras señala los cafetales que cuida. Con QUETZ, ahora puede dar trabajo a sus dos hijos y planea construir un cuarto extra en su casa.',
     storyDe: 'José bewirtschaftet seit 35 Jahren das Land von Zacapa. "Mein Vater hat mir beigebracht, jeden Baum zu respektieren", sagt er und zeigt auf die Kaffeeplantagen, die er pflegt. Mit QUETZ kann er jetzt seinen beiden Söhnen Arbeit geben und plant, einen zusätzlichen Raum in seinem Haus zu bauen.',
     storyEn: 'José has been cultivating the land of Zacapa for 35 years. "My father taught me to respect every tree," he says while pointing to the coffee plants he tends. With QUETZ, he can now give work to his two sons and plans to build an extra room in his house.',
@@ -222,8 +222,8 @@ const farmers = [
 // Initial school project data
 const schoolProject = {
   id: 'zacapa',
-  name: 'Escuela Jumuzna',
-  description: 'La escuela se construirá en la aldea de Jumuzna, Zacapa. Actualmente estamos en la fase de compra del terreno. Tu donación se destina directamente a los materiales y la mano de obra local.',
+  name: 'Escuela en Zacapa',
+  description: 'La escuela se construirá en una aldea en Zacapa. Actualmente estamos en la fase de compra del terreno. Tu donación se destina directamente a los materiales y la mano de obra local.',
   goalEur: 50000,
   raisedEur: 5420.20,
   phase: 'terreno',

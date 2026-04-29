@@ -253,8 +253,8 @@ export default function TransparenciaPage() {
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <School className="w-8 h-8 text-blue-600" />
               </div>
-              <h3 className="font-bold text-blue-800 text-xl mb-3">Escuela de Jumuzna</h3>
-              <p className="text-sm text-blue-700 leading-relaxed">Una parte de cada adopción va directamente al fondo de construcción de la escuela para 120 niños en la aldea de Jumuzna, Zacapa.</p>
+              <h3 className="font-bold text-blue-800 text-xl mb-3">Escuela en Zacapa</h3>
+              <p className="text-sm text-blue-700 leading-relaxed">Una parte de cada adopción va directamente al fondo de construcción de la escuela para 120 niños en una aldea en Zacapa.</p>
             </div>
           </div>
         </div>
@@ -265,7 +265,7 @@ export default function TransparenciaPage() {
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center gap-3 mb-2 justify-center">
             <School className="w-7 h-7 text-blue-600" />
-            <h2 className="text-2xl font-bold text-gray-900">Escuela de Jumuzna — Avance en vivo</h2>
+            <h2 className="text-2xl font-bold text-gray-900">Escuela en Zacapa — Avance en vivo</h2>
           </div>
           <p className="text-gray-500 text-center mb-10">Zacapa, Guatemala · Meta: €50,000</p>
 
@@ -343,10 +343,10 @@ export default function TransparenciaPage() {
             <div className="bg-gray-50 rounded-2xl p-6">
               <div className="flex items-center gap-3 mb-4">
                 <MapPin className="w-6 h-6 text-emerald-600" />
-                <h3 className="font-bold text-gray-800">Aldea de Jumuzna, Zacapa</h3>
+                <h3 className="font-bold text-gray-800">Zacapa, Guatemala</h3>
               </div>
               <p className="text-gray-600 text-sm leading-relaxed mb-4">
-                Zacapa es uno de los departamentos más áridos de Guatemala. La aldea de Jumuzna, donde se construirá la escuela, es una comunidad rural con acceso limitado a educación y servicios básicos.
+                Zacapa es uno de los departamentos más áridos de Guatemala. La aldea donde se construirá la escuela es una comunidad rural con acceso limitado a educación y servicios básicos.
               </p>
               <div className="space-y-2">
                 {[

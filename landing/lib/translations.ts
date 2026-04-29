@@ -74,7 +74,7 @@ export const translations: Record<Language, Record<string, string>> = {
     
     // School
     'school.title': '120 niños. 4 aulas. 1 sueño compartido.',
-    'school.context': 'La escuela se construirá en la aldea de Jumuzna, Zacapa. Actualmente estamos en la fase de compra del terreno. Tu donación se destina directamente a los materiales y la mano de obra local.',
+    'school.context': 'La escuela se construirá en una aldea en Zacapa. Actualmente estamos en la fase de compra del terreno. Tu donación se destina directamente a los materiales y la mano de obra local.',
     'school.donationInfo': 'Puedes donar cualquier cantidad. Por ejemplo, 20€ financian material para un pupitre, 50€ financian un metro cuadrado de techo.',
     'school.goal': 'Meta:',
     'school.raised': 'Recaudado:',
@@ -603,7 +603,7 @@ export const translations: Record<Language, Record<string, string>> = {
     
     // School
     'school.title': '120 Kinder. 4 Klassenzimmer. 1 gemeinsamer Traum.',
-    'school.context': 'Die Schule wird im Dorf Jumuzna, Zacapa gebaut. Derzeit befinden wir uns in der Phase des Grundstückskaufs. Deine Spende geht direkt an Materialien und lokale Arbeitskräfte.',
+    'school.context': 'Die Schule wird in einem Dorf in Zacapa gebaut. Derzeit befinden wir uns in der Phase des Grundstückskaufs. Deine Spende geht direkt an Materialien und lokale Arbeitskräfte.',
     'school.donationInfo': 'Du kannst jeden Betrag spenden. Zum Beispiel finanzieren 20€ Material für einen Schreibtisch, 50€ finanzieren einen Quadratmeter Dach.',
     'school.goal': 'Ziel:',
     'school.raised': 'Gesammelt:',
@@ -1127,7 +1127,7 @@ export const translations: Record<Language, Record<string, string>> = {
     
     // School
     'school.title': '120 children. 4 classrooms. 1 shared dream.',
-    'school.context': 'The school will be built in the village of Jumuzna, Zacapa. We are currently in the land purchase phase. Your donation goes directly to materials and local labor.',
+    'school.context': 'The school will be built in a village in Zacapa. We are currently in the land purchase phase. Your donation goes directly to materials and local labor.',
     'school.donationInfo': 'You can donate any amount. For example, €20 funds material for a desk, €50 funds one square meter of roof.',
     'school.goal': 'Goal:',
     'school.raised': 'Raised:',
@@ -1674,7 +1674,7 @@ export const translations: Record<Language, Record<string, string>> = {
     
     // School
     'school.title': '120 enfants. 4 salles de classe. 1 rêve partagé.',
-    'school.context': "L'école sera construite dans le village de Jumuzna, Zacapa. Nous sommes actuellement en phase d'achat du terrain. Ton don va directement aux matériaux et à la main-d'œuvre locale.",
+    'school.context': "L'école sera construite dans un village à Zacapa. Nous sommes actuellement en phase d'achat du terrain. Ton don va directement aux matériaux et à la main-d'œuvre locale.",
     'school.donationInfo': "Tu peux donner n'importe quel montant. Par exemple, 20€ financent le matériel pour un pupitre, 50€ financent un mètre carré de toit.",
     'school.goal': 'Objectif :',
     'school.raised': 'Collecté :',

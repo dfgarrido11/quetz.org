@@ -31,13 +31,13 @@ const MASCOTS = {
   },
 };
 
-const SCHOOL_KEYWORDS = /escuela|school|schule|enfants|niños|ninos|kinder|jumuzna|educaci|social|social|enfant|مدرسة|أطفال/i;
+const SCHOOL_KEYWORDS = /escuela|school|schule|enfants|niños|ninos|kinder|educaci|social|enfant|مدرسة|أطفال/i;
 
 const LANG_GREETINGS: Record<Lang, string> = {
-  es: '¡Hola! 🌿 Soy Quetzito, tu guía en Quetz.org. ¿Quieres adoptar un árbol, saber sobre nuestros planes o conocer la escuela Jumuzna?',
-  de: 'Hallo! 🌿 Ich bin Quetzito, dein Guide bei Quetz.org. Möchtest du einen Baum adoptieren, mehr über unsere Pläne erfahren oder die Jumuzna-Schule kennenlernen?',
-  en: 'Hello! 🌿 I\'m Quetzito, your guide at Quetz.org. Want to adopt a tree, learn about our plans, or discover the Jumuzna school?',
-  fr: 'Bonjour ! 🌿 Je suis Quetzito, ton guide chez Quetz.org. Tu veux adopter un arbre, en savoir plus sur nos plans ou découvrir l\'école Jumuzna ?',
+  es: '¡Hola! 🌿 Soy Quetzito, tu guía en Quetz.org. ¿Quieres adoptar un árbol, saber sobre nuestros planes o conocer la escuela en Zacapa?',
+  de: 'Hallo! 🌿 Ich bin Quetzito, dein Guide bei Quetz.org. Möchtest du einen Baum adoptieren, mehr über unsere Pläne erfahren oder die Schule in Zacapa kennenlernen?',
+  en: 'Hello! 🌿 I\'m Quetzito, your guide at Quetz.org. Want to adopt a tree, learn about our plans, or discover the school in Zacapa?',
+  fr: 'Bonjour ! 🌿 Je suis Quetzito, ton guide chez Quetz.org. Tu veux adopter un arbre, en savoir plus sur nos plans ou découvrir l\'école à Zacapa ?',
   ar: 'مرحباً! 🌿 أنا كيتزيتو، دليلك في Quetz.org. هل تريد تبني شجرة أو معرفة المزيد عن خططنا أو اكتشاف مدرسة خومزنا؟',
 };
 

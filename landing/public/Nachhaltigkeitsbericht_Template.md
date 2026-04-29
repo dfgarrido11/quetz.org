@@ -17,7 +17,7 @@ Im Rahmen der Partnerschaft hat **[Name des Unternehmens]** im Jahr 2026 folgend
 QUETZ zeichnet sich durch einen ganzheitlichen Ansatz aus, der über reine CO₂-Kompensation hinausgeht. Die Investition von **[Name des Unternehmens]** hat direkten sozialen Einfluss:
 
 * **Schaffung von Arbeitsplätzen (ESRS S2):** Durch die Baumpatenschaften werden [Anzahl] lokale Waldwächter in Guatemala mit einem fairen Gehalt beschäftigt, was ihren Familien finanzielle Stabilität und Zugang zu Gesundheitsversorgung sichert.
-* **Bildungsinfrastruktur (ESRS S3):** 30% des Beitrags fließen direkt in den Bau der Jumuzna-Schule in Zacapa. Dieser Beitrag ermöglicht 120 Kindern den Zugang zu Bildung und durchbricht den Kreislauf der Armut.
+* **Bildungsinfrastruktur (ESRS S3):** 30% des Beitrags fließen direkt in den Bau der Schule in Zacapa. Dieser Beitrag ermöglicht 120 Kindern den Zugang zu Bildung und durchbricht den Kreislauf der Armut.
 
 ## 4. Transparenz & Technologie
 Jeder von **[Name des Unternehmens]** finanzierte Baum ist mit GPS-Koordinaten versehen und kann im QUETZ-Dashboard nachverfolgt werden. Dies garantiert 100%ige Transparenz und verhindert Greenwashing.

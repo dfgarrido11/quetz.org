@@ -481,7 +481,7 @@ class EmailAutomationEngine {
               <p style="color:#4a4a4a; font-size:15px; line-height:1.6; margin:0;">
                 Con esperanza,<br>
                 <strong>Daniel</strong> 🌱<br>
-                <em>Por los niños de Jumuzna</em>
+                <em>Por los niños de Zacapa</em>
               </p>
             </td>
           </tr>

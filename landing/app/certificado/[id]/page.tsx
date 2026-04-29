@@ -241,7 +241,7 @@ export default function CertificadoPage() {
             {/* School contribution note */}
             <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-2xl p-5 mb-8 text-center">
               <p className="text-emerald-800 text-sm leading-relaxed">
-                🏫 Con esta adopción también contribuyes a la construcción de la <strong>Escuela de Jumuzna</strong>, Zacapa — un futuro para 120 niños.
+                🏫 Con esta adopción también contribuyes a la construcción de la <strong>Escuela en Zacapa</strong> — un futuro para 120 niños.
               </p>
             </div>
 

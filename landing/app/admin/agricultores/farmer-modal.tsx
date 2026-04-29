@@ -97,7 +97,7 @@ export default function FarmerModal({ farmer, onClose, onSave }: Props) {
                 type="text"
                 value={formData.location}
                 onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                placeholder="Ej: Aldea Jumuzna, Zacapa"
+                placeholder="Ej: Zacapa, Guatemala"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-quetz-green focus:border-transparent"
                 required
               />

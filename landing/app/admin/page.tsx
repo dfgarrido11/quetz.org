@@ -256,7 +256,7 @@ export default function AdminDashboard() {
         />
         <KpiCard
           icon={School}
-          label="Escuela Jumuzna"
+          label="Escuela en Zacapa"
           value={`${stats.schoolProgress.toFixed(1)}%`}
           sub={`${eur(stats.schoolRaised)} de ${eur(stats.schoolGoal)}`}
         />
@@ -330,7 +330,7 @@ export default function AdminDashboard() {
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
         <div className="flex items-center gap-2 mb-2">
           <School className="w-5 h-5 text-[#2D6A4F]" />
-          <h2 className="font-semibold text-gray-900">Escuela Jumuzna — Progreso de Construcción</h2>
+          <h2 className="font-semibold text-gray-900">Escuela en Zacapa — Progreso de Construcción</h2>
         </div>
         <div className="flex items-end justify-between mb-3">
           <div>

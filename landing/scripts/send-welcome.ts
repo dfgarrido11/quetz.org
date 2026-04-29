@@ -70,7 +70,7 @@ async function main() {
               <div style="background-color:#d8f3dc; border-radius:8px; padding:20px; margin:24px 0;">
                 <h3 style="color:#1b4332; margin:0 0 12px; font-size:16px;">🏫 Estás ayudando a construir algo especial</h3>
                 <p style="color:#2d6a4f; font-size:15px; line-height:1.8; margin:0;">
-                  Tu suscripción también forma parte de un proyecto mucho más grande: la <strong>construcción de la escuela de Jumuzna</strong>, una comunidad en Zacapa donde <strong>120 niños</strong> esperan tener un espacio digno para aprender. Cada árbol que adoptas contribuye directamente a hacer ese sueño realidad.
+                  Tu suscripción también forma parte de un proyecto mucho más grande: la <strong>construcción de una escuela en Zacapa</strong>, donde <strong>120 niños</strong> esperan tener un espacio digno para aprender. Cada árbol que adoptas contribuye directamente a hacer ese sueño realidad.
                 </p>
               </div>
 

@@ -29,7 +29,7 @@ const DEMO_TREES = [
     active: true,
     latitude: 14.9712,
     longitude: -89.8634,
-    plotArea: "Sektor A — Finca Jumuzna, Zacapa",
+    plotArea: "Sektor A — Finca en Zacapa",
   },
   {
     species: "aguacate",
@@ -53,7 +53,7 @@ const DEMO_TREES = [
     active: true,
     latitude: 14.9698,
     longitude: -89.8651,
-    plotArea: "Sektor B — Finca Jumuzna, Zacapa",
+    plotArea: "Sektor B — Finca en Zacapa",
   },
   {
     species: "caoba",

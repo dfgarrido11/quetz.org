@@ -119,7 +119,7 @@ async function sendWelcomeEmailResend(
                   <li>Recibirás actualizaciones periódicas con fotos</li>
                   <li>Tu árbol capturará CO₂ año tras año</li>
                   <li>Tu contribución apoya a familias guatemaltecas</li>
-                  <li>Ayudas a construir la escuela de Jumuzna</li>
+                  <li>Ayudas a construir la escuela en Zacapa</li>
                 </ul>
               </div>
 

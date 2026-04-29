@@ -55,7 +55,7 @@ class PhotoManager {
       {
         category: 'school',
         photos: [
-          { name: 'school-construction-1.jpg', description: 'Construcción escuela Jumuzna - Fase 1' },
+          { name: 'school-construction-1.jpg', description: 'Construcción escuela Zacapa - Fase 1' },
           { name: 'children-waiting.jpg', description: '120 niños esperando su nueva escuela' },
           { name: 'school-progress-2024.jpg', description: 'Progreso construcción Abril 2024' }
         ]
@@ -232,7 +232,7 @@ class PhotoManager {
           <div style="flex: 1;">
             <h4 style="color:#856404; margin:0 0 8px; font-size:16px;">💚 ¡Esos niños nos necesitan!</h4>
             <p style="color:#856404; font-size:14px; margin:0; line-height:1.5;">
-              120 niños en Jumuzna esperan su nueva escuela. Con tu apoyo, no solo reduces CO₂,
+              120 niños en Zacapa esperan su nueva escuela. Con tu apoyo, no solo reduces CO₂,
               sino que cambias vidas reales en Guatemala.
             </p>
           </div>
