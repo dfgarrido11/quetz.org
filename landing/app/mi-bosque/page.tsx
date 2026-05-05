@@ -34,6 +34,8 @@ interface Adoption {
   status: string;
   progress: number;
   createdAt: string;
+  photos: string[];
+  lastPhotoUrl: string | null;
   tree: {
     id: string;
     species: string;
@@ -384,11 +386,16 @@ function AdoptionCard({ adoption }: { adoption: Adoption }) {
     >
       <div className="relative h-40">
         <Image
-          src={adoption.tree?.image || '/trees/cafe.jpg'}
+          src={adoption.photos?.[0] || adoption.lastPhotoUrl || adoption.tree?.image || '/trees/cafe.jpg'}
           alt={adoption.tree?.nameEs || 'Tree'}
           fill
           className="object-cover"
         />
+        {adoption.photos?.length > 0 && (
+          <div className="absolute bottom-2 left-2 bg-black/50 text-white px-2 py-0.5 rounded-full text-xs backdrop-blur-sm">
+            📸 {adoption.photos.length} {adoption.photos.length === 1 ? 'Foto' : 'Fotos'}
+          </div>
+        )}
         {adoption.quantity > 1 && (
           <div className="absolute top-3 right-3 bg-quetz-green text-white px-3 py-1 rounded-full text-sm font-bold">
             x{adoption.quantity}
@@ -424,10 +431,17 @@ function AdoptionCard({ adoption }: { adoption: Adoption }) {
           </p>
         )}
 
+        {/* Microsite / Photos Button */}
+        <Link
+          href={`/baum/${adoption.id}`}
+          className="mt-3 w-full flex items-center justify-center gap-2 py-2 px-4 bg-green-50 text-green-700 rounded-lg text-sm font-medium hover:bg-green-100 transition-colors"
+        >
+          <span>{adoption.photos?.length > 0 ? `📸 Ver fotos (${adoption.photos.length})` : '🌿 Ver microsite'}</span>
+        </Link>
         {/* Certificate Button */}
         <Link
           href={`/certificado/${adoption.id}`}
-          className="mt-3 w-full flex items-center justify-center gap-2 py-2 px-4 bg-emerald-50 text-emerald-700 rounded-lg text-sm font-medium hover:bg-emerald-100 transition-colors"
+          className="mt-2 w-full flex items-center justify-center gap-2 py-2 px-4 bg-emerald-50 text-emerald-700 rounded-lg text-sm font-medium hover:bg-emerald-100 transition-colors"
         >
           <span>🏅 {t('myForest.viewCert')}</span>
         </Link>

@@ -161,6 +161,7 @@ model Adoption {
   cancelledAt  DateTime?
   nextUpdateAt DateTime?
   lastPhotoUrl String?
+  photos       String[] @default([])
 
   // Stripe idempotency
   stripeSessionId String? @unique
