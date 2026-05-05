@@ -2,7 +2,6 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { TreeMap } from "./tree-map";
 import { ShareButtons } from "./share-buttons";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
@@ -242,19 +241,31 @@ export default async function BaumPage({ params, searchParams }: PageProps) {
         </div>
       </section>
 
-      {/* ── Interactive map ────────────────────────────────────────────────── */}
-      <section style={{ maxWidth: "800px", margin: "0 auto", padding: "40px 24px 0" }}>
-        <h2 style={{ color: GREEN_DEEP, fontSize: "14px", letterSpacing: "3px", textTransform: "uppercase", margin: "0 0 20px", fontWeight: "700" }}>
-          {t(lang, "Standort", "Location", "Localisation", "الموقع", "Ubicación")}
-        </h2>
-        <TreeMap
-          latitude={tree?.latitude ?? null}
-          longitude={tree?.longitude ?? null}
-          treeName={name}
-          plotArea={tree?.plotArea}
-          noGpsLabel={t(lang, "GPS-Daten in Vorbereitung — nächstes Update folgt", "GPS data in preparation — next update coming", "Données GPS en préparation — prochaine mise à jour à venir", "بيانات GPS في الإعداد — التحديث القادم قريبًا", "GPS en preparación — próxima actualización pronto")}
-        />
-      </section>
+      {/* ── Location map ──────────────────────────────────────────────────── */}
+      {tree?.latitude && tree?.longitude && (
+        <section style={{ maxWidth: "800px", margin: "0 auto", padding: "40px 24px 0" }}>
+          <h2 style={{ color: GREEN_DEEP, fontSize: "14px", letterSpacing: "3px", textTransform: "uppercase", margin: "0 0 20px", fontWeight: "700" }}>
+            {t(lang, "Standort", "Location", "Localisation", "الموقع", "Ubicación")}
+          </h2>
+          <div style={{ borderRadius: "16px", overflow: "hidden", boxShadow: "0 2px 16px rgba(0,0,0,0.06)" }}>
+            <iframe
+              src={`https://www.google.com/maps?q=${tree.latitude},${tree.longitude}&z=15&output=embed`}
+              width="100%"
+              height="400"
+              style={{ border: 0, display: "block" }}
+              loading="lazy"
+              allowFullScreen
+              referrerPolicy="no-referrer-when-downgrade"
+              title={t(lang, `Standort: ${name}`, `Location: ${name}`, `Localisation: ${name}`, `موقع: ${name}`, `Ubicación: ${name}`)}
+            />
+          </div>
+          {tree.plotArea && (
+            <p style={{ color: "#6B7280", fontSize: "12px", margin: "10px 0 0" }}>
+              📍 {tree.plotArea}
+            </p>
+          )}
+        </section>
+      )}
 
       {/* ── Species card ───────────────────────────────────────────────────── */}
       {tree && (
