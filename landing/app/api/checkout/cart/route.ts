@@ -45,6 +45,12 @@ export async function POST(req: NextRequest) {
       metadata.quantity = String(totalQty)
     }
 
+    // Full cart as backup for webhook tree resolution (Stripe limit: 500 chars/value)
+    const cartSnapshot = JSON.stringify(
+      itemsToProcess.map((i: any) => ({ treeId: i.treeId || i.planId || null, qty: i.quantity || 1 }))
+    )
+    if (cartSnapshot.length <= 500) metadata.cartItems = cartSnapshot
+
     if (hasGift) {
       metadata.isGift = "true"
       if (recipientName) metadata.recipientName = recipientName
