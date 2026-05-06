@@ -56,9 +56,7 @@ async function resolveTreeId(planId?: string): Promise<string | null> {
   if (planId) {
     const tree = await prisma.tree.findUnique({ where: { species: planId } });
     if (tree) return tree.id;
-    // Try partial match (e.g. "cacao" → "madre_cacao")
-    const fuzzy = await prisma.tree.findFirst({ where: { species: { contains: planId } } });
-    if (fuzzy) return fuzzy.id;
+    // species renamed madre_cacao → cacao in DB, no fuzzy needed
   }
   const fallback = await prisma.tree.findFirst({ where: { active: true } });
   return fallback?.id ?? null;
