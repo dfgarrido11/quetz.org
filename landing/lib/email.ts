@@ -24,4 +24,8 @@ export async function sendEmail(
     const err = await res.text();
     throw new Error("Resend error " + res.status + ": " + err);
   }
+
+  const body = await res.json().catch(() => ({}));
+  // Log Resend message ID for bounce tracking in Railway logs
+  console.log("[email] sent", { to, subject: subject.slice(0, 60), resendId: body.id ?? "unknown" });
 }
