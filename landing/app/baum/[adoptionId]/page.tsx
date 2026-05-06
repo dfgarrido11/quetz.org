@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { ShareButtons } from "./share-buttons";
+import { PhotoGallery } from "./photo-gallery";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -389,34 +390,10 @@ export default async function BaumPage({ params, searchParams }: PageProps) {
           <h2 style={{ color: GREEN_DEEP, fontSize: "14px", letterSpacing: "3px", textTransform: "uppercase", margin: "0 0 20px", fontWeight: "700" }}>
             {t(lang, "Fotos aus Zacapa", "Photos from Zacapa", "Photos de Zacapa", "صور من زاكاپا", "Fotos desde Zacapa")}
           </h2>
-          {(() => {
-            const allPhotos = adoption.photos?.length > 0
-              ? adoption.photos
-              : adoption.lastPhotoUrl ? [adoption.lastPhotoUrl] : [];
-            const isSingle = allPhotos.length === 1;
-            return (
-              <div style={{
-                display: "grid",
-                gridTemplateColumns: isSingle ? "1fr" : "repeat(2, 1fr)",
-                gap: "12px",
-              }}>
-                {allPhotos.map((src: string, idx: number) => (
-                  <div key={idx} style={{ position: "relative", overflow: "hidden", borderRadius: "16px", boxShadow: "0 4px 20px rgba(0,0,0,0.12)" }}>
-                    <img
-                      src={src}
-                      alt={`${name} — Foto ${idx + 1}`}
-                      style={{
-                        width: "100%",
-                        height: isSingle ? "420px" : "260px",
-                        objectFit: "cover",
-                        display: "block",
-                      }}
-                    />
-                  </div>
-                ))}
-              </div>
-            );
-          })()}
+          <PhotoGallery
+            photos={adoption.photos?.length > 0 ? adoption.photos : adoption.lastPhotoUrl ? [adoption.lastPhotoUrl] : []}
+            altPrefix={name}
+          />
           <p style={{ color: "#6B7280", fontSize: "12px", margin: "12px 0 0", textAlign: "right" }}>
             📍 {t(lang, "Zacapa, Guatemala — April 2026", "Zacapa, Guatemala — April 2026", "Zacapa, Guatemala — Avril 2026", "زاكاپا، غواتيمالا — أبريل 2026", "Zacapa, Guatemala — Abril 2026")}
           </p>
