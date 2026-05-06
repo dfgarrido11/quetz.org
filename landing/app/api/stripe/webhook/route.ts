@@ -1298,14 +1298,19 @@ export async function POST(req: NextRequest) {
             return null;
           }
 
-          async function resolveTreeIdFallback(pid?: string): Promise<string | null> {
+          async function resolveTreeIdFallback(pid?: string, sessionId?: string, email?: string): Promise<string | null> {
             if (pid) {
               const t = await prisma.tree.findUnique({ where: { species: pid } });
               if (t) return t.id;
-              const fuzzy = await prisma.tree.findFirst({ where: { species: { contains: pid } } });
-              if (fuzzy) return fuzzy.id;
+              console.error("[webhook] TREE_RESOLVE_FAILED", JSON.stringify({
+                pid,
+                sessionId,
+                emailHint: email ? email.slice(0, 4) + "***" : null,
+              }));
             }
             const fallback = await prisma.tree.findFirst({ where: { active: true } });
+            if (!pid) return fallback?.id ?? null;
+            console.warn("[webhook] Using active-tree fallback for pid:", pid);
             return fallback?.id ?? null;
           }
 
@@ -1353,7 +1358,7 @@ export async function POST(req: NextRequest) {
               const itemAmount = item.amount_total != null ? item.amount_total / 100 : amount / lineItems.length;
 
               let itemTreeId = resolveTreeFromDescription(itemDescription);
-              if (!itemTreeId) itemTreeId = await resolveTreeIdFallback(planId);
+              if (!itemTreeId) itemTreeId = await resolveTreeIdFallback(planId, session.id, customerEmail);
 
               console.log("[webhook] Line item", i, "— desc:", itemDescription, "treeId:", itemTreeId, "qty:", itemQty, "amount:", itemAmount);
 
