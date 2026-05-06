@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server"
 import Stripe from "stripe"
+import { SUBSCRIPTION_PLANS } from "@/lib/plans"
 
 export async function POST(req: NextRequest) {
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -18,6 +19,21 @@ export async function POST(req: NextRequest) {
     // If mixed cart: process subscriptions first (safety net; UI should prevent this)
     const itemsToProcess = isSubscription ? subscriptionItems : oneTimeItems
     const hasGift = itemsToProcess.some((i: any) => i.isGift === true)
+
+    // Validate allowedSpecies per plan
+    for (const item of itemsToProcess) {
+      const planId = item.planId as string | undefined
+      const treeId = item.treeId as string | undefined
+      if (planId && treeId) {
+        const plan = SUBSCRIPTION_PLANS[planId as keyof typeof SUBSCRIPTION_PLANS]
+        if (plan?.allowedSpecies && !plan.allowedSpecies.includes(treeId)) {
+          return NextResponse.json(
+            { error: `Species '${treeId}' is not allowed for plan '${planId}'. Allowed: ${plan.allowedSpecies.join(", ")}` },
+            { status: 400 }
+          )
+        }
+      }
+    }
 
     const lineItems = itemsToProcess.map((item: any) => {
       const priceData: any = {
