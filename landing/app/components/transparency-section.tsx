@@ -68,19 +68,15 @@ export default function TransparencySection() {
   const [stats, setStats] = useState<Stats>(BASE_STATS);
 
   useEffect(() => {
-    fetch('/api/stats')
+    fetch('/api/public-stats')
       .then(res => res.json())
       .then(data => {
-        // The API already calculates totals including base stats from DB
-        // Access data.stats which contains the correct values
-        if (data.success && data.stats) {
-          setStats({
-            totalIncome: data.stats.totalIncome || BASE_STATS.totalIncome,
-            socialFund: data.stats.socialFund || BASE_STATS.socialFund,
-            treesPlanted: data.stats.treesPlanted || BASE_STATS.treesPlanted,
-            familiesHelped: data.stats.familiesHelped || BASE_STATS.familiesHelped,
-          });
-        }
+        setStats({
+          totalIncome: data.totalIncome || BASE_STATS.totalIncome,
+          socialFund: data.socialFund || BASE_STATS.socialFund,
+          treesPlanted: data.treesPlanted || BASE_STATS.treesPlanted,
+          familiesHelped: data.familiesHelped || BASE_STATS.familiesHelped,
+        });
       })
       .catch(() => {
         // On error, keep BASE_STATS as fallback
