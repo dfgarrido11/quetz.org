@@ -52,6 +52,16 @@ const phaseLabels: Record<string, { es: string; de: string; en: string; fr: stri
 
 const phases = ['terreno', 'cimientos', 'paredes', 'techo', 'terminada'];
 
+function fmtEur(val: number | undefined | null): string {
+  return typeof val === 'number'
+    ? val.toLocaleString('de-DE', { minimumFractionDigits: 2 })
+    : '—';
+}
+
+function fmtNum(val: number | undefined | null): string {
+  return typeof val === 'number' ? val.toLocaleString('de-DE') : '—';
+}
+
 function AnimatedNumber({ value, suffix = '' }: { value: number; suffix?: string }) {
   const [display, setDisplay] = useState(0);
   useEffect(() => {
@@ -83,8 +93,15 @@ export default function TransparenciaPage() {
 
   useEffect(() => {
     fetch('/api/transparency')
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
       .then(setStats)
+      .catch((err: unknown) => {
+        console.error('[transparency fetch]', err instanceof Error ? err.message : err);
+        setStats(null);
+      })
       .finally(() => setLoading(false));
 
     fetch('/api/stripe/mrr')
@@ -265,19 +282,19 @@ export default function TransparenciaPage() {
                 <div className="flex items-center justify-between flex-wrap gap-4">
                   <div>
                     <p className="text-xs text-gray-400 uppercase tracking-wide mb-1">Brutto eingenommen</p>
-                    <p className="text-2xl font-bold text-gray-900">€{(stats?.totalRaisedEur ?? 0).toLocaleString('de-DE', { minimumFractionDigits: 2 })}</p>
+                    <p className="text-2xl font-bold text-gray-900">€{fmtEur(stats?.totalRaisedEur)}</p>
                   </div>
                   <div className="text-right">
                     <p className="text-xs text-gray-400 uppercase tracking-wide mb-1 flex items-center justify-end gap-1">
                       <AlertCircle className="w-3 h-3 text-amber-400" />
                       Stripe-Gebühren {stats?.stripeFeesEstimated ? '(geschätzt)' : ''}
                     </p>
-                    <p className="text-2xl font-bold text-red-500">−€{(stats?.stripeFeesEur ?? 0).toLocaleString('de-DE', { minimumFractionDigits: 2 })}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">1,5% + 0,25 € / Transaktion</p>
+                    <p className="text-2xl font-bold text-red-500">−€{fmtEur(stats?.stripeFeesEur)}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">3,4% + 0,35 € / Transaktion</p>
                   </div>
                   <div className="text-right">
                     <p className="text-xs text-gray-400 uppercase tracking-wide mb-1">Netto</p>
-                    <p className="text-2xl font-bold text-emerald-700">€{(stats?.netRaisedEur ?? 0).toLocaleString('de-DE', { minimumFractionDigits: 2 })}</p>
+                    <p className="text-2xl font-bold text-emerald-700">€{fmtEur(stats?.netRaisedEur)}</p>
                   </div>
                 </div>
               </div>
@@ -287,14 +304,14 @@ export default function TransparenciaPage() {
                 <p className="text-sm font-semibold text-gray-700 mb-4">Verteilung des Nettobetrags</p>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   {[
-                    { label: 'Aufforstung', pct: '40 %', value: stats?.plantingAllocation ?? 0, color: 'emerald', icon: Sprout },
-                    { label: 'Schule Zacapa', pct: '30 %', value: stats?.schoolAllocation ?? 0, color: 'blue', icon: School },
-                    { label: 'Betrieb', pct: '20 %', value: stats?.operationsAllocation ?? 0, color: 'gray', icon: Landmark },
-                    { label: 'Reserve', pct: '10 %', value: stats?.reserveAllocation ?? 0, color: 'violet', icon: TrendingUp },
+                    { label: 'Aufforstung', pct: '40 %', value: stats?.plantingAllocation, color: 'emerald', icon: Sprout },
+                    { label: 'Schule Zacapa', pct: '30 %', value: stats?.schoolAllocation, color: 'blue', icon: School },
+                    { label: 'Betrieb', pct: '20 %', value: stats?.operationsAllocation, color: 'gray', icon: Landmark },
+                    { label: 'Reserve', pct: '10 %', value: stats?.reserveAllocation, color: 'violet', icon: TrendingUp },
                   ].map(({ label, pct, value, color, icon: Icon }) => (
                     <div key={label} className={`bg-${color}-50 border border-${color}-100 rounded-xl p-4 text-center`}>
                       <Icon className={`w-5 h-5 text-${color}-500 mx-auto mb-2`} />
-                      <p className={`text-lg font-bold text-${color}-700`}>€{value.toLocaleString('de-DE', { minimumFractionDigits: 2 })}</p>
+                      <p className={`text-lg font-bold text-${color}-700`}>€{fmtEur(value)}</p>
                       <p className="text-xs text-gray-500 mt-0.5">{label}</p>
                       <p className={`text-xs font-medium text-${color}-500`}>{pct}</p>
                     </div>
@@ -316,48 +333,57 @@ export default function TransparenciaPage() {
           <p className="text-gray-500 text-center mb-10">Zacapa, Guatemala · Meta: €50,000</p>
 
           {/* Progress bar */}
-          <div className="bg-white rounded-2xl p-8 shadow-sm border border-blue-100 mb-8">
-            <div className="grid grid-cols-3 gap-4 mb-6 text-center">
-              <div>
-                <p className="text-xs text-gray-400 uppercase tracking-wide mb-1">Zugeteilt</p>
-                <p className="text-2xl font-bold text-blue-700">€{(stats?.schoolAllocated ?? 0).toLocaleString('de-DE', { minimumFractionDigits: 2 })}</p>
-                <p className="text-xs text-gray-400">30 % des Nettobetrags</p>
+          {loading ? (
+            <div className="bg-white rounded-2xl p-8 shadow-sm border border-blue-100 mb-8 animate-pulse">
+              <div className="grid grid-cols-3 gap-4 mb-6">
+                {[...Array(3)].map((_, i) => <div key={i} className="h-16 bg-gray-100 rounded-xl" />)}
               </div>
-              <div>
-                <p className="text-xs text-gray-400 uppercase tracking-wide mb-1">Überwiesen</p>
-                <p className="text-2xl font-bold text-emerald-600">€{(stats?.schoolTransferred ?? 0).toLocaleString('de-DE', { minimumFractionDigits: 2 })}</p>
-                <p className="text-xs text-gray-400">nach Guatemala gesendet</p>
+              <div className="h-4 bg-gray-100 rounded-full" />
+            </div>
+          ) : (
+            <div className="bg-white rounded-2xl p-8 shadow-sm border border-blue-100 mb-8">
+              <div className="grid grid-cols-3 gap-4 mb-6 text-center">
+                <div>
+                  <p className="text-xs text-gray-400 uppercase tracking-wide mb-1">Zugeteilt</p>
+                  <p className="text-2xl font-bold text-blue-700">€{fmtEur(stats?.schoolAllocated)}</p>
+                  <p className="text-xs text-gray-400">30 % des Nettobetrags</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-400 uppercase tracking-wide mb-1">Überwiesen</p>
+                  <p className="text-2xl font-bold text-emerald-600">€{fmtEur(stats?.schoolTransferred)}</p>
+                  <p className="text-xs text-gray-400">nach Guatemala gesendet</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-400 uppercase tracking-wide mb-1">Ausstehend</p>
+                  <p className="text-2xl font-bold text-amber-500">€{fmtEur(stats?.schoolPending)}</p>
+                  <p className="text-xs text-gray-400">nächste Überweisung</p>
+                </div>
               </div>
-              <div>
-                <p className="text-xs text-gray-400 uppercase tracking-wide mb-1">Ausstehend</p>
-                <p className="text-2xl font-bold text-amber-500">€{(stats?.schoolPending ?? 0).toLocaleString('de-DE', { minimumFractionDigits: 2 })}</p>
-                <p className="text-xs text-gray-400">nächste Überweisung</p>
+              <div className="flex justify-between text-xs text-gray-400 mb-1">
+                <span>Ziel: €{fmtNum(stats?.schoolGoal)}</span>
+                <span>
+                  {typeof stats?.schoolProgress === 'number'
+                    ? stats.schoolProgress < 0.01
+                      ? '<0,01%'
+                      : `${stats.schoolProgress.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`
+                    : '—'}
+                </span>
               </div>
+              <div className="h-4 bg-gray-100 rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${Math.max(schoolPercent, schoolPercent > 0 ? 1 : 0)}%` }}
+                  transition={{ duration: 1.5, ease: 'easeOut' }}
+                  className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full"
+                />
+              </div>
+              {typeof stats?.treesNeededRemaining === 'number' && stats.treesNeededRemaining > 0 && (
+                <p className="text-center text-sm font-semibold text-blue-700 mt-4">
+                  Noch {fmtNum(stats.treesNeededRemaining)} Bäume bis zur Schule
+                </p>
+              )}
             </div>
-            <div className="flex justify-between text-xs text-gray-400 mb-1">
-              <span>Ziel: €{(stats?.schoolGoal ?? 50000).toLocaleString('de-DE')}</span>
-              <span>
-                {stats
-                  ? schoolPercent < 0.01
-                    ? '<0,01%'
-                    : `${schoolPercent.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`
-                  : '—'}
-              </span>
-            </div>
-            <div className="h-4 bg-gray-100 rounded-full overflow-hidden">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${Math.max(schoolPercent, schoolPercent > 0 ? 1 : 0)}%` }}
-                transition={{ duration: 1.5, ease: 'easeOut' }}
-                className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full"
-              />
-            </div>
-            {stats && stats.treesNeededRemaining > 0 && (
-              <p className="text-center text-sm font-semibold text-blue-700 mt-4">
-                Noch {stats.treesNeededRemaining.toLocaleString('de-DE')} Bäume bis zur Schule
-              </p>
-            )}
-          </div>
+          )}
 
           {/* Phase tracker */}
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-blue-100">
