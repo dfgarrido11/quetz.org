@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useLanguage } from '@/lib/language-context';
 import { motion } from 'framer-motion';
-import { TreePine, Users, Leaf, School, DollarSign, MapPin, Heart, CheckCircle, TrendingUp, CreditCard, RefreshCw, Sprout, Landmark, AlertCircle } from 'lucide-react';
+import { TreePine, Users, Leaf, School, DollarSign, MapPin, Heart, CheckCircle, TrendingUp, CreditCard, RefreshCw, Sprout, Landmark, AlertCircle, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
 
 interface StripeStats {
@@ -90,6 +90,7 @@ export default function TransparenciaPage() {
   const [loading, setLoading] = useState(true);
   const [stripeStats, setStripeStats] = useState<StripeStats | null>(null);
   const [stripeLoading, setStripeLoading] = useState(true);
+  const [accordionOpen, setAccordionOpen] = useState(false);
 
   useEffect(() => {
     fetch('/api/transparency')
@@ -118,23 +119,30 @@ export default function TransparenciaPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero */}
+      {/* Hero contextual */}
       <section className="relative bg-gradient-to-br from-emerald-900 via-green-800 to-teal-900 text-white py-24 px-4 overflow-hidden">
         <div className="absolute inset-0 opacity-10" style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E")`
         }} />
         <div className="max-w-4xl mx-auto text-center relative">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <div className="inline-flex items-center gap-2 bg-emerald-700/50 border border-emerald-500/30 rounded-full px-4 py-2 text-emerald-200 text-sm mb-6">
-              <CheckCircle className="w-4 h-4" />
-              Transparencia Radical · Datos en tiempo real
+            <div className="flex flex-wrap items-center justify-center gap-2 mb-6">
+              <span className="bg-emerald-700/50 border border-emerald-500/30 rounded-full px-3 py-1 text-emerald-200 text-xs font-medium flex items-center gap-1">
+                <CheckCircle className="w-3 h-3" /> Phase 1: Aufbau
+              </span>
+              <span className="bg-emerald-700/50 border border-emerald-500/30 rounded-full px-3 py-1 text-emerald-200 text-xs font-medium">
+                Gestartet Februar 2026
+              </span>
+              <span className="bg-emerald-700/50 border border-emerald-500/30 rounded-full px-3 py-1 text-emerald-200 text-xs font-medium">
+                Vollständig öffentlich seit Tag 1
+              </span>
             </div>
             <h1 className="text-4xl md:text-6xl font-bold mb-4">
-              Cada euro,<br />
-              <span className="text-emerald-300">visible.</span>
+              Vollständige Transparenz<br />
+              <span className="text-emerald-300">von Tag 1</span>
             </h1>
             <p className="text-emerald-100 text-xl max-w-2xl mx-auto leading-relaxed">
-              En quetz.org no hay letra pequeña. Aquí puedes ver exactamente qué pasa con cada adopción, cada euro y cada árbol.
+              Quetz wurde im Februar 2026 gegründet. Du siehst hier jeden Euro in Echtzeit. Auch wenn die Zahlen noch klein sind, gehört das zur Ehrlichkeit. Du kannst die oder der nächste sein, der das ändert.
             </p>
           </motion.div>
         </div>
@@ -243,7 +251,7 @@ export default function TransparenciaPage() {
                 { icon: TreePine, label: 'Bäume adoptiert', value: stats?.treesAdopted ?? 0, color: 'emerald', suffix: '' },
                 { icon: Sprout, label: 'Jornale finanziert', value: stats?.jornalesFunded ?? 0, color: 'amber', suffix: '' },
                 { icon: Leaf, label: 'kg CO₂ gebunden/Jahr', value: stats?.co2CapturedKg ?? 0, color: 'green', suffix: '' },
-                { icon: Users, label: 'Adoptanten', value: stats?.totalAdopters ?? 0, color: 'violet', suffix: '' },
+                { icon: Users, label: 'Erste Adoptanten', value: stats?.totalAdopters ?? 0, color: 'violet', suffix: '' },
               ].map(({ icon: Icon, label, value, color, suffix }) => (
                 <motion.div
                   key={label}
@@ -359,6 +367,32 @@ export default function TransparenciaPage() {
                   <p className="text-xs text-gray-400">nächste Überweisung</p>
                 </div>
               </div>
+              {/* 4-phase stepper */}
+              <div className="mb-6 pt-2">
+                <div className="flex items-start justify-between relative">
+                  <div className="absolute top-4 left-0 right-0 h-0.5 bg-gray-200 z-0" />
+                  <div className="absolute top-4 left-0 h-0.5 bg-emerald-500 z-0" style={{ width: '25%' }} />
+                  {[
+                    { label: 'Vorbereitung', sub: 'Grundstück gespendet', done: true },
+                    { label: 'Bauplan', sub: '', done: false },
+                    { label: 'Bau', sub: '', done: false },
+                    { label: 'Eröffnung', sub: '', done: false },
+                  ].map(({ label, sub, done }, idx) => (
+                    <div key={label} className="flex flex-col items-center z-10 flex-1">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 text-sm font-bold ${
+                        done ? 'bg-emerald-500 border-emerald-500 text-white' : 'bg-white border-gray-300 text-gray-300'
+                      }`}>
+                        {done ? '✓' : idx + 1}
+                      </div>
+                      <p className={`text-xs mt-1.5 text-center leading-tight font-medium ${done ? 'text-emerald-700' : 'text-gray-400'}`}>
+                        Phase {idx + 1}: {label}
+                      </p>
+                      {sub && <p className="text-xs text-emerald-500 mt-0.5 text-center">{sub}</p>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               <div className="flex justify-between text-xs text-gray-400 mb-1">
                 <span>Ziel: €{fmtNum(stats?.schoolGoal)}</span>
                 <span>
@@ -378,9 +412,14 @@ export default function TransparenciaPage() {
                 />
               </div>
               {typeof stats?.treesNeededRemaining === 'number' && stats.treesNeededRemaining > 0 && (
-                <p className="text-center text-sm font-semibold text-blue-700 mt-4">
-                  Noch {fmtNum(stats.treesNeededRemaining)} Bäume bis zur Schule
-                </p>
+                <>
+                  <p className="text-center text-sm font-semibold text-blue-700 mt-4">
+                    Noch {fmtNum(stats.treesNeededRemaining)} Bäume bis zur Schule
+                  </p>
+                  <p className="text-center text-xs text-gray-400 mt-1">
+                    Mit jeder Adoption wachsen wir messbar.
+                  </p>
+                </>
               )}
             </div>
           )}
@@ -469,6 +508,24 @@ export default function TransparenciaPage() {
               />
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Accordion — Warum sind die Zahlen noch klein? */}
+      <section className="py-12 px-4 bg-gray-50 border-t border-gray-100">
+        <div className="max-w-2xl mx-auto">
+          <button
+            onClick={() => setAccordionOpen(!accordionOpen)}
+            className="w-full flex items-center justify-between text-left bg-white border border-gray-200 rounded-2xl px-6 py-4 hover:border-gray-300 transition-colors"
+          >
+            <span className="font-semibold text-gray-800">Warum sind die Zahlen noch klein?</span>
+            <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${accordionOpen ? 'rotate-180' : ''}`} />
+          </button>
+          {accordionOpen && (
+            <div className="bg-white border border-t-0 border-gray-200 rounded-b-2xl px-6 py-5 text-gray-600 text-sm leading-relaxed">
+              Wir haben Quetz im Februar 2026 gegründet. In den ersten Monaten konzentrieren wir uns auf den Aufbau: technische Plattform, Partner in Zacapa, rechtliche Struktur. Statt mit großen Versprechen zu starten, zeigen wir dir lieber, wo wir wirklich stehen. Jede Adoption ist hier sichtbar. Jeder Cent ist hier dokumentiert. Vertrauen entsteht durch Ehrlichkeit, nicht durch große Zahlen ohne Beleg.
+            </div>
+          )}
         </div>
       </section>
 
