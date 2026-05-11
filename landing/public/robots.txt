@@ -1,3 +1,4 @@
-# Allow all web crawlers to access all content
+# DEPRECATED: superseded by app/robots.ts (Next.js App Router dynamic robots)
+# This file is kept as fallback but should not be served in production.
 User-agent: *
 Allow: /

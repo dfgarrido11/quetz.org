@@ -8,8 +8,9 @@ import CookieBanner from './components/cookie-banner';
 export const dynamic = 'force-dynamic';
 
 export async function generateMetadata(): Promise<Metadata> {
-  const baseUrl = process.env.NEXTAUTH_URL || 'https://quetz.org';
-  
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://quetz.org';
+  const googleVerification = process.env.GOOGLE_SITE_VERIFICATION;
+
   return {
     title: {
       default: 'QUETZ – Bäume adoptieren in Guatemala | Echte Wirkung, 100% transparent',
@@ -61,9 +62,7 @@ export async function generateMetadata(): Promise<Metadata> {
         'max-snippet': -1,
       },
     },
-    verification: {
-      google: 'YOUR_GOOGLE_VERIFICATION_CODE',
-    },
+    ...(googleVerification ? { verification: { google: googleVerification } } : {}),
   };
 }
 
