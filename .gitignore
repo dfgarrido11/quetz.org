@@ -29,3 +29,34 @@ yarn-error.log*
 .abacus.donotdelete
 
 # Imágenes grandes (se subirán por separado)
+
+# Claude / AI tools
+.claude-flow/
+.hive-mind/
+
+# Manus outputs
+Manus/
+Manus1/
+manus/
+
+# Local working dirs
+archives/
+research/
+screenshots/
+fotos videos/
+redes-sociales/
+n8n-emails/
+
+# Build artifacts
+landing/tsconfig.tsbuildinfo
+
+# Local docs
+ESTRUCTURA-PROYECTO.md
+
+# Sandbox / scratch
+quetzito.html
+
+# Internal strategy docs (live en Notion, no en repo)
+docs/CHECKLIST-*.md
+docs/PANORAMA-*.md
+docs/PLAN-*.md
