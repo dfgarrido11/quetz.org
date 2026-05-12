@@ -30,6 +30,7 @@ export async function POST(req: NextRequest) {
       line_items: [{ price: priceId, quantity: 1 }],
       success_url: `${baseUrl}/empresas/danke?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/empresas#preise`,
+      allow_promotion_codes: true,
       metadata: {
         type: "b2b",
         plan: planId,
