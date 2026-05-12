@@ -301,6 +301,10 @@ model Subscription {
   cancelAtPeriodEnd     Boolean   @default(false)
   cancelledAt           DateTime?
 
+  // B2B
+  b2b                   Boolean   @default(false)
+  billingInterval       String?   // "month" | "year"
+
   // Totals
   totalTreesDelivered   Int       @default(0)
   totalAmountPaid       Float     @default(0)

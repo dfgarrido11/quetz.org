@@ -367,26 +367,51 @@ function HowItWorksSection() {
 
 /* ─── PRICING ─── */
 function PricingSection() {
+  const [billingInterval, setBillingInterval] = useState<"monthly" | "yearly">("monthly");
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+
   const plans = [
     {
+      id: "b2bSprout",
+      name: "Sprout",
+      subtitle: "Probierpaket",
+      priceMonthly: 49,
+      priceYearly: 499,
+      trees: "2 Bäume / Monat",
+      desc: "Ideal für den ersten Schritt in nachhaltiges B2B-CSR.",
+      features: [
+        "GPS-Verifizierung",
+        "Transparenz-Report",
+        "Impact-Nachweis CSRD",
+      ],
+      highlight: false,
+      salesLed: false,
+    },
+    {
+      id: "b2bStarter",
       name: "Starter",
-      price: "125",
-      period: "/ Monat",
-      trees: "5 Bäume / Monat",
+      subtitle: "",
+      priceMonthly: 149,
+      priceYearly: 1519,
+      trees: "6 Bäume / Monat",
       desc: "Perfekt für kleine Teams und den Einstieg in nachhaltiges CSR.",
       features: [
-        "5 GPS-getrackte Bäume",
+        "6 GPS-getrackte Bäume",
         "Firmen-Dashboard",
         "Monatlicher Impact-Report",
         "CSRD-Datenexport",
-        "Markenpaket für Ihre Kommunikation",
+        "Individueller Firmen-Bereich",
+        "Logo auf Transparenz-Seite",
       ],
-      highlight: false,
+      highlight: true,
+      salesLed: false,
     },
     {
+      id: "b2bBusiness",
       name: "Business",
-      price: "500",
-      period: "/ Monat",
+      subtitle: "",
+      priceMonthly: 499,
+      priceYearly: 5089,
       trees: "20 Bäume / Monat",
       desc: "Für Unternehmen, die CSR ernst nehmen und Mitarbeiter einbinden.",
       features: [
@@ -394,15 +419,19 @@ function PricingSection() {
         "Personalisiertes Firmen-Dashboard",
         "Wöchentliche Updates & Fotos",
         "Mitarbeiter-Engagement-Toolkit",
-        "Dedizierter Ansprechpartner",
-        "Ihr Logo auf der Schulwand",
+        "API-Zugang",
+        "Monatlicher CSRD-Bericht",
+        "Account Manager",
       ],
-      highlight: true,
+      highlight: false,
+      salesLed: false,
     },
     {
+      id: "b2bEnterprise",
       name: "Enterprise",
-      price: "Individuell",
-      period: "",
+      subtitle: "",
+      priceMonthly: null as number | null,
+      priceYearly: null as number | null,
       trees: "50+ Bäume / Monat",
       desc: "Maßgeschneiderte Lösungen für große Organisationen.",
       features: [
@@ -414,14 +443,36 @@ function PricingSection() {
         "Exklusiver Schulpate",
       ],
       highlight: false,
+      salesLed: true,
     },
   ];
+
+  async function handleCheckout(planId: string) {
+    setLoadingPlan(planId);
+    try {
+      const res = await fetch("/api/checkout-b2b", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ planId, interval: billingInterval === "yearly" ? "year" : "month" }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        console.error("[checkout-b2b]", data.error);
+      }
+    } catch (err) {
+      console.error("[checkout-b2b] fetch error", err);
+    } finally {
+      setLoadingPlan(null);
+    }
+  }
 
   return (
     <section className="relative py-24 md:py-32 bg-[#1B4332]" id="preise">
       <div className="container">
         <SimpleSection>
-          <div className="text-center mb-16">
+          <div className="text-center mb-10">
             <p className="text-[#52B788] font-[Montserrat] font-semibold text-sm tracking-[0.15em] uppercase mb-4">Preise</p>
             <h2 className="font-[Montserrat] font-800 text-3xl md:text-4xl text-white mb-4">
               Investieren Sie in echten Impact
@@ -432,44 +483,96 @@ function PricingSection() {
           </div>
         </SimpleSection>
 
-        <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-          {plans.map((plan, i) => (
-            <SimpleSection key={i}>
-              <div className={`relative p-8 rounded-2xl h-full flex flex-col ${plan.highlight
-                ? "bg-[#52B788]/15 border-2 border-[#52B788]/40"
-                : "bg-[#0D2818]/60 border border-[#52B788]/10"
-              }`}>
-                {plan.highlight && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#52B788] text-[#081C15] font-[Montserrat] font-bold text-xs px-4 py-1 rounded-full">
-                    Beliebteste Wahl
-                  </div>
-                )}
-                <h3 className="font-[Montserrat] font-bold text-xl text-white mb-1">{plan.name}</h3>
-                <p className="text-[#52B788] text-sm font-medium mb-4">{plan.trees}</p>
-                <div className="mb-4">
-                  <span className="font-[Montserrat] font-900 text-4xl text-white">€{plan.price}</span>
-                  <span className="text-white/40 text-sm">{plan.period}</span>
-                </div>
-                <p className="text-white/50 text-sm mb-6 leading-relaxed">{plan.desc}</p>
-                <div className="space-y-3 mb-8 flex-1">
-                  {plan.features.map((f, j) => (
-                    <div key={j} className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-[#52B788] mt-0.5 shrink-0" />
-                      <span className="text-white/70 text-sm">{f}</span>
+        {/* Billing interval toggle */}
+        <div className="flex justify-center mb-10">
+          <div className="inline-flex bg-[#0D2818]/60 border border-[#52B788]/20 rounded-full p-1">
+            <button
+              onClick={() => setBillingInterval("monthly")}
+              className={`px-5 py-2 rounded-full text-sm font-[Montserrat] font-semibold transition-all ${
+                billingInterval === "monthly"
+                  ? "bg-[#52B788] text-[#081C15]"
+                  : "text-white/60 hover:text-white"
+              }`}
+            >
+              Monatlich
+            </button>
+            <button
+              onClick={() => setBillingInterval("yearly")}
+              className={`px-5 py-2 rounded-full text-sm font-[Montserrat] font-semibold transition-all ${
+                billingInterval === "yearly"
+                  ? "bg-[#52B788] text-[#081C15]"
+                  : "text-white/60 hover:text-white"
+              }`}
+            >
+              Jährlich&nbsp;<span className={billingInterval === "yearly" ? "text-[#081C15]" : "text-[#E9C46A]"}>-15%</span>
+            </button>
+          </div>
+        </div>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
+          {plans.map((plan, i) => {
+            const price = billingInterval === "yearly" ? plan.priceYearly : plan.priceMonthly;
+            const isLoading = loadingPlan === plan.id;
+            return (
+              <SimpleSection key={i}>
+                <div className={`relative p-8 rounded-2xl h-full flex flex-col ${plan.highlight
+                  ? "bg-[#52B788]/15 border-2 border-[#52B788]/40"
+                  : "bg-[#0D2818]/60 border border-[#52B788]/10"
+                }`}>
+                  {plan.highlight && (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#52B788] text-[#081C15] font-[Montserrat] font-bold text-xs px-4 py-1 rounded-full whitespace-nowrap">
+                      Am beliebtesten
                     </div>
-                  ))}
+                  )}
+                  <h3 className="font-[Montserrat] font-bold text-xl text-white mb-1">{plan.name}</h3>
+                  {plan.subtitle && (
+                    <p className="text-[#B7E4C7]/50 text-xs font-medium mb-1">{plan.subtitle}</p>
+                  )}
+                  <p className="text-[#52B788] text-sm font-medium mb-4">{plan.trees}</p>
+                  <div className="mb-1">
+                    {price != null ? (
+                      <>
+                        <span className="font-[Montserrat] font-900 text-4xl text-white">€{price.toLocaleString("de-DE")}</span>
+                        <span className="text-white/40 text-sm"> / {billingInterval === "yearly" ? "Jahr" : "Monat"}</span>
+                      </>
+                    ) : (
+                      <span className="font-[Montserrat] font-900 text-4xl text-white">Individuell</span>
+                    )}
+                  </div>
+                  {billingInterval === "yearly" && price != null && (
+                    <p className="text-[#E9C46A] text-xs font-medium mb-2">Sie sparen 15%</p>
+                  )}
+                  <p className="text-white/50 text-sm mb-6 leading-relaxed mt-3">{plan.desc}</p>
+                  <div className="space-y-3 mb-8 flex-1">
+                    {plan.features.map((f, j) => (
+                      <div key={j} className="flex items-start gap-2">
+                        <Check className="w-4 h-4 text-[#52B788] mt-0.5 shrink-0" />
+                        <span className="text-white/70 text-sm">{f}</span>
+                      </div>
+                    ))}
+                  </div>
+                  {plan.salesLed ? (
+                    <a href="#kontakt">
+                      <Button className="w-full font-[Montserrat] font-semibold bg-white/10 hover:bg-white/20 text-white">
+                        Kontaktieren
+                      </Button>
+                    </a>
+                  ) : (
+                    <Button
+                      onClick={() => handleCheckout(plan.id)}
+                      disabled={isLoading}
+                      className={`w-full font-[Montserrat] font-semibold ${plan.highlight
+                        ? "bg-[#52B788] hover:bg-[#40916C] text-white"
+                        : "bg-white/10 hover:bg-white/20 text-white"
+                      }`}
+                    >
+                      {isLoading ? "Weiterleitung..." : "Jetzt buchen"}
+                    </Button>
+                  )}
                 </div>
-                <a href="#kontakt">
-                  <Button className={`w-full font-[Montserrat] font-semibold ${plan.highlight
-                    ? "bg-[#52B788] hover:bg-[#40916C] text-white"
-                    : "bg-white/10 hover:bg-white/20 text-white"
-                  }`}>
-                    Jetzt starten
-                  </Button>
-                </a>
-              </div>
-            </SimpleSection>
-          ))}
+              </SimpleSection>
+            );
+          })}
         </div>
 
         {/* Price Breakdown */}
@@ -496,6 +599,9 @@ function PricingSection() {
             </div>
             <p className="text-center text-white/30 text-xs mt-4">
               Basierend auf €25 pro Baum – 100% transparent, 0% Greenwashing
+            </p>
+            <p className="text-center text-white/30 text-xs mt-2">
+              Wir pflanzen Kiefer und Zypresse — heimische Arten aus Zacapas Hochebenen, die schnell wachsen und erodierte Hänge stabilisieren.
             </p>
           </div>
         </SimpleSection>

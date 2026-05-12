@@ -1219,6 +1219,129 @@ export async function POST(req: NextRequest) {
     } catch (giftErr: any) {
       console.error("[webhook] GIFT ERROR:", giftErr.message, giftErr.stack);
     }
+  } else if (metadata.type === "b2b") {
+    // ── B2B PURCHASE FLOW ──────────────────────────────────────────────────
+    try {
+      const b2bPlanId = metadata.plan ?? "";
+      const b2bInterval = metadata.interval ?? "month";
+      const b2bTrees = parseInt(metadata.treesPerMonth || "2", 10);
+
+      let user = await prisma.user.findUnique({ where: { email: customerEmail } });
+      if (!user) {
+        user = await prisma.user.create({ data: { email: customerEmail, name: customerName || null } });
+        console.log("[webhook] B2B: new user created:", user.id);
+      }
+
+      if (session.mode === "subscription" && session.subscription) {
+        const stripeSubId = String(session.subscription);
+        const existingSub = await prisma.subscription.findUnique({ where: { stripeSubscriptionId: stripeSubId } });
+        if (!existingSub) {
+          await prisma.subscription.create({
+            data: {
+              userId: user.id,
+              planId: b2bPlanId,
+              planName: b2bPlanId,
+              treesPerMonth: b2bTrees,
+              priceEurMonth: amount,
+              stripeSubscriptionId: stripeSubId,
+              status: "active",
+              b2b: true,
+              billingInterval: b2bInterval,
+            },
+          });
+          console.log("[webhook] B2B subscription created:", stripeSubId);
+        } else {
+          console.log("[webhook] B2B idempotent: subscription exists:", stripeSubId);
+        }
+      }
+
+      // B2B welcome email (German Sie-form)
+      if (customerEmail) {
+        const planLabel = b2bPlanId.replace("b2b", "").replace("Sprout", "Sprout").replace("Starter", "Starter").replace("Business", "Business").replace("Enterprise", "Enterprise");
+        const b2bWelcomeHtml = `
+<!DOCTYPE html>
+<html lang="de">
+<head><meta charset="UTF-8" /><title>Willkommen bei Quetz</title></head>
+<body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4;padding:32px 0;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;overflow:hidden;max-width:600px;">
+        <tr><td style="background:#081C15;padding:32px 40px;text-align:center;">
+          <span style="font-size:24px;font-weight:bold;color:#52B788;font-family:Montserrat,Arial,sans-serif;">quetz.org</span>
+        </td></tr>
+        <tr><td style="padding:40px;">
+          <h1 style="font-size:24px;color:#1B4332;margin:0 0 16px;">Willkommen bei Quetz${customerName ? `, ${customerName}` : ""}!</h1>
+          <p style="color:#374151;line-height:1.6;margin:0 0 16px;">
+            Ihr <strong>${planLabel}-Abo</strong> ist aktiv. Ab sofort pflanzen wir Bäume in Zacapa, Guatemala — in Ihrem Unternehmensnamen.
+          </p>
+          <p style="color:#374151;line-height:1.6;margin:0 0 16px;">
+            Jeder Baum ist GPS-verifiziert und über Ihr Firmen-Dashboard in Echtzeit verfolgbar. Die Daten sind CSRD-konform und direkt exportierbar.
+          </p>
+          <table width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0;">
+            <tr>
+              <td style="padding:4px 12px 4px 0;color:#6b7280;font-size:14px;">Plan</td>
+              <td style="font-size:14px;color:#111827;">${planLabel}</td>
+            </tr>
+            <tr>
+              <td style="padding:4px 12px 4px 0;color:#6b7280;font-size:14px;">Abrechnung</td>
+              <td style="font-size:14px;color:#111827;">${b2bInterval === "year" ? "Jährlich" : "Monatlich"}</td>
+            </tr>
+            <tr>
+              <td style="padding:4px 12px 4px 0;color:#6b7280;font-size:14px;">Bäume/Monat</td>
+              <td style="font-size:14px;color:#111827;">${b2bTrees}</td>
+            </tr>
+          </table>
+          <table cellpadding="0" cellspacing="0" style="margin:24px 0;">
+            <tr><td style="background:#52B788;border-radius:6px;padding:14px 28px;">
+              <a href="https://quetz.org/mi-bosque" style="color:#ffffff;font-weight:bold;text-decoration:none;font-size:15px;">Zum Firmen-Dashboard</a>
+            </td></tr>
+          </table>
+          <p style="color:#374151;line-height:1.6;margin:0 0 8px;">
+            Bei Fragen stehen wir Ihnen gerne zur Verfügung: <a href="mailto:hola@quetz.org" style="color:#52B788;">hola@quetz.org</a>
+          </p>
+          <p style="color:#374151;line-height:1.6;margin:0;">
+            Mit freundlichen Grüßen,<br />
+            <strong>Daniel Garrido</strong><br />
+            Gründer &amp; CEO | quetz.org<br />
+            Düsseldorf-Unterbach NRW
+          </p>
+        </td></tr>
+        <tr><td style="background:#f9fafb;padding:20px 40px;text-align:center;">
+          <p style="color:#9ca3af;font-size:12px;margin:0;">quetz.org | Düsseldorf-Unterbach NRW | <a href="https://quetz.org/transparencia" style="color:#9ca3af;">Transparenzseite</a></p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+
+        await sendEmail(
+          customerEmail,
+          `Willkommen bei Quetz, ${customerName || "Ihr Unternehmen"}`,
+          b2bWelcomeHtml
+        );
+        console.log("[webhook] B2B welcome email sent to:", customerEmail);
+      }
+
+      // Telegram B2B notification
+      const b2bMrr = b2bInterval === "year" ? Math.round(amount / 12) : amount;
+      const token = process.env.TELEGRAM_BOT_TOKEN;
+      const chatId = process.env.TELEGRAM_CHAT_ID;
+      if (token && chatId) {
+        await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            chat_id: chatId,
+            parse_mode: "HTML",
+            text: `🎉 <b>Neue B2B-Verkauf!</b>\n\n🏢 <b>Unternehmen:</b> ${customerName || "—"}\n📧 <b>Email:</b> ${customerEmail}\n📋 <b>Plan:</b> ${b2bPlanId}\n🔄 <b>Interval:</b> ${b2bInterval}\n💰 <b>MRR:</b> €${b2bMrr}`,
+          }),
+        });
+        console.log("[webhook] B2B Telegram sent");
+      }
+    } catch (b2bErr: any) {
+      console.error("[webhook] B2B ERROR:", b2bErr.message, b2bErr.stack);
+    }
   } else {
     // ── REGULAR PURCHASE FLOW ──────────────────────────────────────────────
     // Step 1: Create DB record first (so we can pass tree/adoption data to email)

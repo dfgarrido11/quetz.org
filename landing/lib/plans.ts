@@ -67,6 +67,59 @@ export const GIFT_PLAN: GiftPlan = {
   nameEs: "Árbol Regalo",
 };
 
+// ========== B2B PLANS ==========
+
+export type B2bPlanId = "b2bSprout" | "b2bStarter" | "b2bBusiness" | "b2bEnterprise";
+
+export interface B2bPlan {
+  id: B2bPlanId;
+  priceEur: number | null;
+  priceYearEur: number | null;
+  treesPerMonth: number;
+  allowedSpecies: string[];
+  salesLed?: boolean;
+  priceIdMonthly?: string;
+  priceIdYearly?: string;
+}
+
+export const B2B_PLANS: Record<B2bPlanId, B2bPlan> = {
+  b2bSprout: {
+    id: "b2bSprout",
+    priceEur: 49,
+    priceYearEur: 499,
+    treesPerMonth: 2,
+    allowedSpecies: ["pino", "cipres"],
+    priceIdMonthly: process.env.STRIPE_PRICE_B2B_SPROUT_MONTHLY,
+    priceIdYearly: process.env.STRIPE_PRICE_B2B_SPROUT_YEARLY,
+  },
+  b2bStarter: {
+    id: "b2bStarter",
+    priceEur: 149,
+    priceYearEur: 1519,
+    treesPerMonth: 6,
+    allowedSpecies: ["pino", "cipres"],
+    priceIdMonthly: process.env.STRIPE_PRICE_B2B_STARTER_MONTHLY,
+    priceIdYearly: process.env.STRIPE_PRICE_B2B_STARTER_YEARLY,
+  },
+  b2bBusiness: {
+    id: "b2bBusiness",
+    priceEur: 499,
+    priceYearEur: 5089,
+    treesPerMonth: 20,
+    allowedSpecies: ["pino", "cipres"],
+    priceIdMonthly: process.env.STRIPE_PRICE_B2B_BUSINESS_MONTHLY,
+    priceIdYearly: process.env.STRIPE_PRICE_B2B_BUSINESS_YEARLY,
+  },
+  b2bEnterprise: {
+    id: "b2bEnterprise",
+    priceEur: null,
+    priceYearEur: null,
+    treesPerMonth: 50,
+    allowedSpecies: ["pino", "cipres"],
+    salesLed: true,
+  },
+};
+
 /** All species currently active in production DB */
 export const ACTIVE_SPECIES = [
   "pino",
