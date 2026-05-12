@@ -1221,17 +1221,19 @@ export async function POST(req: NextRequest) {
     }
   } else if (metadata.type === "b2b") {
     // ── B2B PURCHASE FLOW ──────────────────────────────────────────────────
-    try {
-      const b2bPlanId = metadata.plan ?? "";
-      const b2bInterval = metadata.interval ?? "month";
-      const b2bTrees = parseInt(metadata.treesPerMonth || "2", 10);
+    // Three independent try-catch blocks: DB write, email, Telegram.
+    // A failure in DB write must NOT block email or Telegram.
+    const b2bPlanId = metadata.plan ?? "";
+    const b2bInterval = metadata.interval ?? "month";
+    const b2bTrees = parseInt(metadata.treesPerMonth || "2", 10);
 
+    // 1) DB write — non-fatal: email and Telegram proceed even if this fails
+    try {
       let user = await prisma.user.findUnique({ where: { email: customerEmail } });
       if (!user) {
         user = await prisma.user.create({ data: { email: customerEmail, name: customerName || null } });
-        console.log("[webhook] B2B: new user created:", user.id);
+        console.log("[webhook] B2B db: new user created:", user.id);
       }
-
       if (session.mode === "subscription" && session.subscription) {
         const stripeSubId = String(session.subscription);
         const existingSub = await prisma.subscription.findUnique({ where: { stripeSubscriptionId: stripeSubId } });
@@ -1249,15 +1251,20 @@ export async function POST(req: NextRequest) {
               billingInterval: b2bInterval,
             },
           });
-          console.log("[webhook] B2B subscription created:", stripeSubId);
+          console.log("[webhook] B2B db: subscription created:", stripeSubId);
         } else {
-          console.log("[webhook] B2B idempotent: subscription exists:", stripeSubId);
+          console.log("[webhook] B2B db: idempotent — subscription exists:", stripeSubId);
         }
       }
+    } catch (b2bDbErr: any) {
+      console.error("[webhook] B2B db ERROR (non-fatal):", b2bDbErr.message);
+      // intentionally continues to email + Telegram
+    }
 
-      // B2B welcome email (German Sie-form)
-      if (customerEmail) {
-        const planLabel = b2bPlanId.replace("b2b", "").replace("Sprout", "Sprout").replace("Starter", "Starter").replace("Business", "Business").replace("Enterprise", "Enterprise");
+    // 2) Welcome email — independent try-catch
+    if (customerEmail) {
+      try {
+        const planLabel = b2bPlanId.replace(/^b2b/, "");
         const b2bWelcomeHtml = `
 <!DOCTYPE html>
 <html lang="de">
@@ -1314,16 +1321,19 @@ export async function POST(req: NextRequest) {
   </table>
 </body>
 </html>`;
-
         await sendEmail(
           customerEmail,
           `Willkommen bei Quetz, ${customerName || "Ihr Unternehmen"}`,
           b2bWelcomeHtml
         );
-        console.log("[webhook] B2B welcome email sent to:", customerEmail);
+        console.log("[webhook] B2B email: welcome sent to:", customerEmail);
+      } catch (b2bEmailErr: any) {
+        console.error("[webhook] B2B email ERROR:", b2bEmailErr.message);
       }
+    }
 
-      // Telegram B2B notification
+    // 3) Telegram — independent try-catch
+    try {
       const b2bMrr = b2bInterval === "year" ? Math.round(amount / 12) : amount;
       const token = process.env.TELEGRAM_BOT_TOKEN;
       const chatId = process.env.TELEGRAM_CHAT_ID;
@@ -1337,10 +1347,12 @@ export async function POST(req: NextRequest) {
             text: `🎉 <b>Neue B2B-Verkauf!</b>\n\n🏢 <b>Unternehmen:</b> ${customerName || "—"}\n📧 <b>Email:</b> ${customerEmail}\n📋 <b>Plan:</b> ${b2bPlanId}\n🔄 <b>Interval:</b> ${b2bInterval}\n💰 <b>MRR:</b> €${b2bMrr}`,
           }),
         });
-        console.log("[webhook] B2B Telegram sent");
+        console.log("[webhook] B2B telegram: sent — plan:", b2bPlanId, "mrr:", b2bMrr);
+      } else {
+        console.log("[webhook] B2B telegram: skipped (no token/chatId)");
       }
-    } catch (b2bErr: any) {
-      console.error("[webhook] B2B ERROR:", b2bErr.message, b2bErr.stack);
+    } catch (b2bTgErr: any) {
+      console.error("[webhook] B2B telegram ERROR:", b2bTgErr.message);
     }
   } else {
     // ── REGULAR PURCHASE FLOW ──────────────────────────────────────────────
