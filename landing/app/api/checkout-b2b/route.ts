@@ -31,6 +31,20 @@ export async function POST(req: NextRequest) {
       success_url: `${baseUrl}/empresas/danke?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/empresas#preise`,
       allow_promotion_codes: true,
+      custom_fields: [
+        {
+          key: "unternehmensname",
+          label: { type: "custom", custom: "Name Ihres Unternehmens" },
+          type: "text",
+          optional: false,
+        },
+        {
+          key: "ustid",
+          label: { type: "custom", custom: "USt-IdNr. (optional)" },
+          type: "text",
+          optional: true,
+        },
+      ],
       metadata: {
         type: "b2b",
         plan: planId,

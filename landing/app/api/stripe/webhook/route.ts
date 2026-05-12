@@ -6,6 +6,7 @@ import { sendEmail } from "@/lib/email";
 import { prisma } from "@/lib/prisma";
 import { renderWelcomeEmail } from "@/emails/render";
 import { getWelcomeSubject } from "@/emails/welcome-tree-adoption";
+import { B2B_PLANS, B2bPlanId } from "@/lib/plans";
 
 function getSubjectLine(language: string | undefined): string {
   if (language === "en") return "🌳 Your tree has a name! Welcome to the Quetz family";
@@ -1227,6 +1228,20 @@ export async function POST(req: NextRequest) {
     const b2bInterval = metadata.interval ?? "month";
     const b2bTrees = parseInt(metadata.treesPerMonth || "2", 10);
 
+    // Capture company name from custom_fields (preferred) or customer name
+    const empresa: string =
+      session.custom_fields?.find((f) => f.key === "unternehmensname")?.text?.value ||
+      session.customer_details?.name ||
+      "Ihr Unternehmen";
+
+    // MRR from plan config (immune to coupon discounts on amount_total)
+    const b2bPlanConfig = B2B_PLANS[b2bPlanId as B2bPlanId];
+    const b2bMrr = b2bPlanConfig
+      ? b2bInterval === "year"
+        ? Math.round((b2bPlanConfig.priceYearEur ?? 0) / 12)
+        : (b2bPlanConfig.priceEur ?? 0)
+      : amount; // fallback to Stripe amount if plan unknown
+
     // 1) DB write — non-fatal: email and Telegram proceed even if this fails
     try {
       let user = await prisma.user.findUnique({ where: { email: customerEmail } });
@@ -1277,7 +1292,7 @@ export async function POST(req: NextRequest) {
           <span style="font-size:24px;font-weight:bold;color:#52B788;font-family:Montserrat,Arial,sans-serif;">quetz.org</span>
         </td></tr>
         <tr><td style="padding:40px;">
-          <h1 style="font-size:24px;color:#1B4332;margin:0 0 16px;">Willkommen bei Quetz${customerName ? `, ${customerName}` : ""}!</h1>
+          <h1 style="font-size:24px;color:#1B4332;margin:0 0 16px;">Willkommen bei Quetz, ${empresa}!</h1>
           <p style="color:#374151;line-height:1.6;margin:0 0 16px;">
             Ihr <strong>${planLabel}-Abo</strong> ist aktiv. Ab sofort pflanzen wir Bäume in Zacapa, Guatemala — in Ihrem Unternehmensnamen.
           </p>
@@ -1323,10 +1338,10 @@ export async function POST(req: NextRequest) {
 </html>`;
         await sendEmail(
           customerEmail,
-          `Willkommen bei Quetz, ${customerName || "Ihr Unternehmen"}`,
+          `Willkommen bei Quetz, ${empresa}`,
           b2bWelcomeHtml
         );
-        console.log("[webhook] B2B email: welcome sent to:", customerEmail);
+        console.log("[webhook] B2B email: welcome sent to:", customerEmail, "empresa:", empresa);
       } catch (b2bEmailErr: any) {
         console.error("[webhook] B2B email ERROR:", b2bEmailErr.message);
       }
@@ -1334,7 +1349,6 @@ export async function POST(req: NextRequest) {
 
     // 3) Telegram — independent try-catch
     try {
-      const b2bMrr = b2bInterval === "year" ? Math.round(amount / 12) : amount;
       const token = process.env.TELEGRAM_BOT_TOKEN;
       const chatId = process.env.TELEGRAM_CHAT_ID;
       if (token && chatId) {
@@ -1344,10 +1358,10 @@ export async function POST(req: NextRequest) {
           body: JSON.stringify({
             chat_id: chatId,
             parse_mode: "HTML",
-            text: `🎉 <b>Neue B2B-Verkauf!</b>\n\n🏢 <b>Unternehmen:</b> ${customerName || "—"}\n📧 <b>Email:</b> ${customerEmail}\n📋 <b>Plan:</b> ${b2bPlanId}\n🔄 <b>Interval:</b> ${b2bInterval}\n💰 <b>MRR:</b> €${b2bMrr}`,
+            text: `🎉 <b>Neue B2B-Verkauf!</b>\n\n🏢 <b>Unternehmen:</b> ${empresa}\n📧 <b>Email:</b> ${customerEmail}\n📋 <b>Plan:</b> ${b2bPlanId}\n🔄 <b>Interval:</b> ${b2bInterval}\n💰 <b>MRR:</b> €${b2bMrr}`,
           }),
         });
-        console.log("[webhook] B2B telegram: sent — plan:", b2bPlanId, "mrr:", b2bMrr);
+        console.log("[webhook] B2B telegram: sent — empresa:", empresa, "plan:", b2bPlanId, "mrr:", b2bMrr);
       } else {
         console.log("[webhook] B2B telegram: skipped (no token/chatId)");
       }
