@@ -1,62 +1,55 @@
 name: Cold Email Batch — B2B CSR NRW
 
 on:
-  # 15 mayo 2026 10:00 CET = 08:00 UTC (DST activo en mayo)
+  # Lunes, miércoles y viernes a 08:00 UTC (= 10:00 CET con DST de mayo)
   schedule:
-    - cron: "0 8 15 5 *"
+    - cron: "0 8 * * 1,3,5"
 
-  # Trigger manual (para dry-run y pruebas)
+  # Trigger manual — permite dry_run para pruebas
   workflow_dispatch:
     inputs:
       dry_run:
-        description: "¿Dry run? (true = solo simula, false = envío real)"
+        description: "Dry run (true = solo simula, false = envío real)"
         required: true
         default: "true"
         type: choice
-        options:
-          - "true"
-          - "false"
+        options: ["true", "false"]
 
 jobs:
   send-batch:
     name: Enviar cold emails B2B
     runs-on: ubuntu-latest
-    timeout-minutes: 90  # 5 emails × 10 min + margen
+    timeout-minutes: 90   # 5 emails × 10 min + margen
 
     steps:
-      - name: Trigger cold email batch
+      - name: Trigger batch en Railway
         run: |
           DRY_RUN="${{ github.event.inputs.dry_run || 'false' }}"
-          echo "🚀 Triggering cold email batch (dry_run=$DRY_RUN)"
+          echo "Triggering cold email batch | dry_run=${DRY_RUN}"
 
-          RESPONSE=$(curl -s -w "\n%{http_code}" \
+          HTTP_CODE=$(curl -s -o /tmp/response.json -w "%{http_code}" \
             -X POST https://quetz.org/api/internal/send-cold-batch \
             -H "X-Cron-Secret: ${{ secrets.CRON_SECRET }}" \
             -H "Content-Type: application/json" \
-            -d "{\"dry_run\": $DRY_RUN, \"mode\": \"queue\"}" \
+            -d "{\"dry_run\": ${DRY_RUN}}" \
             --max-time 30)
 
-          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
-          BODY=$(echo "$RESPONSE" | head -1)
-
-          echo "HTTP $HTTP_CODE"
-          echo "$BODY"
+          echo "HTTP ${HTTP_CODE}"
+          cat /tmp/response.json
 
           if [ "$HTTP_CODE" != "202" ]; then
-            echo "❌ Error: endpoint devolvió $HTTP_CODE"
+            echo "ERROR: endpoint devolvió ${HTTP_CODE}"
             exit 1
           fi
+          echo "Batch iniciado en Railway. Progreso via Telegram."
 
-          echo "✅ Batch iniciado en Railway. Revisa Telegram para el progreso."
-
-      - name: Wait and check status
+      - name: Verificar estado (3 min después)
         run: |
-          echo "⏳ Esperando 3 min para que el script arranque..."
+          echo "Esperando 3 min para que el script arranque..."
           sleep 180
 
           STATUS=$(curl -s \
-            -X GET https://quetz.org/api/internal/cold-batch-status \
-            -H "X-Cron-Secret: ${{ secrets.CRON_SECRET }}")
+            https://quetz.org/api/internal/cold-batch-status \
+            --max-time 10)
 
-          echo "Estado actual:"
-          echo "$STATUS" | python3 -m json.tool || echo "$STATUS"
+          echo "$STATUS" | python3 -m json.tool 2>/dev/null || echo "$STATUS"

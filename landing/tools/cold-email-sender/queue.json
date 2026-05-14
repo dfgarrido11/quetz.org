@@ -1,0 +1,14 @@
+{
+  "batches": [
+    {
+      "scheduled_for": "2026-05-18T08:00:00Z",
+      "emails": [
+        "EMAIL-WILO-SE.md",
+        "EMAIL-RHENUS-LOGISTICS.md",
+        "EMAIL-FIEGE-LOGISTIK.md",
+        "EMAIL-SCHUECO.md",
+        "EMAIL-QBEYOND.md"
+      ]
+    }
+  ]
+}

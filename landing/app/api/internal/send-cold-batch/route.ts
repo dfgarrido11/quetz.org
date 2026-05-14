@@ -4,31 +4,27 @@ import path from "path";
 
 // POST /api/internal/send-cold-batch
 // Header: X-Cron-Secret: <CRON_SECRET>
-// Body:   { "dry_run": true|false, "mode": "queue"|"direct" }
+// Body (optional): { "dry_run": true }
 
 export async function POST(req: NextRequest) {
-  // Auth
   const secret = req.headers.get("x-cron-secret");
   if (!secret || secret !== process.env.CRON_SECRET) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  let body: { dry_run?: boolean; mode?: string } = {};
+  let dry_run = false;
   try {
-    body = await req.json();
+    const body = await req.json();
+    dry_run = body.dry_run === true;
   } catch {
-    // empty body is fine
+    // empty body — default to live send
   }
 
-  const dryRun = body.dry_run === true;
-  const mode = body.mode === "direct" ? "direct" : "queue";
+  // Script is inside landing/ so it's available in the Railway deploy
+  const scriptPath = path.join(process.cwd(), "tools/cold-email-sender/send-cold-batch.js");
+  const args = dry_run ? ["--dry-run"] : [];
 
-  const scriptPath = path.join(process.cwd(), "../tools/cold-email-sender/send-cold-batch.js");
-
-  const args = ["--queue"];
-  if (dryRun) args.push("--dry-run");
-
-  // Fire and forget — the script runs 40+ min, response returns immediately
+  // Fire and forget — script runs 40+ min, HTTP returns immediately
   const child = spawn("node", [scriptPath, ...args], {
     detached: true,
     stdio: "ignore",
@@ -39,14 +35,11 @@ export async function POST(req: NextRequest) {
   return NextResponse.json(
     {
       ok: true,
-      dry_run: dryRun,
-      mode,
-      script: scriptPath,
-      args,
+      dry_run,
       started_at: new Date().toISOString(),
-      message: dryRun
-        ? "Dry-run iniciado en background. Revisa Railway logs."
-        : "Batch de envío iniciado en background. Revisa Telegram y /api/internal/cold-batch-status",
+      message: dry_run
+        ? "Dry-run iniciado. Revisa Railway logs."
+        : "Batch iniciado. Revisa Telegram + GET /api/internal/cold-batch-status",
     },
     { status: 202 }
   );
