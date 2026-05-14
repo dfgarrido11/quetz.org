@@ -1,22 +1,21 @@
 ---
-Para: Head of Sustainability | info@fiege.com
+Para: info@fiege.com
 Empresa: Fiege Logistik
 Score: 9/10
-Ángulo: Grüne Logistik-Initiative. Bäume pro Team/Route/Quartal zuordenbar. Geschichte für Fiege-Kunden.
-Hinweis: Personenname unbekannt. Impressum-Seite prüfen oder LinkedIn vor Versand.
+Ángulo: Multi-User-Warehousing como modelo para Baum-Sharing por cliente
 ---
 
-Betreff: Grüne Logistik + Bäume in Guatemala: Fiege
+Betreff: Aufforstung pro Kunde, pro Quartal: Fiege
 
-Sehr geehrte Damen und Herren,
+Sehr geehrtes Team Nachhaltigkeit,
 
-Fieges Grüne Logistik-Initiative zeigt, dass Nachhaltigkeit bei Ihnen keine Randnotiz ist.
+Fieges Multi-User-Warehousing-Modell zeigt, wie sich Nachhaltigkeit strukturiert in operative Einheiten herunterbrechen lässt.
 
-Quetz.org pflanzt Bäume in Zacapa, Guatemala. Lokale Familien kümmern sich um die Bäume und erhalten Jornales als Einkommen. 30 Prozent jedes Euro gehen an den Bau einer Schule für 120 Kinder vor Ort. Jeder Baum ist einer Einheit zuordenbar: ein Team, eine Route, ein Quartal. Das gibt Ihren Kunden eine konkrete Geschichte, keine abstrakte Zahl. Alle Daten stehen auf quetz.org/transparencia.
+Quetz.org passt zu dieser Logik. Bäume in Zacapa, Guatemala, einer Einheit zuordenbar: ein Kunde, ein Standort, ein Quartal. Lokale Familien pflegen sie und erhalten Jornales. 30 Prozent jedes Euros gehen an den Bau einer Schule für 120 Kinder. Jeder Baum mit GPS, öffentlich auf quetz.org/transparencia. Das ergibt eine konkrete Geschichte für jeden Ihrer Kunden, keine abstrakte CO2-Zahl.
 
 Drei Pakete ab 49 EUR pro Monat, direkt buchbar unter quetz.org/empresas. Kein Telefontermin nötig.
 
-Viel Erfolg bei der Weiterentwicklung Ihrer Grünen Logistik.
+Viel Erfolg bei der Weiterentwicklung Ihrer CSR-Programme.
 
 Daniel Garrido
 Gründer & CEO | quetz.org

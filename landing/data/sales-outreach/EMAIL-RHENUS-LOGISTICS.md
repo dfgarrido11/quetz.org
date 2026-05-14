@@ -1,18 +1,17 @@
 ---
-Para: Head of CSR | info@rhenus.com
+Para: info@rhenus.com
 Empresa: Rhenus Logistics
 Score: 10/10
-Ángulo: CO2-negativ Wesel als Hook. Aufforstung als rückverfolgbarer Baustein pro Route/Depot.
-Hinweis: Personenname via Impressum oder LinkedIn vor dem Senden recherchieren.
+Ángulo: CO2-negativ Wesel + traceability como cadena de custodia
 ---
 
-Betreff: Aufforstung für Rhenus Wesel: messbar, öffentlich
+Betreff: Aufforstung pro Depot: Rhenus Wesel als Vorbild
 
-Sehr geehrte Damen und Herren,
+Sehr geehrtes Team Nachhaltigkeit,
 
 Ihr CO2-negativer Standort in Wesel zeigt, dass Rhenus Klimaschutz konkret umsetzt, nicht nur kommuniziert.
 
-Quetz.org ergänzt das mit Aufforstung in Zacapa, Guatemala. Lokale Familien pflanzen und pflegen die Bäume und erhalten Jornales dafür. 30 Prozent jedes Euro fließen in den Bau einer Schule für 120 Kinder in Zacapa. Jeder Baum ist GPS-verifiziert und einem Standort oder Depot zuordenbar. Alle Zahlen stehen öffentlich auf quetz.org/transparencia, ohne Kleindruck.
+Quetz.org ergänzt das mit Aufforstung in Zacapa, Guatemala. Lokale Familien pflanzen und pflegen die Bäume und erhalten Jornales. 30 Prozent jedes Euros fließen in den Bau einer Schule für 120 Kinder. Jeder Baum mit GPS-Koordinaten, einem Depot oder einer Route zuordenbar, ähnlich wie eine Sendung in Ihrer Trace-and-Track. Alle Zahlen stehen öffentlich auf quetz.org/transparencia.
 
 Drei Pakete ab 49 EUR pro Monat, direkt buchbar unter quetz.org/empresas. Kein Telefontermin nötig.
 
