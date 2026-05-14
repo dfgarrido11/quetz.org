@@ -1,0 +1,11 @@
+{
+  "description": "Cold email queue — add new emails here to send in future Mon/Wed/Fri batches",
+  "batch_size": 5,
+  "emails": [
+    { "empresa": "WILO SE",              "file": "EMAIL-WILO-SE.md" },
+    { "empresa": "Rhenus Logistics",     "file": "EMAIL-RHENUS-LOGISTICS.md" },
+    { "empresa": "Fiege Logistik",       "file": "EMAIL-FIEGE-LOGISTIK.md" },
+    { "empresa": "SCHÜCO International KG", "file": "EMAIL-SCHUECO.md" },
+    { "empresa": "q.beyond AG",          "file": "EMAIL-QBEYOND.md" }
+  ]
+}

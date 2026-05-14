@@ -1,22 +1,28 @@
 ---
-Para: Head of Sustainability | nachhaltigkeit@wilo.com
+Para: nachhaltigkeit@wilo.com
 Empresa: WILO SE
 Score: 10/10
-Ángulo: DNP 2024 + CSRD-Pflicht. Bäume GPS-verifiziert, Standorten zuordenbar für Reporting.
-Hinweis: Personenname vor dem Senden via LinkedIn recherchieren. Anrede dann anpassen.
+Ángulo: DNP 2026 + CDP A-List + CSRD-Verpflichtung
 ---
 
-Betreff: Bäume in Guatemala für WILOs CSRD-Bericht
+Betreff: Bäume mit Koordinaten für WILOs CSRD-Bericht
 
-Sehr geehrte Damen und Herren,
+Sehr geehrtes Team Nachhaltigkeit,
 
-WILO hat den Deutschen Nachhaltigkeitspreis 2024 gewonnen. Das ist eine Auszeichnung, die Anspruch setzt.
+WILO steht 2026 auf der CDP A-List und hat den Deutschen Nachhaltigkeitspreis 
+in der Branche Hydraulik gewonnen. Die Auszeichnungen verpflichten und der 
+nächste CSRD-Bericht steht an.
 
-Quetz.org pflanzt Bäume in Zacapa, Guatemala. Lokale Familien pflegen sie und erhalten Jornales dafür. 30 Prozent jedes Euro fließen in den Bau einer Schule für 120 Kinder vor Ort. Jeden Cent dokumentieren wir öffentlich auf quetz.org/transparencia. Für Ihren CSRD-Bericht: jeder Baum ist GPS-verifiziert und einem Ihrer Standorte direkt zuordenbar.
+Quetz.org pflanzt Bäume in Zacapa, Guatemala. Lokale Familien pflegen sie 
+und erhalten Jornales dafür. 30 Prozent jedes Euros gehen in den Bau einer 
+Schule für 120 Kinder vor Ort. Jeder Baum hat GPS-Koordinaten, Foto und 
+Datum, alles öffentlich auf quetz.org/transparencia. Für Ihren CSRD-Bericht 
+direkt einem Ihrer Standorte zuordenbar.
 
-Drei Pakete ab 49 EUR pro Monat, direkt buchbar unter quetz.org/empresas. Kein Telefontermin nötig.
+Drei Pakete ab 49 EUR pro Monat, direkt buchbar unter quetz.org/empresas. 
+Kein Telefontermin nötig.
 
-Viel Erfolg bei Ihrem nächsten Nachhaltigkeitsbericht.
+Viel Erfolg bei der Umsetzung Ihrer SBTi-Ziele.
 
 Daniel Garrido
 Gründer & CEO | quetz.org
