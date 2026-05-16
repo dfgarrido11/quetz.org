@@ -944,6 +944,71 @@ function buildGiftConfirmationEmail(
 </html>`;
 }
 
+function buildFirmengeschenkEmail(
+  companyName: string,
+  treeCount: number,
+  activationUrl: string,
+  amount: number
+): string {
+  return `<!DOCTYPE html>
+<html lang="de">
+<head><meta charset="UTF-8"><title>Ihr Firmengeschenk-Paket</title></head>
+<body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4;padding:32px 0;">
+    <tr><td align="center">
+      <table width="580" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;overflow:hidden;max-width:580px;">
+        <tr><td style="background:#1B4332;padding:32px 40px;text-align:center;">
+          <span style="font-size:22px;font-weight:bold;color:#52B788;letter-spacing:0.05em;">quetz.org</span>
+        </td></tr>
+        <tr><td style="padding:40px;">
+          <h1 style="font-size:24px;color:#1B4332;margin:0 0 16px;">Sehr geehrtes Team von ${companyName},</h1>
+          <p style="color:#374151;line-height:1.7;margin:0 0 16px;">
+            vielen Dank für Ihren Erwerb eines Firmengeschenk-Pakets mit <strong>${treeCount} Bäumen</strong> (${amount.toFixed(2)} EUR).
+          </p>
+          <p style="color:#374151;line-height:1.7;margin:0 0 16px;">
+            Im nächsten Schritt erstellen Sie die personalisierten Adoptionszertifikate für Ihre Mitarbeiterinnen und Mitarbeiter. Klicken Sie dazu auf den folgenden Button:
+          </p>
+          <table cellpadding="0" cellspacing="0" style="margin:24px 0;">
+            <tr><td style="background:#1B4332;border-radius:6px;padding:16px 32px;">
+              <a href="${activationUrl}" style="color:#ffffff;font-weight:bold;text-decoration:none;font-size:16px;">Zertifikate jetzt erstellen</a>
+            </td></tr>
+          </table>
+          <table width="100%" cellpadding="0" cellspacing="0" style="background:#F9FAF7;border:1px solid #D1FAE5;border-radius:6px;padding:16px;margin:0 0 24px;">
+            <tr>
+              <td style="padding:4px 12px 4px 0;color:#6b7280;font-size:13px;">Paket</td>
+              <td style="font-size:13px;color:#111827;">${treeCount} Bäume</td>
+            </tr>
+            <tr>
+              <td style="padding:4px 12px 4px 0;color:#6b7280;font-size:13px;">Betrag</td>
+              <td style="font-size:13px;color:#111827;">${amount.toFixed(2)} EUR</td>
+            </tr>
+            <tr>
+              <td style="padding:4px 12px 4px 0;color:#6b7280;font-size:13px;">Link gültig bis</td>
+              <td style="font-size:13px;color:#111827;">30 Tage</td>
+            </tr>
+          </table>
+          <p style="color:#374151;line-height:1.7;margin:0 0 8px;font-size:13px;">
+            Falls der Button nicht funktioniert, kopieren Sie folgenden Link in Ihren Browser:
+          </p>
+          <p style="font-size:12px;color:#6b7280;word-break:break-all;margin:0 0 24px;">${activationUrl}</p>
+          <p style="color:#6b7280;font-size:13px;line-height:1.6;margin:0;">
+            Mit freundlichen Grüßen,<br>
+            Daniel Garrido<br>
+            Gründer &amp; CEO, quetz.org<br>
+            Düsseldorf-Unterbach, NRW<br>
+            <a href="mailto:hola@quetz.org" style="color:#1B4332;">hola@quetz.org</a>
+          </p>
+        </td></tr>
+        <tr><td style="background:#1B4332;padding:20px 40px;text-align:center;">
+          <p style="margin:0;font-size:11px;color:#52B788;">quetz.org &middot; Düsseldorf &middot; Nachhaltige Baumpflanzungen in Zacapa, Guatemala</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+}
+
 export async function POST(req: NextRequest) {
   console.log("[webhook] POST received");
 
@@ -1367,6 +1432,75 @@ export async function POST(req: NextRequest) {
       }
     } catch (b2bTgErr: any) {
       console.error("[webhook] B2B telegram ERROR:", b2bTgErr.message);
+    }
+  } else if (metadata.type === "firmengeschenk") {
+    // ── FIRMENGESCHENK FLOW ────────────────────────────────────────────────
+    const fgPlanId = metadata.plan ?? "";
+    const treeCount = parseInt(metadata.treeCount || "10", 10);
+
+    const empresa: string =
+      session.custom_fields?.find((f) => f.key === "unternehmensname")?.text?.value ||
+      session.customer_details?.name ||
+      customerName ||
+      "Ihr Unternehmen";
+
+    // 1) DB write
+    let activationToken: string | null = null;
+    try {
+      const { randomUUID } = await import("crypto");
+      activationToken = randomUUID();
+      const tokenExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
+
+      await prisma.giftOrder.create({
+        data: {
+          stripeSessionId: session.id,
+          companyName: empresa,
+          companyEmail: customerEmail,
+          treeCount,
+          amountEur: amount,
+          activationToken,
+          tokenExpiresAt,
+          status: "pending",
+        },
+      });
+      console.log("[webhook] FG: GiftOrder created, token:", activationToken);
+    } catch (fgDbErr: any) {
+      console.error("[webhook] FG db ERROR:", fgDbErr.message);
+    }
+
+    // 2) Email to company with activation link
+    if (customerEmail && activationToken) {
+      try {
+        const activationUrl = `https://quetz.org/gift-activation/${activationToken}`;
+        const fgEmailHtml = buildFirmengeschenkEmail(empresa, treeCount, activationUrl, amount);
+        await sendEmail(
+          customerEmail,
+          `Ihr Firmengeschenk-Paket ist bereit | quetz.org`,
+          fgEmailHtml
+        );
+        console.log("[webhook] FG email sent to:", customerEmail);
+      } catch (fgMailErr: any) {
+        console.error("[webhook] FG email ERROR:", fgMailErr.message);
+      }
+    }
+
+    // 3) Telegram
+    try {
+      const tgToken = process.env.TELEGRAM_BOT_TOKEN;
+      const chatId = process.env.TELEGRAM_CHAT_ID;
+      if (tgToken && chatId) {
+        await fetch(`https://api.telegram.org/bot${tgToken}/sendMessage`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            chat_id: chatId,
+            parse_mode: "HTML",
+            text: `🌳 <b>Firmengeschenk verkauft!</b>\n\n🏢 <b>Unternehmen:</b> ${empresa}\n📧 <b>Email:</b> ${customerEmail}\n🌲 <b>Bäume:</b> ${treeCount}\n💰 <b>Betrag:</b> €${amount.toFixed(2)}`,
+          }),
+        });
+      }
+    } catch (fgTgErr: any) {
+      console.error("[webhook] FG telegram ERROR:", fgTgErr.message);
     }
   } else {
     // ── REGULAR PURCHASE FLOW ──────────────────────────────────────────────

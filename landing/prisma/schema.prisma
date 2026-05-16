@@ -614,6 +614,59 @@ model AutomationMetrics {
   updatedAt         DateTime @updatedAt
 }
 
+// ========== FIRMENGESCHENK (CORPORATE GIFT CERTIFICATES) ==========
+
+model GiftOrder {
+  id              String            @id @default(cuid())
+  stripeSessionId String            @unique
+
+  // Company info
+  companyName     String
+  companyEmail    String
+
+  // Package
+  treeCount       Int               // 10 | 25 | 50 | 100
+  amountEur       Float
+
+  // Activation
+  activationToken String            @unique
+  tokenExpiresAt  DateTime
+
+  // Status
+  status          String            @default("pending") // pending | activated | expired
+
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  certificates    GiftCertificate[]
+}
+
+model GiftCertificate {
+  id                String    @id @default(cuid())
+  orderId           String
+
+  // Recipient
+  companyName       String
+  employeeName      String
+  employeeEmail     String?           // null = empresa imprime y entrega
+
+  // Tree
+  treeSpecies       String            // "pino" | "cipres"
+  treeLatitude      Float             @default(14.9514)
+  treeLongitude     Float             @default(-89.5832)
+  plantedAt         DateTime          @default(now())
+
+  // Certificate identity
+  certificateNumber String            @unique  // QZ-2026-00001
+  issuedAt          DateTime          @default(now())
+
+  // Delivery
+  pdfUrl            String?
+  emailSentAt       DateTime?
+
+  order             GiftOrder         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
 // ========== SYSTEM HEALTH MONITORING ==========
 
 model SystemHealthLog {

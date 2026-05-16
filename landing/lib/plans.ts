@@ -120,6 +120,49 @@ export const B2B_PLANS: Record<B2bPlanId, B2bPlan> = {
   },
 };
 
+// ========== FIRMENGESCHENK PLANS ==========
+
+export type FirmengeschenkPlanId = "fg10" | "fg25" | "fg50" | "fg100";
+
+export interface FirmengeschenkPlan {
+  id: FirmengeschenkPlanId;
+  treeCount: number;
+  priceEur: number;
+  nameDe: string;
+  pricePerTreeEur: number;
+}
+
+export const FIRMENGESCHENK_PLANS: Record<FirmengeschenkPlanId, FirmengeschenkPlan> = {
+  fg10: {
+    id: "fg10",
+    treeCount: 10,
+    priceEur: 220,
+    pricePerTreeEur: 22,
+    nameDe: "Firmengeschenk 10 Bäume",
+  },
+  fg25: {
+    id: "fg25",
+    treeCount: 25,
+    priceEur: 500,
+    pricePerTreeEur: 20,
+    nameDe: "Firmengeschenk 25 Bäume",
+  },
+  fg50: {
+    id: "fg50",
+    treeCount: 50,
+    priceEur: 900,
+    pricePerTreeEur: 18,
+    nameDe: "Firmengeschenk 50 Bäume",
+  },
+  fg100: {
+    id: "fg100",
+    treeCount: 100,
+    priceEur: 1600,
+    pricePerTreeEur: 16,
+    nameDe: "Firmengeschenk 100 Bäume",
+  },
+};
+
 /** All species currently active in production DB */
 export const ACTIVE_SPECIES = [
   "pino",
