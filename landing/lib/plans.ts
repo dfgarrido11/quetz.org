@@ -132,34 +132,38 @@ export interface FirmengeschenkPlan {
   pricePerTreeEur: number;
 }
 
+// Stripe Product IDs (created 16 mayo 2026 via Stripe MCP)
+// prod_UWqe0UfvqVkC7v → klein  | prod_UWqeweHL7NcJcM → medium
+// prod_UWqeqr1e9gTRXs → gross  | prod_UWqfXuoV1wQWxe → xl
+// Stripe metadata: type=firmengeschenk, package=klein|medium|gross|xl, tree_count=10|25|50|100
 export const FIRMENGESCHENK_PLANS: Record<FirmengeschenkPlanId, FirmengeschenkPlan> = {
   fg10: {
     id: "fg10",
     treeCount: 10,
-    priceEur: 220,
-    pricePerTreeEur: 22,
-    nameDe: "Firmengeschenk 10 Bäume",
+    priceEur: 99,
+    pricePerTreeEur: 9.9,
+    nameDe: "Firmengeschenk Klein (10 Bäume)",
   },
   fg25: {
     id: "fg25",
     treeCount: 25,
-    priceEur: 500,
-    pricePerTreeEur: 20,
-    nameDe: "Firmengeschenk 25 Bäume",
+    priceEur: 229,
+    pricePerTreeEur: 9.16,
+    nameDe: "Firmengeschenk Medium (25 Bäume)",
   },
   fg50: {
     id: "fg50",
     treeCount: 50,
-    priceEur: 900,
-    pricePerTreeEur: 18,
-    nameDe: "Firmengeschenk 50 Bäume",
+    priceEur: 449,
+    pricePerTreeEur: 8.98,
+    nameDe: "Firmengeschenk Groß (50 Bäume)",
   },
   fg100: {
     id: "fg100",
     treeCount: 100,
-    priceEur: 1600,
-    pricePerTreeEur: 16,
-    nameDe: "Firmengeschenk 100 Bäume",
+    priceEur: 849,
+    pricePerTreeEur: 8.49,
+    nameDe: "Firmengeschenk XL (100 Bäume)",
   },
 };
 

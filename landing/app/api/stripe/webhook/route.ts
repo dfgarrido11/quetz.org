@@ -1435,8 +1435,8 @@ export async function POST(req: NextRequest) {
     }
   } else if (metadata.type === "firmengeschenk") {
     // ── FIRMENGESCHENK FLOW ────────────────────────────────────────────────
-    const fgPlanId = metadata.plan ?? "";
-    const treeCount = parseInt(metadata.treeCount || "10", 10);
+    const fgPlanId = metadata.package ?? "";      // Stripe sends "package", not "plan"
+    const treeCount = parseInt(metadata.tree_count || "10", 10); // Stripe sends "tree_count", not "treeCount"
 
     const empresa: string =
       session.custom_fields?.find((f) => f.key === "unternehmensname")?.text?.value ||
