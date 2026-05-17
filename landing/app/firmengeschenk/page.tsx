@@ -1,220 +1,435 @@
-'use client';
+"use client";
 
-/*
- * /firmengeschenk - B2B One-Time Gift Landing Page
- * Design: Clean, professional, light background (quetz-cream)
- * Tone: Sie-Form, direct, no AI-prose, no em-dashes
- * Stack: Same as quetz.org (Next.js App Router, Tailwind, Radix, Lucide)
- * No mascot on this page - professional B2B tone
- */
+import { useState, useEffect } from "react";
+import { TreePine, Check, ChevronRight, Leaf, Gift, FileText, MapPin, Shield, Clock, Users, ChevronDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/lib/language-context";
 
-import { useState, useEffect } from 'react';
-import {
-  TreePine,
-  MapPin,
-  Award,
-  FileCheck,
-  ChevronRight,
-  Check,
-  Upload,
-  Send,
-  Leaf,
-  ArrowDown,
-  Shield,
-  Building2,
-  Heart,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/components/ui/accordion';
-
-/* ─── Stripe Payment Links (replace with real links) ─── */
-const STRIPE_LINKS = {
-  klein: process.env.NEXT_PUBLIC_STRIPE_LINK_KLEIN || '#paket-klein',
-  medium: process.env.NEXT_PUBLIC_STRIPE_LINK_MEDIUM || '#paket-medium',
-  gross: process.env.NEXT_PUBLIC_STRIPE_LINK_GROSS || '#paket-gross',
-  xl: process.env.NEXT_PUBLIC_STRIPE_LINK_XL || '#paket-xl',
+/* ─── Images (same CDN as /empresas) ─── */
+const IMAGES = {
+  hero: "https://d2xsxph8kpxj0f.cloudfront.net/310419663030501357/hWt6Qa2JAiXm9muvwfCGAp/hero-canopy-KsLbgKCZWapLbdtMVAC26c.webp",
+  workers: "https://d2xsxph8kpxj0f.cloudfront.net/310419663030501357/hWt6Qa2JAiXm9muvwfCGAp/understory-workers-jhLXmGeuAGSeLgeTe97sXg.webp",
+  children: "https://d2xsxph8kpxj0f.cloudfront.net/310419663030501357/hWt6Qa2JAiXm9muvwfCGAp/school-children-FiGg2g9cBma6G5ArjEs5Gy.webp",
+  roots: "https://d2xsxph8kpxj0f.cloudfront.net/310419663030501357/hWt6Qa2JAiXm9muvwfCGAp/forest-floor-roots-4HVX5t3CGzqRnqYzdrThsP.webp",
 };
 
-/* ─── CDN Images (reuse existing + new) ─── */
-const IMAGES = {
-  hero: 'https://d2xsxph8kpxj0f.cloudfront.net/310419663030501357/hWt6Qa2JAiXm9muvwfCGAp/hero-canopy-KsLbgKCZWapLbdtMVAC26c.webp',
-  workers:
-    'https://d2xsxph8kpxj0f.cloudfront.net/310419663030501357/hWt6Qa2JAiXm9muvwfCGAp/understory-workers-jhLXmGeuAGSeLgeTe97sXg.webp',
-  school:
-    'https://d2xsxph8kpxj0f.cloudfront.net/310419663030501357/hWt6Qa2JAiXm9muvwfCGAp/school-children-FiGg2g9cBma6G5ArjEs5Gy.webp',
+/* ─── Translations ─── */
+const txt = {
+  de: {
+    navImpact: "Impact",
+    navPakete: "Pakete",
+    navAblauf: "So geht's",
+    navKontakt: "Kontakt",
+    navCta: "Paket auswählen",
+    heroTag: "Firmengeschenk mit echtem Impact",
+    heroTitle: "Das Firmengeschenk, das wächst.",
+    heroSub: "Kein Kugelschreiber. Kein Notizbuch. Sondern echte Bäume in Guatemala, die Ihre Mitarbeiter jahrelang begleiten.",
+    heroCta: "Paket auswählen",
+    heroTrust1: "Steuerlich absetzbar",
+    heroTrust2: "Zertifikat in 48h",
+    heroTrust3: "DSGVO-konform",
+    probTitle: "Wertschätzung zeigen, ohne im Papierkorb zu landen.",
+    probText: "Mitarbeiter und Kunden vergessen den nächsten gebrandeten Kugelschreiber sofort. Ein Geschenk, das wirklich bleibt, wächst und Bedeutung hat. Das schaffen nur die wenigsten.",
+    solTag: "Die Lösung",
+    solTitle: "Ein Baum pro Mitarbeiter. Ein Geschenk, das bleibt.",
+    sol1Title: "Echte Bäume in Zacapa, Guatemala",
+    sol1Text: "Heimische Arten, von lokalen Familien gepflanzt und gepflegt. Jeder Baum hat GPS-Koordinaten.",
+    sol2Title: "Personalisiertes Zertifikat",
+    sol2Text: "Jeder Mitarbeiter erhält ein digitales Zertifikat mit Namen, Foto des Baumes und GPS-Standort.",
+    sol3Title: "Steuerlich absetzbar",
+    sol3Text: "Als Sachbezug bis 50 Euro pro Mitarbeiter steuer- und sozialversicherungsfrei. Rechnung inklusive.",
+    pricingTag: "Pakete",
+    pricingTitle: "Einfach. Transparent. Sofort.",
+    pricingSubtitle: "Einmalzahlung. Keine Laufzeit. Keine versteckten Kosten.",
+    pkgKlein: "Klein",
+    pkgKleinDesc: "Ideal für kleine Teams",
+    pkgMedium: "Medium",
+    pkgMediumDesc: "Beliebt bei Agenturen",
+    pkgGross: "Groß",
+    pkgGrossDesc: "Für Sommerfeste & Events",
+    pkgXl: "XL",
+    pkgXlDesc: "Für Jubiläen & Großevents",
+    pkgTrees: "Bäume",
+    pkgCta: "Jetzt bestellen",
+    pkgPopular: "Am beliebtesten",
+    pkgTax: "Inkl. Rechnung · steuerlich absetzbar",
+    howTag: "So funktioniert's",
+    howTitle: "In 4 Schritten zum perfekten Firmengeschenk",
+    how1Title: "Paket auswählen und bezahlen",
+    how1Text: "Wählen Sie die passende Größe. Zahlung per Stripe, Rechnung sofort verfügbar.",
+    how2Title: "Mitarbeiternamen übermitteln",
+    how2Text: "Per CSV-Upload oder einzeln im Formular. Dauert 2 Minuten.",
+    how3Title: "Wir pflanzen die Bäume",
+    how3Text: "Lokale Familien in Zacapa pflanzen Ihre Bäume. Jeder Baum wird GPS-getrackt.",
+    how4Title: "Zertifikate erhalten",
+    how4Text: "Innerhalb von 48 Stunden erhalten Sie personalisierte digitale Zertifikate für jeden Mitarbeiter.",
+    proofTag: "Vertrauen",
+    proofTitle: "Unternehmen, die bereits schenken",
+    proofQuote: "Ein Geschenk, das bei unseren Mitarbeitern wirklich angekommen ist. Einfacher Prozess, schöne Zertifikate.",
+    proofCompany: "Leyton Deutschland",
+    proofStat1Label: "Bäume gepflanzt",
+    proofStat2Label: "Familien unterstützt",
+    proofStat3Label: "Schule finanziert",
+    founderTag: "Unsere Wurzeln",
+    founderTitle: "Warum ich das mache.",
+    founderText: "Ich bin deutsch-guatemaltekisch und lebe in Düsseldorf. In Zacapa habe ich gesehen, wie Aufforstung Arbeitsplätze schafft und Familien eine Perspektive gibt. Mit quetz.org verbinde ich deutsche Unternehmen direkt mit diesen Familien.",
+    founderName: "Daniel, Gründer von quetz.org",
+    faqTag: "Häufige Fragen",
+    faq1Q: "Ist das wirklich steuerlich absetzbar?",
+    faq1A: "Ja. Als Sachbezug können Firmengeschenke bis 50 Euro pro Mitarbeiter steuer- und sozialversicherungsfrei gewährt werden. Sie erhalten eine ordentliche Rechnung für Ihre Buchhaltung.",
+    faq2Q: "Wie schnell erhalten meine Mitarbeiter die Zertifikate?",
+    faq2A: "Innerhalb von 48 Stunden nach Übermittlung der Namen. Bei Eilbestellungen auch schneller.",
+    faq3Q: "Können wir das Zertifikat mit unserem Firmenlogo personalisieren?",
+    faq3A: "Ja, ab dem Medium-Paket (25 Bäume) können Sie Ihr Logo und eine persönliche Nachricht auf dem Zertifikat platzieren.",
+    faq4Q: "Was passiert, wenn ein Baum nicht überlebt?",
+    faq4A: "Wir garantieren eine Überlebensrate von über 85%. Sollte ein Baum eingehen, pflanzen wir kostenlos einen neuen.",
+    faq5Q: "Gibt es eine Rechnung für die Buchhaltung?",
+    faq5A: "Ja, Sie erhalten automatisch eine ordentliche Rechnung mit ausgewiesener Mehrwertsteuer per E-Mail.",
+    faq6Q: "Wo genau werden die Bäume gepflanzt?",
+    faq6A: "In Zacapa, Guatemala. Jeder Baum hat GPS-Koordinaten, die Sie auf Ihrem Zertifikat und in unserem Dashboard einsehen können.",
+    faq7Q: "Kann ich die Bäume auch als Kundengeschenk nutzen?",
+    faq7A: "Absolut. Viele Unternehmen verschenken Bäume an Kunden zum Jahresende, zu Jubiläen oder als Dankeschön nach Projektabschluss.",
+    ctaTitle: "Ein Geschenk, das in fünf Jahren noch wächst.",
+    ctaSub: "Jetzt Paket auswählen und Ihrem Team etwas Bleibendes schenken.",
+    ctaBtn: "Paket auswählen",
+    stickyText: "Ab 99€ · Steuerlich absetzbar",
+    stickyCta: "Jetzt bestellen",
+  },
+  en: {
+    navImpact: "Impact",
+    navPakete: "Packages",
+    navAblauf: "How it works",
+    navKontakt: "Contact",
+    navCta: "Choose package",
+    heroTag: "Corporate gift with real impact",
+    heroTitle: "The corporate gift that grows.",
+    heroSub: "No pens. No notebooks. Real trees in Guatemala that accompany your employees for years.",
+    heroCta: "Choose package",
+    heroTrust1: "Tax deductible",
+    heroTrust2: "Certificate in 48h",
+    heroTrust3: "GDPR compliant",
+    probTitle: "Show appreciation without ending up in the bin.",
+    probText: "Employees and clients forget the next branded pen immediately. A gift that truly lasts, grows, and carries meaning. Very few manage that.",
+    solTag: "The Solution",
+    solTitle: "One tree per employee. A gift that lasts.",
+    sol1Title: "Real trees in Zacapa, Guatemala",
+    sol1Text: "Native species, planted and cared for by local families. Every tree has GPS coordinates.",
+    sol2Title: "Personalized certificate",
+    sol2Text: "Each employee receives a digital certificate with their name, tree photo, and GPS location.",
+    sol3Title: "Tax deductible",
+    sol3Text: "Deductible as a business expense. Invoice included with every order.",
+    pricingTag: "Packages",
+    pricingTitle: "Simple. Transparent. Immediate.",
+    pricingSubtitle: "One-time payment. No commitment. No hidden costs.",
+    pkgKlein: "Small",
+    pkgKleinDesc: "Ideal for small teams",
+    pkgMedium: "Medium",
+    pkgMediumDesc: "Popular with agencies",
+    pkgGross: "Large",
+    pkgGrossDesc: "For summer parties & events",
+    pkgXl: "XL",
+    pkgXlDesc: "For anniversaries & large events",
+    pkgTrees: "Trees",
+    pkgCta: "Order now",
+    pkgPopular: "Most popular",
+    pkgTax: "Invoice included · tax deductible",
+    howTag: "How it works",
+    howTitle: "The perfect corporate gift in 4 steps",
+    how1Title: "Choose and pay for your package",
+    how1Text: "Select the right size. Payment via Stripe, invoice available immediately.",
+    how2Title: "Submit employee names",
+    how2Text: "Via CSV upload or individually in the form. Takes 2 minutes.",
+    how3Title: "We plant the trees",
+    how3Text: "Local families in Zacapa plant your trees. Each tree is GPS-tracked.",
+    how4Title: "Receive certificates",
+    how4Text: "Within 48 hours you receive personalized digital certificates for each employee.",
+    proofTag: "Trust",
+    proofTitle: "Companies already gifting",
+    proofQuote: "A gift that truly resonated with our employees. Simple process, beautiful certificates.",
+    proofCompany: "Leyton Deutschland",
+    proofStat1Label: "Trees planted",
+    proofStat2Label: "Families supported",
+    proofStat3Label: "School funded",
+    founderTag: "Our Roots",
+    founderTitle: "Why I do this.",
+    founderText: "I am German-Guatemalan and live in Düsseldorf. In Zacapa I saw how reforestation creates jobs and gives families a future. With quetz.org I connect German companies directly with these families.",
+    founderName: "Daniel, Founder of quetz.org",
+    faqTag: "FAQ",
+    faq1Q: "Is this really tax deductible?",
+    faq1A: "Yes. Corporate gifts can be deducted as business expenses. You receive a proper invoice for your accounting.",
+    faq2Q: "How quickly do my employees receive the certificates?",
+    faq2A: "Within 48 hours after submitting the names. Rush orders available.",
+    faq3Q: "Can we personalize the certificate with our company logo?",
+    faq3A: "Yes, from the Medium package (25 trees) you can place your logo and a personal message on the certificate.",
+    faq4Q: "What happens if a tree doesn't survive?",
+    faq4A: "We guarantee a survival rate of over 85%. If a tree dies, we plant a new one free of charge.",
+    faq5Q: "Is there an invoice for accounting?",
+    faq5A: "Yes, you automatically receive a proper invoice with VAT by email.",
+    faq6Q: "Where exactly are the trees planted?",
+    faq6A: "In Zacapa, Guatemala. Each tree has GPS coordinates visible on your certificate and our dashboard.",
+    faq7Q: "Can I also use the trees as client gifts?",
+    faq7A: "Absolutely. Many companies gift trees to clients at year-end, for anniversaries, or as thank-yous after project completion.",
+    ctaTitle: "A gift that still grows in five years.",
+    ctaSub: "Choose your package now and give your team something lasting.",
+    ctaBtn: "Choose package",
+    stickyText: "From €99 · Tax deductible",
+    stickyCta: "Order now",
+  },
+  es: {
+    navImpact: "Impacto",
+    navPakete: "Paquetes",
+    navAblauf: "Proceso",
+    navKontakt: "Contacto",
+    navCta: "Elegir paquete",
+    heroTag: "Regalo corporativo con impacto real",
+    heroTitle: "El regalo corporativo que crece.",
+    heroSub: "Ni bolígrafos. Ni libretas. Árboles reales en Guatemala que acompañan a sus empleados durante años.",
+    heroCta: "Elegir paquete",
+    heroTrust1: "Deducible de impuestos",
+    heroTrust2: "Certificado en 48h",
+    heroTrust3: "Conforme al RGPD",
+    probTitle: "Mostrar aprecio sin acabar en la papelera.",
+    probText: "Los empleados y clientes olvidan el siguiente bolígrafo con logo al instante. Un regalo que realmente perdura, crece y tiene significado. Muy pocos lo logran.",
+    solTag: "La Solución",
+    solTitle: "Un árbol por empleado. Un regalo que perdura.",
+    sol1Title: "Árboles reales en Zacapa, Guatemala",
+    sol1Text: "Especies nativas, plantadas y cuidadas por familias locales. Cada árbol tiene coordenadas GPS.",
+    sol2Title: "Certificado personalizado",
+    sol2Text: "Cada empleado recibe un certificado digital con su nombre, foto del árbol y ubicación GPS.",
+    sol3Title: "Deducible de impuestos",
+    sol3Text: "Deducible como gasto empresarial. Factura incluida con cada pedido.",
+    pricingTag: "Paquetes",
+    pricingTitle: "Simple. Transparente. Inmediato.",
+    pricingSubtitle: "Pago único. Sin permanencia. Sin costes ocultos.",
+    pkgKlein: "Pequeño",
+    pkgKleinDesc: "Ideal para equipos pequeños",
+    pkgMedium: "Medio",
+    pkgMediumDesc: "Popular entre agencias",
+    pkgGross: "Grande",
+    pkgGrossDesc: "Para fiestas de verano y eventos",
+    pkgXl: "XL",
+    pkgXlDesc: "Para aniversarios y grandes eventos",
+    pkgTrees: "Árboles",
+    pkgCta: "Pedir ahora",
+    pkgPopular: "Más popular",
+    pkgTax: "Factura incluida · deducible de impuestos",
+    howTag: "Proceso",
+    howTitle: "El regalo corporativo perfecto en 4 pasos",
+    how1Title: "Elegir paquete y pagar",
+    how1Text: "Seleccione el tamaño adecuado. Pago con Stripe, factura disponible al instante.",
+    how2Title: "Enviar nombres de empleados",
+    how2Text: "Por CSV o individualmente en el formulario. Toma 2 minutos.",
+    how3Title: "Plantamos los árboles",
+    how3Text: "Familias locales en Zacapa plantan sus árboles. Cada árbol tiene seguimiento GPS.",
+    how4Title: "Recibir certificados",
+    how4Text: "En 48 horas recibe certificados digitales personalizados para cada empleado.",
+    proofTag: "Confianza",
+    proofTitle: "Empresas que ya regalan",
+    proofQuote: "Un regalo que realmente conectó con nuestros empleados. Proceso sencillo, certificados bonitos.",
+    proofCompany: "Leyton Deutschland",
+    proofStat1Label: "Árboles plantados",
+    proofStat2Label: "Familias apoyadas",
+    proofStat3Label: "Escuela financiada",
+    founderTag: "Nuestras Raíces",
+    founderTitle: "Por qué hago esto.",
+    founderText: "Soy alemán-guatemalteco y vivo en Düsseldorf. En Zacapa vi cómo la reforestación crea empleos y da perspectiva a las familias. Con quetz.org conecto empresas alemanas directamente con estas familias.",
+    founderName: "Daniel, Fundador de quetz.org",
+    faqTag: "Preguntas frecuentes",
+    faq1Q: "¿Es realmente deducible de impuestos?",
+    faq1A: "Sí. Los regalos corporativos son deducibles como gasto empresarial. Recibe una factura formal para su contabilidad.",
+    faq2Q: "¿Qué tan rápido reciben los certificados mis empleados?",
+    faq2A: "En 48 horas tras enviar los nombres. Pedidos urgentes disponibles.",
+    faq3Q: "¿Podemos personalizar el certificado con nuestro logo?",
+    faq3A: "Sí, desde el paquete Medio (25 árboles) puede incluir su logo y un mensaje personal en el certificado.",
+    faq4Q: "¿Qué pasa si un árbol no sobrevive?",
+    faq4A: "Garantizamos una tasa de supervivencia superior al 85%. Si un árbol muere, plantamos uno nuevo sin coste.",
+    faq5Q: "¿Hay factura para la contabilidad?",
+    faq5A: "Sí, recibe automáticamente una factura formal con IVA por email.",
+    faq6Q: "¿Dónde exactamente se plantan los árboles?",
+    faq6A: "En Zacapa, Guatemala. Cada árbol tiene coordenadas GPS visibles en su certificado y nuestro dashboard.",
+    faq7Q: "¿Puedo usar los árboles como regalo para clientes?",
+    faq7A: "Por supuesto. Muchas empresas regalan árboles a clientes a fin de año, en aniversarios o como agradecimiento tras un proyecto.",
+    ctaTitle: "Un regalo que sigue creciendo en cinco años.",
+    ctaSub: "Elija su paquete ahora y regale a su equipo algo que perdura.",
+    ctaBtn: "Elegir paquete",
+    stickyText: "Desde 99€ · Deducible de impuestos",
+    stickyCta: "Pedir ahora",
+  },
+};
+
+type Lang = "de" | "en" | "es";
+
+/* ─── Pricing Data ─── */
+const PACKAGES = [
+  { id: "klein", trees: 10, price: 99, popular: false },
+  { id: "medium", trees: 25, price: 229, popular: true },
+  { id: "gross", trees: 50, price: 449, popular: false },
+  { id: "xl", trees: 100, price: 849, popular: false },
+];
+
+const STRIPE_LINKS: Record<string, string> = {
+  klein: process.env.NEXT_PUBLIC_STRIPE_LINK_KLEIN || "#pakete",
+  medium: process.env.NEXT_PUBLIC_STRIPE_LINK_MEDIUM || "#pakete",
+  gross: process.env.NEXT_PUBLIC_STRIPE_LINK_GROSS || "#pakete",
+  xl: process.env.NEXT_PUBLIC_STRIPE_LINK_XL || "#pakete",
 };
 
 /* ═══════════════════════════════════════════════════════
-   NAVBAR
+   MAIN PAGE
    ═══════════════════════════════════════════════════════ */
-function Navbar() {
+export default function FirmengeschenkPage() {
+  const { language } = useLanguage();
+  const lang = (["de", "en", "es"].includes(language) ? language : "de") as Lang;
+  const tx = txt[lang];
+
+  return (
+    <main className="bg-[#081C15] text-white overflow-x-hidden">
+      <Navbar tx={tx} />
+      <HeroSection tx={tx} />
+      <ProblemSection tx={tx} />
+      <SolutionSection tx={tx} />
+      <PricingSection tx={tx} lang={lang} />
+      <HowItWorksSection tx={tx} />
+      <SocialProofSection tx={tx} />
+      <FounderSection tx={tx} />
+      <FAQSection tx={tx} />
+      <FinalCTASection tx={tx} />
+      <StickyBar tx={tx} />
+    </main>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════
+   NAVIGATION
+   ═══════════════════════════════════════════════════════ */
+function Navbar({ tx }: { tx: typeof txt.de }) {
   const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 60);
-    window.addEventListener('scroll', handler);
-    return () => window.removeEventListener('scroll', handler);
+    window.addEventListener("scroll", handler);
+    return () => window.removeEventListener("scroll", handler);
   }, []);
 
+  const navLinks = [
+    { href: "#impact", label: tx.navImpact },
+    { href: "#pakete", label: tx.navPakete },
+    { href: "#ablauf", label: tx.navAblauf },
+    { href: "#kontakt", label: tx.navKontakt },
+  ];
+
   return (
-    <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? 'bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-100'
-          : 'bg-transparent'
-      }`}
-    >
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between py-4">
-        <div className="flex items-center gap-4">
-          <a
-            href="/"
-            className={`flex items-center gap-1.5 text-sm font-medium transition-colors ${
-              scrolled
-                ? 'text-gray-400 hover:text-gray-700'
-                : 'text-white/70 hover:text-white'
-            }`}
-            title="Zur Startseite"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            Startseite
-          </a>
-          <a href="/firmengeschenk" className="flex items-center gap-2">
-            <Leaf className={`w-6 h-6 ${scrolled ? 'text-[#2D6A4F]' : 'text-[#52B788]'}`} />
-            <span
-              className={`font-[Montserrat] font-bold text-lg tracking-tight ${
-                scrolled ? 'text-[#1B4332]' : 'text-white'
-              }`}
-            >
-              quetz.org
-            </span>
-          </a>
-        </div>
-        <div className="hidden md:flex items-center gap-8">
-          {[
-            { href: '#pakete', label: 'Pakete' },
-            { href: '#so-funktionierts', label: "So funktioniert's" },
-            { href: '#faq', label: 'FAQ' },
-          ].map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              className={`text-sm font-medium transition-colors ${
-                scrolled
-                  ? 'text-gray-500 hover:text-gray-900'
-                  : 'text-white/80 hover:text-white'
-              }`}
-            >
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? "bg-[#081C15]/95 backdrop-blur-xl shadow-[0_2px_20px_rgba(0,0,0,0.3)] border-b border-[#52B788]/10" : "bg-gradient-to-b from-black/40 to-transparent"}`}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16 sm:h-[72px]">
+        {/* Logo */}
+        <a href="/" className="flex items-center gap-2.5 group">
+          <div className={`flex items-center gap-2 transition-all duration-300 ${scrolled ? "" : "bg-white/10 backdrop-blur-sm rounded-xl px-3 py-1.5"}`}>
+            <Leaf className="w-6 h-6 text-[#52B788] group-hover:scale-110 transition-transform" />
+            <span className="font-[Montserrat] font-bold text-lg text-white tracking-tight">quetz.org</span>
+          </div>
+        </a>
+
+        {/* Desktop nav */}
+        <div className="hidden md:flex items-center gap-1">
+          {navLinks.map((link) => (
+            <a key={link.href} href={link.href} className="relative px-3.5 py-2 text-sm font-medium text-white/80 hover:text-white rounded-lg hover:bg-white/10 transition-all duration-200 group">
               {link.label}
+              <span className="absolute bottom-1 left-1/2 -translate-x-1/2 h-0.5 w-0 bg-[#52B788] rounded-full transition-all duration-200 group-hover:w-3/5" />
             </a>
           ))}
+          <div className="w-px h-5 mx-2 bg-white/20 rounded-full" />
+          <a href="/empresas" className="px-3.5 py-2 text-sm font-medium text-white/60 hover:text-white rounded-lg hover:bg-white/10 transition-all duration-200">
+            CSR-Abo
+          </a>
         </div>
-        <a href="#pakete">
-          <Button className="bg-[#2D6A4F] hover:bg-[#1B4332] text-white font-[Montserrat] font-semibold text-sm px-5">
-            Paket auswählen
-          </Button>
-        </a>
+
+        {/* CTA + Mobile toggle */}
+        <div className="flex items-center gap-3">
+          <a href="#pakete" className="hidden sm:inline-flex">
+            <Button className="bg-[#52B788] hover:bg-[#40916C] text-white font-[Montserrat] font-bold text-sm px-6 py-2.5 rounded-full shadow-lg shadow-[#52B788]/20 hover:shadow-xl hover:shadow-[#52B788]/30 transition-all">
+              {tx.navCta}
+              <ChevronRight className="ml-1 w-4 h-4" />
+            </Button>
+          </a>
+          <button className="md:hidden p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-colors" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Menu">
+            {mobileOpen ? (
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+            ) : (
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
+            )}
+          </button>
+        </div>
       </div>
+
+      {/* Mobile menu */}
+      {mobileOpen && (
+        <div className="md:hidden bg-[#081C15]/98 backdrop-blur-xl border-t border-[#52B788]/10 shadow-2xl">
+          <div className="px-6 py-4 space-y-1">
+            {navLinks.map((link) => (
+              <a key={link.href} href={link.href} onClick={() => setMobileOpen(false)} className="block py-3 px-4 text-white/80 hover:text-white hover:bg-white/5 rounded-xl font-medium transition-colors">
+                {link.label}
+              </a>
+            ))}
+            <div className="h-px bg-white/10 !my-3" />
+            <a href="#pakete" onClick={() => setMobileOpen(false)} className="block mt-3 text-center bg-[#52B788] text-white py-3.5 rounded-2xl font-bold shadow-lg shadow-[#52B788]/20">
+              {tx.navCta}
+            </a>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }
 
 /* ═══════════════════════════════════════════════════════
-   MOBILE STICKY BAR
+   HERO
    ═══════════════════════════════════════════════════════ */
-function MobileStickyBar() {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const handler = () => setVisible(window.scrollY > 600);
-    window.addEventListener('scroll', handler);
-    return () => window.removeEventListener('scroll', handler);
-  }, []);
-
-  if (!visible) return null;
-
+function HeroSection({ tx }: { tx: typeof txt.de }) {
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white border-t border-gray-200 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] px-4 py-3">
-      <a href={STRIPE_LINKS.medium} target="_blank" rel="noopener noreferrer">
-        <Button className="w-full bg-[#2D6A4F] hover:bg-[#1B4332] text-white font-[Montserrat] font-semibold text-sm py-3">
-          25 Bäume bestellen · 229€
-          <ChevronRight className="ml-2 w-4 h-4" />
-        </Button>
-      </a>
-      <p className="text-center text-[10px] text-gray-400 mt-1.5">
-        DSGVO-konform · Steuerlich absetzbar · Made in Germany
-      </p>
-    </div>
-  );
-}
-
-/* ═══════════════════════════════════════════════════════
-   1. HERO
-   ═══════════════════════════════════════════════════════ */
-function HeroSection() {
-  return (
-    <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-screen flex items-center justify-center">
       <div className="absolute inset-0">
-        <img
-          src={IMAGES.hero}
-          alt="Aufforstung in Zacapa, Guatemala"
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#081C15]/70 via-[#081C15]/50 to-[#081C15]/80" />
+        <img src={IMAGES.hero} alt="Rainforest canopy" className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#081C15]/60 via-[#081C15]/40 to-[#081C15]" />
       </div>
 
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 text-center pt-24 pb-16">
-        <p className="text-[#B7E4C7] font-[Montserrat] font-semibold text-xs sm:text-sm tracking-[0.2em] uppercase mb-6">
-          Firmengeschenk mit echtem Impact
-        </p>
-        <h1 className="font-[Montserrat] font-black text-3xl sm:text-5xl lg:text-6xl text-white leading-[1.1] mb-6">
-          Das Firmengeschenk,
-          <span className="block text-[#52B788]">das wächst.</span>
+        {/* Tag */}
+        <div className="inline-flex items-center gap-2 bg-[#52B788]/15 border border-[#52B788]/30 rounded-full px-4 py-1.5 mb-8">
+          <Gift className="w-4 h-4 text-[#52B788]" />
+          <span className="text-[#52B788] text-sm font-semibold font-[Montserrat]">{tx.heroTag}</span>
+        </div>
+
+        {/* H1 */}
+        <h1 className="font-[Montserrat] font-black text-4xl sm:text-5xl md:text-7xl text-white leading-[1.1] mb-6">
+          {tx.heroTitle}
         </h1>
-        <p className="text-white/80 text-base sm:text-lg max-w-2xl mx-auto mb-10 leading-relaxed">
-          Ihre Mitarbeiter vergessen den nächsten Kugelschreiber sofort.
-          Schenken Sie echte Bäume in Guatemala. Mit Zertifikat, Foto und GPS-Koordinaten.
+
+        {/* Subtitle */}
+        <p className="text-white/70 text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed mb-10">
+          {tx.heroSub}
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-          <a href="#pakete">
-            <Button
-              size="lg"
-              className="bg-[#52B788] hover:bg-[#40916C] text-white font-[Montserrat] font-bold text-base px-8 py-6 shadow-xl shadow-[#52B788]/20"
-            >
-              Paket auswählen
-              <ChevronRight className="ml-2 w-5 h-5" />
-            </Button>
-          </a>
-          <a href="#so-funktionierts">
-            <Button
-              size="lg"
-              variant="outline"
-              className="border-white/30 text-white hover:bg-white/10 font-[Montserrat] font-semibold text-base px-8 py-6 bg-transparent"
-            >
-              So funktioniert's
-              <ArrowDown className="ml-2 w-5 h-5" />
-            </Button>
-          </a>
-        </div>
+        {/* CTA */}
+        <a href="#pakete">
+          <Button className="bg-[#52B788] hover:bg-[#40916C] text-white font-[Montserrat] font-bold text-base sm:text-lg px-8 sm:px-10 py-4 rounded-full shadow-xl shadow-[#52B788]/25 hover:shadow-2xl hover:shadow-[#52B788]/30 hover:scale-105 transition-all duration-300">
+            {tx.heroCta}
+            <ChevronRight className="ml-2 w-5 h-5" />
+          </Button>
+        </a>
 
         {/* Trust badges */}
-        <div className="flex flex-wrap justify-center gap-6 text-white/50 text-xs sm:text-sm">
-          <span className="flex items-center gap-1.5">
-            <Shield className="w-4 h-4" /> DSGVO-konform
-          </span>
-          <span className="flex items-center gap-1.5">
-            <FileCheck className="w-4 h-4" /> Steuerlich absetzbar
-          </span>
-          <span className="flex items-center gap-1.5">
-            <MapPin className="w-4 h-4" /> Made in Germany
-          </span>
+        <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 mt-10">
+          {[
+            { icon: Shield, text: tx.heroTrust1 },
+            { icon: Clock, text: tx.heroTrust2 },
+            { icon: FileText, text: tx.heroTrust3 },
+          ].map((badge, i) => (
+            <div key={i} className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2">
+              <badge.icon className="w-4 h-4 text-[#52B788]" />
+              <span className="text-white/70 text-xs sm:text-sm font-medium">{badge.text}</span>
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -222,18 +437,17 @@ function HeroSection() {
 }
 
 /* ═══════════════════════════════════════════════════════
-   2. PROBLEM-AGITATION
+   PROBLEM
    ═══════════════════════════════════════════════════════ */
-function ProblemSection() {
+function ProblemSection({ tx }: { tx: typeof txt.de }) {
   return (
-    <section className="py-16 sm:py-24 bg-[#F5F5F0]">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
-        <h2 className="font-[Montserrat] font-extrabold text-2xl sm:text-3xl text-[#1B4332] leading-tight mb-6">
-          Wertschätzung zeigen, ohne im Papierkorb zu landen.
+    <section className="relative py-20 md:py-28 bg-[#1B4332]">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
+        <h2 className="font-[Montserrat] font-800 text-2xl sm:text-3xl md:text-4xl text-white leading-tight mb-6">
+          {tx.probTitle}
         </h2>
-        <p className="text-gray-600 text-base sm:text-lg leading-relaxed">
-          Mitarbeiter und Kunden vergessen den nächsten gebrandeten Kugelschreiber sofort.
-          Ein Geschenk, das wirklich bleibt, wächst und Bedeutung hat. Das schaffen nur die wenigsten.
+        <p className="text-[#B7E4C7]/70 text-lg sm:text-xl leading-relaxed max-w-2xl mx-auto">
+          {tx.probText}
         </p>
       </div>
     </section>
@@ -241,284 +455,171 @@ function ProblemSection() {
 }
 
 /* ═══════════════════════════════════════════════════════
-   3. SOLUTION - 3 Columns
+   SOLUTION
    ═══════════════════════════════════════════════════════ */
-function SolutionSection() {
-  const features = [
-    {
-      icon: TreePine,
-      title: 'Echte Bäume in Zacapa, Guatemala',
-      desc: 'Heimische Baumarten, gepflanzt von lokalen Familien. Jeder Baum schafft einen Arbeitsplatz und wird GPS-getrackt.',
-    },
-    {
-      icon: Award,
-      title: 'Personalisiertes Zertifikat',
-      desc: 'Jeder Mitarbeiter erhält ein eigenes Zertifikat mit Namen, Foto des Baumes und GPS-Koordinaten.',
-    },
-    {
-      icon: FileCheck,
-      title: 'Steuerlich absetzbar',
-      desc: 'Als Firmengeschenk voll absetzbar. Sie erhalten eine ordentliche Rechnung für Ihre Buchhaltung.',
-    },
-  ];
-
+function SolutionSection({ tx }: { tx: typeof txt.de }) {
   return (
-    <section className="py-16 sm:py-24 bg-white">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6">
-        <div className="text-center mb-14">
-          <p className="text-[#2D6A4F] font-[Montserrat] font-semibold text-sm tracking-[0.15em] uppercase mb-3">
-            Die Lösung
-          </p>
-          <h2 className="font-[Montserrat] font-extrabold text-2xl sm:text-3xl text-[#1B4332]">
-            Ein Geschenk mit Substanz
+    <section className="relative overflow-hidden" id="impact">
+      <div className="relative min-h-[70vh] flex items-center">
+        <div className="absolute inset-0">
+          <img src={IMAGES.workers} alt="Aufforstung Guatemala" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#081C15]/90 via-[#081C15]/70 to-transparent" />
+        </div>
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+          <p className="text-[#52B788] font-[Montserrat] font-semibold text-sm tracking-[0.15em] uppercase mb-4">{tx.solTag}</p>
+          <h2 className="font-[Montserrat] font-800 text-3xl md:text-5xl text-white leading-tight max-w-2xl mb-12">
+            {tx.solTitle}
           </h2>
-        </div>
-        <div className="grid md:grid-cols-3 gap-8 sm:gap-10">
-          {features.map((f, i) => (
-            <div key={i} className="text-center">
-              <div className="w-16 h-16 rounded-2xl bg-[#2D6A4F]/10 flex items-center justify-center mx-auto mb-5">
-                <f.icon className="w-8 h-8 text-[#2D6A4F]" />
-              </div>
-              <h3 className="font-[Montserrat] font-bold text-lg text-[#1B4332] mb-3">
-                {f.title}
-              </h3>
-              <p className="text-gray-500 text-sm leading-relaxed">{f.desc}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
 
-/* ═══════════════════════════════════════════════════════
-   4. PRICING PACKAGES
-   ═══════════════════════════════════════════════════════ */
-function PricingSection() {
-  const packages = [
-    {
-      id: 'klein',
-      name: 'Klein',
-      trees: 10,
-      price: 99,
-      perTree: '9,90',
-      tagline: 'Ideal für kleine Teams',
-      highlight: false,
-      link: STRIPE_LINKS.klein,
-    },
-    {
-      id: 'medium',
-      name: 'Medium',
-      trees: 25,
-      price: 229,
-      perTree: '9,16',
-      tagline: 'Beliebt bei Agenturen',
-      highlight: true,
-      link: STRIPE_LINKS.medium,
-    },
-    {
-      id: 'gross',
-      name: 'Groß',
-      trees: 50,
-      price: 449,
-      perTree: '8,98',
-      tagline: 'Für Sommerfeste & Events',
-      highlight: false,
-      link: STRIPE_LINKS.gross,
-    },
-    {
-      id: 'xl',
-      name: 'XL',
-      trees: 100,
-      price: 849,
-      perTree: '8,49',
-      tagline: 'Für Jubiläen & Großevents',
-      highlight: false,
-      link: STRIPE_LINKS.xl,
-    },
-  ];
-
-  return (
-    <section className="py-16 sm:py-24 bg-[#F5F5F0]" id="pakete">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6">
-        <div className="text-center mb-12">
-          <p className="text-[#2D6A4F] font-[Montserrat] font-semibold text-sm tracking-[0.15em] uppercase mb-3">
-            Pakete
-          </p>
-          <h2 className="font-[Montserrat] font-extrabold text-2xl sm:text-3xl text-[#1B4332] mb-3">
-            Einmal bestellen. Nachhaltig beeindrucken.
-          </h2>
-          <p className="text-gray-500 text-sm max-w-lg mx-auto">
-            Kein Abo. Keine versteckten Kosten. Sie bestellen, wir pflanzen, Ihr Team freut sich.
-          </p>
-        </div>
-
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {packages.map((pkg) => (
-            <div
-              key={pkg.id}
-              className={`relative rounded-2xl p-6 sm:p-7 flex flex-col transition-shadow duration-200 ${
-                pkg.highlight
-                  ? 'bg-white border-2 border-[#2D6A4F] shadow-lg shadow-[#2D6A4F]/10'
-                  : 'bg-white border border-gray-200 hover:shadow-md'
-              }`}
-            >
-              {pkg.highlight && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#2D6A4F] text-white font-[Montserrat] font-bold text-[11px] px-4 py-1 rounded-full whitespace-nowrap">
-                  Am beliebtesten
+          <div className="grid sm:grid-cols-3 gap-8 max-w-4xl">
+            {[
+              { icon: TreePine, title: tx.sol1Title, text: tx.sol1Text, color: "#52B788" },
+              { icon: FileText, title: tx.sol2Title, text: tx.sol2Text, color: "#E9C46A" },
+              { icon: Shield, title: tx.sol3Title, text: tx.sol3Text, color: "#52B788" },
+            ].map((item, i) => (
+              <div key={i} className="group">
+                <div className="w-14 h-14 rounded-full flex items-center justify-center mb-5" style={{ backgroundColor: `${item.color}20` }}>
+                  <item.icon className="w-7 h-7" style={{ color: item.color }} />
                 </div>
-              )}
-              <h3 className="font-[Montserrat] font-bold text-lg text-[#1B4332]">{pkg.name}</h3>
-              <p className="text-[#2D6A4F] text-sm font-medium mt-1">
-                {pkg.trees} Bäume
-              </p>
-              <div className="mt-4 mb-1">
-                <span className="font-[Montserrat] font-black text-4xl text-[#1B4332]">
-                  {pkg.price}€
-                </span>
+                <h3 className="font-[Montserrat] font-bold text-lg text-white mb-2">{item.title}</h3>
+                <p className="text-white/60 text-sm leading-relaxed">{item.text}</p>
               </div>
-              <p className="text-gray-400 text-xs mb-4">{pkg.perTree}€ pro Baum</p>
-              <p className="text-gray-500 text-sm mb-6 flex-1">{pkg.tagline}</p>
-              <ul className="space-y-2.5 mb-6">
-                {[
-                  `${pkg.trees} GPS-getrackte Bäume`,
-                  'Personalisierte Zertifikate',
-                  'Rechnung für Buchhaltung',
-                  'Digitale Übergabe-Karten',
-                ].map((feat, j) => (
-                  <li key={j} className="flex items-start gap-2">
-                    <Check className="w-4 h-4 text-[#2D6A4F] mt-0.5 shrink-0" />
-                    <span className="text-gray-600 text-sm">{feat}</span>
-                  </li>
-                ))}
-              </ul>
-              <a href={pkg.link} target="_blank" rel="noopener noreferrer" className="mt-auto">
-                <Button
-                  className={`w-full font-[Montserrat] font-semibold ${
-                    pkg.highlight
-                      ? 'bg-[#2D6A4F] hover:bg-[#1B4332] text-white'
-                      : 'bg-[#2D6A4F]/10 hover:bg-[#2D6A4F]/20 text-[#2D6A4F]'
-                  }`}
-                >
-                  Jetzt bestellen
-                </Button>
-              </a>
-            </div>
-          ))}
-        </div>
-
-        <p className="text-center text-gray-400 text-xs mt-6">
-          Alle Preise inkl. MwSt. Zahlung per Kreditkarte, SEPA oder Rechnung.
-        </p>
-      </div>
-    </section>
-  );
-}
-
-/* ═══════════════════════════════════════════════════════
-   5. SO FUNKTIONIERTS - 4 Steps
-   ═══════════════════════════════════════════════════════ */
-function HowItWorksSection() {
-  const steps = [
-    {
-      num: '01',
-      icon: TreePine,
-      title: 'Paket auswählen und bezahlen',
-      desc: 'Wählen Sie die passende Größe für Ihr Team. Sichere Zahlung per Stripe.',
-    },
-    {
-      num: '02',
-      icon: Upload,
-      title: 'Mitarbeiternamen hochladen',
-      desc: 'Per Formular oder CSV-Datei. Wir brauchen nur die Vornamen.',
-    },
-    {
-      num: '03',
-      icon: MapPin,
-      title: 'Wir pflanzen die Bäume in Zacapa',
-      desc: 'Lokale Familien pflanzen heimische Arten. Jeder Baum wird GPS-getrackt.',
-    },
-    {
-      num: '04',
-      icon: Send,
-      title: 'Zertifikate digital erhalten',
-      desc: 'Personalisierte Zertifikate als PDF. Fertig zum Verschenken.',
-    },
-  ];
-
-  return (
-    <section className="py-16 sm:py-24 bg-white" id="so-funktionierts">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6">
-        <div className="text-center mb-14">
-          <p className="text-[#2D6A4F] font-[Montserrat] font-semibold text-sm tracking-[0.15em] uppercase mb-3">
-            So funktioniert's
-          </p>
-          <h2 className="font-[Montserrat] font-extrabold text-2xl sm:text-3xl text-[#1B4332]">
-            In 4 Schritten zum perfekten Firmengeschenk
-          </h2>
-        </div>
-
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {steps.map((step, i) => (
-            <div key={i} className="relative text-center">
-              <span className="font-[Montserrat] font-black text-5xl text-[#2D6A4F]/10">
-                {step.num}
-              </span>
-              <div className="w-12 h-12 rounded-xl bg-[#2D6A4F]/10 flex items-center justify-center mx-auto mt-2 mb-4">
-                <step.icon className="w-6 h-6 text-[#2D6A4F]" />
-              </div>
-              <h3 className="font-[Montserrat] font-bold text-base text-[#1B4332] mb-2">
-                {step.title}
-              </h3>
-              <p className="text-gray-500 text-sm leading-relaxed">{step.desc}</p>
-              {i < 3 && (
-                <div className="hidden lg:block absolute top-10 -right-4">
-                  <ChevronRight className="w-5 h-5 text-[#2D6A4F]/20" />
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ═══════════════════════════════════════════════════════
-   6. SOCIAL PROOF
-   ═══════════════════════════════════════════════════════ */
-function SocialProofSection() {
-  return (
-    <section className="py-16 sm:py-24 bg-[#F5F5F0]">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6">
-        {/* Client quote */}
-        <div className="max-w-3xl mx-auto text-center mb-16">
-          <div className="flex items-center justify-center gap-3 mb-6">
-            <Building2 className="w-5 h-5 text-[#2D6A4F]" />
-            <span className="font-[Montserrat] font-bold text-sm text-[#1B4332] tracking-wide">
-              LEYTON DEUTSCHLAND
-            </span>
+            ))}
           </div>
-          <blockquote className="text-gray-600 text-base sm:text-lg italic leading-relaxed mb-4">
-            &ldquo;Wir wollten unseren Mitarbeitern etwas schenken, das über den üblichen Gutschein hinausgeht.
-            Die Baumadoptionen von quetz haben genau das geschafft. Jeder im Team hat sich über sein
-            persönliches Zertifikat gefreut.&rdquo;
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════
+   PRICING
+   ═══════════════════════════════════════════════════════ */
+function PricingSection({ tx, lang }: { tx: typeof txt.de; lang: Lang }) {
+  const pkgNames: Record<string, string> = {
+    klein: tx.pkgKlein,
+    medium: tx.pkgMedium,
+    gross: tx.pkgGross,
+    xl: tx.pkgXl,
+  };
+  const pkgDescs: Record<string, string> = {
+    klein: tx.pkgKleinDesc,
+    medium: tx.pkgMediumDesc,
+    gross: tx.pkgGrossDesc,
+    xl: tx.pkgXlDesc,
+  };
+
+  return (
+    <section className="relative py-24 md:py-32 bg-[#0D2818]" id="pakete">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-14">
+          <p className="text-[#52B788] font-[Montserrat] font-semibold text-sm tracking-[0.15em] uppercase mb-4">{tx.pricingTag}</p>
+          <h2 className="font-[Montserrat] font-800 text-3xl md:text-4xl text-white mb-4">{tx.pricingTitle}</h2>
+          <p className="text-[#B7E4C7]/60 max-w-xl mx-auto">{tx.pricingSubtitle}</p>
+        </div>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {PACKAGES.map((pkg) => (
+            <div key={pkg.id} className={`relative p-8 rounded-2xl flex flex-col ${pkg.popular ? "bg-[#52B788]/15 border-2 border-[#52B788]/40 scale-[1.02]" : "bg-[#1B4332]/60 border border-[#52B788]/10"}`}>
+              {pkg.popular && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#52B788] text-[#081C15] font-[Montserrat] font-bold text-xs px-4 py-1 rounded-full whitespace-nowrap">
+                  {tx.pkgPopular}
+                </div>
+              )}
+              <h3 className="font-[Montserrat] font-bold text-xl text-white mb-1">{pkgNames[pkg.id]}</h3>
+              <p className="text-[#52B788] text-sm font-medium mb-1">{pkg.trees} {tx.pkgTrees}</p>
+              <p className="text-white/50 text-xs mb-4">{pkgDescs[pkg.id]}</p>
+              <div className="mb-4">
+                <span className="font-[Montserrat] font-900 text-4xl text-white">{lang === "en" ? `€${pkg.price}` : `${pkg.price}€`}</span>
+              </div>
+              <p className="text-[#52B788]/70 text-xs mb-6 flex items-center gap-1.5">
+                <Check className="w-3.5 h-3.5" />
+                {tx.pkgTax}
+              </p>
+              <div className="mt-auto">
+                <a href={STRIPE_LINKS[pkg.id]} target="_blank" rel="noopener noreferrer">
+                  <Button className={`w-full font-[Montserrat] font-bold rounded-full py-3 transition-all ${pkg.popular ? "bg-[#52B788] hover:bg-[#40916C] text-white shadow-lg shadow-[#52B788]/20" : "bg-white/10 hover:bg-white/20 text-white"}`}>
+                    {tx.pkgCta}
+                    <ChevronRight className="ml-1 w-4 h-4" />
+                  </Button>
+                </a>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════
+   HOW IT WORKS
+   ═══════════════════════════════════════════════════════ */
+function HowItWorksSection({ tx }: { tx: typeof txt.de }) {
+  const steps = [
+    { num: "01", title: tx.how1Title, text: tx.how1Text },
+    { num: "02", title: tx.how2Title, text: tx.how2Text },
+    { num: "03", title: tx.how3Title, text: tx.how3Text },
+    { num: "04", title: tx.how4Title, text: tx.how4Text },
+  ];
+
+  return (
+    <section className="relative py-24 md:py-32 bg-[#2D6A4F]" id="ablauf">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <p className="text-[#B7E4C7] font-[Montserrat] font-semibold text-sm tracking-[0.15em] uppercase mb-4">{tx.howTag}</p>
+          <h2 className="font-[Montserrat] font-800 text-3xl md:text-4xl text-white">{tx.howTitle}</h2>
+        </div>
+
+        <div className="grid md:grid-cols-4 gap-8">
+          {steps.map((step, i) => (
+            <div key={i} className="relative">
+              <span className="font-[Montserrat] font-900 text-6xl text-[#52B788]/20">{step.num}</span>
+              <h3 className="font-[Montserrat] font-bold text-lg text-white mt-2 mb-2">{step.title}</h3>
+              <p className="text-[#B7E4C7]/70 text-sm leading-relaxed">{step.text}</p>
+              {i < 3 && (
+                <div className="hidden md:block absolute top-8 -right-4 w-8">
+                  <ChevronRight className="w-6 h-6 text-[#52B788]/30" />
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════
+   SOCIAL PROOF
+   ═══════════════════════════════════════════════════════ */
+function SocialProofSection({ tx }: { tx: typeof txt.de }) {
+  return (
+    <section className="relative py-24 md:py-32 bg-[#1B4332]">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-12">
+          <p className="text-[#52B788] font-[Montserrat] font-semibold text-sm tracking-[0.15em] uppercase mb-4">{tx.proofTag}</p>
+          <h2 className="font-[Montserrat] font-800 text-3xl md:text-4xl text-white">{tx.proofTitle}</h2>
+        </div>
+
+        {/* Quote */}
+        <div className="bg-[#0D2818]/60 border border-[#52B788]/10 rounded-2xl p-8 md:p-12 mb-12">
+          <blockquote className="text-white/80 text-lg md:text-xl leading-relaxed italic mb-6">
+            &ldquo;{tx.proofQuote}&rdquo;
           </blockquote>
-          <p className="text-gray-400 text-sm">Leyton Deutschland, Düsseldorf</p>
+          <p className="text-[#52B788] font-[Montserrat] font-semibold">{tx.proofCompany}</p>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-6 max-w-2xl mx-auto">
+        <div className="grid grid-cols-3 gap-6 text-center">
           {[
-            { value: '500+', label: 'Bäume gepflanzt' },
-            { value: '12', label: 'Familien unterstützt' },
-            { value: '30%', label: 'Schule finanziert' },
+            { value: "500+", label: tx.proofStat1Label },
+            { value: "12", label: tx.proofStat2Label },
+            { value: "30%", label: tx.proofStat3Label },
           ].map((stat, i) => (
-            <div key={i} className="text-center">
-              <p className="font-[Montserrat] font-black text-2xl sm:text-3xl text-[#2D6A4F]">
-                {stat.value}
-              </p>
-              <p className="text-gray-500 text-xs sm:text-sm mt-1">{stat.label}</p>
+            <div key={i}>
+              <p className="font-[Montserrat] font-900 text-3xl md:text-4xl text-[#52B788]">{stat.value}</p>
+              <p className="text-white/50 text-sm mt-1">{stat.label}</p>
             </div>
           ))}
         </div>
@@ -528,39 +629,27 @@ function SocialProofSection() {
 }
 
 /* ═══════════════════════════════════════════════════════
-   7. UNSERE WURZELN (Founder Story)
+   FOUNDER
    ═══════════════════════════════════════════════════════ */
-function FounderSection() {
+function FounderSection({ tx }: { tx: typeof txt.de }) {
   return (
-    <section className="py-16 sm:py-24 bg-white">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6">
-        <div className="grid md:grid-cols-[280px_1fr] gap-10 items-center">
-          {/* Founder photo placeholder */}
-          <div className="mx-auto md:mx-0">
-            <div className="w-56 h-56 sm:w-64 sm:h-64 rounded-2xl bg-gradient-to-br from-[#2D6A4F]/20 to-[#52B788]/10 flex items-center justify-center overflow-hidden">
-              {/* Replace with real founder photo */}
-              <div className="text-center p-6">
-                <Heart className="w-10 h-10 text-[#2D6A4F] mx-auto mb-3" />
-                <p className="text-[#2D6A4F] font-[Montserrat] font-bold text-sm">Foto folgt</p>
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <p className="text-[#2D6A4F] font-[Montserrat] font-semibold text-sm tracking-[0.15em] uppercase mb-3">
-              Unsere Wurzeln
-            </p>
-            <h2 className="font-[Montserrat] font-extrabold text-2xl sm:text-3xl text-[#1B4332] leading-tight mb-5">
-              Warum ein Deutsch-Guatemalteke aus Düsseldorf Bäume pflanzt.
+    <section className="relative overflow-hidden">
+      <div className="relative min-h-[60vh] flex items-center">
+        <div className="absolute inset-0">
+          <img src={IMAGES.roots} alt="Forest roots" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-l from-[#081C15]/90 via-[#081C15]/70 to-transparent" />
+        </div>
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+          <div className="ml-auto max-w-xl">
+            <p className="text-[#E9C46A] font-[Montserrat] font-semibold text-sm tracking-[0.15em] uppercase mb-4">{tx.founderTag}</p>
+            <h2 className="font-[Montserrat] font-800 text-3xl md:text-4xl text-white leading-tight mb-6">
+              {tx.founderTitle}
             </h2>
-            <p className="text-gray-600 text-base leading-relaxed mb-4">
-              Ich bin in Guatemala aufgewachsen und lebe seit Jahren in Düsseldorf.
-              In Zacapa habe ich gesehen, wie Entwaldung Familien die Lebensgrundlage nimmt.
-              Mit quetz.org verbinde ich beide Welten: Deutsche Unternehmen, die Gutes tun wollen,
-              und guatemaltekische Familien, die davon leben.
+            <p className="text-white/70 text-lg leading-relaxed mb-6">
+              {tx.founderText}
             </p>
-            <p className="text-gray-500 text-sm">
-              Kein Konzern. Keine Agentur dazwischen. Direkt.
+            <p className="text-[#E9C46A] font-[Montserrat] font-semibold text-sm">
+              {tx.founderName}
             </p>
           </div>
         </div>
@@ -570,101 +659,67 @@ function FounderSection() {
 }
 
 /* ═══════════════════════════════════════════════════════
-   8. FAQ
+   FAQ
    ═══════════════════════════════════════════════════════ */
-function FAQSection() {
+function FAQSection({ tx }: { tx: typeof txt.de }) {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
   const faqs = [
-    {
-      q: 'Ist das wirklich steuerlich absetzbar?',
-      a: 'Ja. Sie erhalten eine ordentliche Rechnung mit ausgewiesener MwSt. Firmengeschenke sind als Betriebsausgabe absetzbar. Sprechen Sie mit Ihrem Steuerberater über die genaue Behandlung in Ihrem Fall.',
-    },
-    {
-      q: 'Wie schnell erhalten meine Mitarbeiter die Zertifikate?',
-      a: 'Nach Eingang Ihrer Zahlung und der Mitarbeiternamen erhalten Sie die personalisierten Zertifikate innerhalb von 5 Werktagen als PDF per E-Mail.',
-    },
-    {
-      q: 'Können wir das Zertifikat mit unserem Firmenlogo personalisieren?',
-      a: 'Ja, ab dem Medium-Paket (25 Bäume) können wir Ihr Firmenlogo auf die Zertifikate drucken. Senden Sie uns einfach Ihr Logo nach der Bestellung.',
-    },
-    {
-      q: 'Was passiert, wenn ein Baum nicht überlebt?',
-      a: 'Unsere Bäume werden von lokalen Familien gepflegt, die Überlebensrate liegt bei über 85%. Sollte ein Baum nicht überleben, pflanzen wir kostenlos einen neuen.',
-    },
-    {
-      q: 'Gibt es eine Rechnung für die Buchhaltung?',
-      a: 'Ja. Sie erhalten automatisch eine ordentliche Rechnung mit allen steuerlich relevanten Angaben. Unsere Firma ist in Deutschland registriert.',
-    },
-    {
-      q: 'Wo genau werden die Bäume gepflanzt?',
-      a: 'Alle Bäume werden in Zacapa, Guatemala gepflanzt. Jeder Baum erhält GPS-Koordinaten, die auf dem Zertifikat vermerkt sind.',
-    },
-    {
-      q: 'Kann ich die Bäume auch als Kundengeschenk nutzen?',
-      a: 'Selbstverständlich. Viele Unternehmen nutzen unsere Pakete als Geschenk für Kunden, Partner oder als Give-away bei Events.',
-    },
+    { q: tx.faq1Q, a: tx.faq1A },
+    { q: tx.faq2Q, a: tx.faq2A },
+    { q: tx.faq3Q, a: tx.faq3A },
+    { q: tx.faq4Q, a: tx.faq4A },
+    { q: tx.faq5Q, a: tx.faq5A },
+    { q: tx.faq6Q, a: tx.faq6A },
+    { q: tx.faq7Q, a: tx.faq7A },
   ];
 
   return (
-    <section className="py-16 sm:py-24 bg-[#F5F5F0]" id="faq">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6">
+    <section className="relative py-24 md:py-32 bg-[#0D2818]" id="kontakt">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <p className="text-[#2D6A4F] font-[Montserrat] font-semibold text-sm tracking-[0.15em] uppercase mb-3">
-            Häufige Fragen
-          </p>
-          <h2 className="font-[Montserrat] font-extrabold text-2xl sm:text-3xl text-[#1B4332]">
-            Alles, was Sie wissen müssen
-          </h2>
+          <p className="text-[#52B788] font-[Montserrat] font-semibold text-sm tracking-[0.15em] uppercase mb-4">{tx.faqTag}</p>
         </div>
 
-        <Accordion type="single" collapsible className="space-y-3">
+        <div className="space-y-3">
           {faqs.map((faq, i) => (
-            <AccordionItem
-              key={i}
-              value={`faq-${i}`}
-              className="bg-white rounded-xl border border-gray-200 px-6 overflow-hidden"
-            >
-              <AccordionTrigger className="text-left font-[Montserrat] font-semibold text-sm sm:text-base text-[#1B4332] py-5 hover:no-underline">
-                {faq.q}
-              </AccordionTrigger>
-              <AccordionContent className="text-gray-500 text-sm leading-relaxed pb-5">
-                {faq.a}
-              </AccordionContent>
-            </AccordionItem>
+            <div key={i} className="bg-[#1B4332]/60 border border-[#52B788]/10 rounded-xl overflow-hidden">
+              <button
+                onClick={() => setOpenIndex(openIndex === i ? null : i)}
+                className="w-full flex items-center justify-between px-6 py-5 text-left"
+              >
+                <span className="font-[Montserrat] font-semibold text-white text-sm sm:text-base pr-4">{faq.q}</span>
+                <ChevronDown className={`w-5 h-5 text-[#52B788] shrink-0 transition-transform duration-300 ${openIndex === i ? "rotate-180" : ""}`} />
+              </button>
+              {openIndex === i && (
+                <div className="px-6 pb-5">
+                  <p className="text-white/60 text-sm leading-relaxed">{faq.a}</p>
+                </div>
+              )}
+            </div>
           ))}
-        </Accordion>
+        </div>
       </div>
     </section>
   );
 }
 
 /* ═══════════════════════════════════════════════════════
-   9. CTA FINAL
+   FINAL CTA
    ═══════════════════════════════════════════════════════ */
-function FinalCTASection() {
+function FinalCTASection({ tx }: { tx: typeof txt.de }) {
   return (
-    <section className="relative py-20 sm:py-28 overflow-hidden">
-      <div className="absolute inset-0">
-        <img
-          src={IMAGES.workers}
-          alt="Aufforstung Guatemala"
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-[#081C15]/85" />
-      </div>
-
-      <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 text-center">
-        <h2 className="font-[Montserrat] font-extrabold text-2xl sm:text-4xl text-white leading-tight mb-5">
-          Ein Geschenk, das in fünf Jahren noch wächst.
+    <section className="relative py-24 md:py-32 bg-[#1B4332]">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
+        <h2 className="font-[Montserrat] font-800 text-3xl md:text-5xl text-white leading-tight mb-6">
+          {tx.ctaTitle}
         </h2>
-        <p className="text-white/70 text-base sm:text-lg mb-10 max-w-xl mx-auto">
-          Bestellen Sie jetzt und überraschen Sie Ihr Team mit etwas, das wirklich Bedeutung hat.
+        <p className="text-[#B7E4C7]/70 text-lg mb-10">
+          {tx.ctaSub}
         </p>
         <a href="#pakete">
-          <Button
-            size="lg"
-            className="bg-[#52B788] hover:bg-[#40916C] text-white font-[Montserrat] font-bold text-base px-10 py-6 shadow-xl shadow-[#52B788]/20"
-          >
-            Jetzt Paket auswählen
+          <Button className="bg-[#52B788] hover:bg-[#40916C] text-white font-[Montserrat] font-bold text-lg px-10 py-4 rounded-full shadow-xl shadow-[#52B788]/25 hover:shadow-2xl hover:shadow-[#52B788]/30 hover:scale-105 transition-all duration-300">
+            {tx.ctaBtn}
             <ChevronRight className="ml-2 w-5 h-5" />
           </Button>
         </a>
@@ -674,49 +729,27 @@ function FinalCTASection() {
 }
 
 /* ═══════════════════════════════════════════════════════
-   FOOTER (Minimal)
+   STICKY BAR (Mobile)
    ═══════════════════════════════════════════════════════ */
-function Footer() {
-  return (
-    <footer className="bg-[#1B4332] py-10">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <Leaf className="w-5 h-5 text-[#52B788]" />
-            <span className="font-[Montserrat] font-bold text-white text-sm">quetz.org</span>
-          </div>
-          <div className="flex gap-6 text-white/50 text-xs">
-            <a href="/impressum" className="hover:text-white transition-colors">Impressum</a>
-            <a href="/datenschutz" className="hover:text-white transition-colors">Datenschutz</a>
-            <a href="/agb" className="hover:text-white transition-colors">AGB</a>
-          </div>
-          <p className="text-white/30 text-xs">
-            © {new Date().getFullYear()} quetz.org
-          </p>
-        </div>
-      </div>
-    </footer>
-  );
-}
+function StickyBar({ tx }: { tx: typeof txt.de }) {
+  const [visible, setVisible] = useState(false);
 
-/* ═══════════════════════════════════════════════════════
-   PAGE EXPORT
-   ═══════════════════════════════════════════════════════ */
-export default function FirmengeschenkPage() {
+  useEffect(() => {
+    const handler = () => setVisible(window.scrollY > 600);
+    window.addEventListener("scroll", handler);
+    return () => window.removeEventListener("scroll", handler);
+  }, []);
+
+  if (!visible) return null;
+
   return (
-    <main className="min-h-screen">
-      <Navbar />
-      <HeroSection />
-      <ProblemSection />
-      <SolutionSection />
-      <PricingSection />
-      <HowItWorksSection />
-      <SocialProofSection />
-      <FounderSection />
-      <FAQSection />
-      <FinalCTASection />
-      <Footer />
-      <MobileStickyBar />
-    </main>
+    <div className="fixed bottom-0 left-0 right-0 z-40 sm:hidden bg-[#081C15]/95 backdrop-blur-xl border-t border-[#52B788]/20 px-4 py-3 flex items-center justify-between">
+      <span className="text-white/70 text-xs font-medium">{tx.stickyText}</span>
+      <a href={STRIPE_LINKS.medium}>
+        <Button className="bg-[#52B788] hover:bg-[#40916C] text-white font-[Montserrat] font-bold text-sm px-5 py-2 rounded-full">
+          {tx.stickyCta}
+        </Button>
+      </a>
+    </div>
   );
 }

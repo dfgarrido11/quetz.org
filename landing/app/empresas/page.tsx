@@ -40,6 +40,7 @@ function SimpleSection({ children, className = "" }: { children: React.ReactNode
 /* ─── Navigation ─── */
 function Navbar() {
   const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 60);
@@ -47,31 +48,96 @@ function Navbar() {
     return () => window.removeEventListener("scroll", handler);
   }, []);
 
+  const navLinks = [
+    { href: "#impact", label: "Impact" },
+    { href: "#transparenz", label: "Transparenz" },
+    { href: "#preise", label: "Preise" },
+    { href: "#kontakt", label: "Kontakt" },
+  ];
+
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? "bg-[#081C15]/90 backdrop-blur-md shadow-lg" : "bg-transparent"}`}>
-      <div className="container flex items-center justify-between py-4">
-        <div className="flex items-center gap-4">
-          <a href="/" className="flex items-center gap-1.5 text-white/70 hover:text-white text-sm font-medium transition-colors" title="Zur Startseite">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-            Startseite
-          </a>
-          <a href="#" className="flex items-center gap-2">
-            <Leaf className="w-7 h-7 text-[#52B788]" />
-            <span className="font-[Montserrat] font-bold text-xl text-white tracking-tight">quetz.org</span>
-          </a>
-        </div>
-        <div className="hidden md:flex items-center gap-8">
-          <a href="#impact" className="text-white/80 hover:text-white text-sm font-medium transition-colors">Impact</a>
-          <a href="#transparenz" className="text-white/80 hover:text-white text-sm font-medium transition-colors">Transparenz</a>
-          <a href="#preise" className="text-white/80 hover:text-white text-sm font-medium transition-colors">Preise</a>
-          <a href="#kontakt" className="text-white/80 hover:text-white text-sm font-medium transition-colors">Kontakt</a>
-        </div>
-        <a href="#kontakt">
-          <Button className="bg-[#52B788] hover:bg-[#40916C] text-white font-[Montserrat] font-semibold text-sm px-6">
-            Jetzt starten
-          </Button>
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? "bg-[#081C15]/95 backdrop-blur-xl shadow-[0_2px_20px_rgba(0,0,0,0.3)] border-b border-[#52B788]/10" : "bg-gradient-to-b from-black/40 to-transparent"}`}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16 sm:h-[72px]">
+        {/* Logo */}
+        <a href="/" className="flex items-center gap-2.5 group">
+          <div className={`flex items-center gap-2 transition-all duration-300 ${scrolled ? "" : "bg-white/10 backdrop-blur-sm rounded-xl px-3 py-1.5"}`}>
+            <Leaf className="w-6 h-6 text-[#52B788] group-hover:scale-110 transition-transform" />
+            <span className="font-[Montserrat] font-bold text-lg text-white tracking-tight">quetz.org</span>
+          </div>
         </a>
+
+        {/* Desktop nav */}
+        <div className="hidden md:flex items-center gap-1">
+          {navLinks.map((link) => (
+            <a
+              key={link.href}
+              href={link.href}
+              className="relative px-3.5 py-2 text-sm font-medium text-white/80 hover:text-white rounded-lg hover:bg-white/10 transition-all duration-200 group"
+            >
+              {link.label}
+              <span className="absolute bottom-1 left-1/2 -translate-x-1/2 h-0.5 w-0 bg-[#52B788] rounded-full transition-all duration-200 group-hover:w-3/5" />
+            </a>
+          ))}
+          <div className="w-px h-5 mx-2 bg-white/20 rounded-full" />
+          <a href="/firmengeschenk" className="px-3.5 py-2 text-sm font-semibold text-[#52B788] hover:text-white rounded-lg hover:bg-[#52B788]/20 transition-all duration-200">
+            Firmengeschenk
+          </a>
+        </div>
+
+        {/* CTA + Mobile toggle */}
+        <div className="flex items-center gap-3">
+          <a href="#kontakt" className="hidden sm:inline-flex">
+            <Button className="bg-[#52B788] hover:bg-[#40916C] text-white font-[Montserrat] font-bold text-sm px-6 py-2.5 rounded-full shadow-lg shadow-[#52B788]/20 hover:shadow-xl hover:shadow-[#52B788]/30 transition-all">
+              Jetzt starten
+              <ChevronRight className="ml-1 w-4 h-4" />
+            </Button>
+          </a>
+          <button
+            className="md:hidden p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+            onClick={() => setMobileOpen(!mobileOpen)}
+            aria-label="Menu"
+          >
+            {mobileOpen ? (
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+            ) : (
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
+            )}
+          </button>
+        </div>
       </div>
+
+      {/* Mobile menu */}
+      {mobileOpen && (
+        <div className="md:hidden bg-[#081C15]/98 backdrop-blur-xl border-t border-[#52B788]/10 shadow-2xl">
+          <div className="px-6 py-4 space-y-1">
+            {navLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                onClick={() => setMobileOpen(false)}
+                className="block py-3 px-4 text-white/80 hover:text-white hover:bg-white/5 rounded-xl font-medium transition-colors"
+              >
+                {link.label}
+              </a>
+            ))}
+            <div className="h-px bg-white/10 !my-3" />
+            <a
+              href="/firmengeschenk"
+              onClick={() => setMobileOpen(false)}
+              className="block py-3 px-4 text-[#52B788] hover:bg-[#52B788]/10 rounded-xl font-semibold transition-colors"
+            >
+              Firmengeschenk
+            </a>
+            <a
+              href="#kontakt"
+              onClick={() => setMobileOpen(false)}
+              className="block mt-3 text-center bg-[#52B788] text-white py-3.5 rounded-2xl font-bold shadow-lg shadow-[#52B788]/20"
+            >
+              Jetzt starten
+            </a>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }
