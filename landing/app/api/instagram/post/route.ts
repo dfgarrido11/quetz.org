@@ -71,7 +71,7 @@ Einmalig. Bedeutsam. Unvergesslich. 🌿
 
 Mit Quetz Corporate adoptieren Unternehmen Tropenbäume für ihre Teams, Kunden oder als CSR-Maßnahme. Inklusive CO₂-Bericht und Zertifikaten für jeden Mitarbeiter.
 
-Jetzt Angebot anfragen: quetz.org/empresas
+Jetzt Angebot anfragen: quetz.org/csr-partner
 
 #CSR #Nachhaltigkeit #Quetz #CorporateSocial #Klimaschutz #Guatemala #Aufforstung #GreenBusiness #Mittelstand`,
     image_url: 'https://quetz.org/og-image.jpg',

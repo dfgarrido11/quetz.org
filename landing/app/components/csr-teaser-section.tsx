@@ -42,7 +42,7 @@ export default function CsrTeaserSection() {
           {/* CTA */}
           <div className="flex-shrink-0">
             <Link
-              href="/empresas"
+              href="/csr-partner"
               className={`inline-flex items-center gap-2 bg-quetz-blue text-white font-semibold py-3 px-6 rounded-xl hover:bg-blue-700 transition-colors ${isRTL ? 'flex-row-reverse' : ''}`}
             >
               <span>{t('csr.cta')}</span>

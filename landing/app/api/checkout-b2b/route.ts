@@ -28,8 +28,8 @@ export async function POST(req: NextRequest) {
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${baseUrl}/empresas/danke?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${baseUrl}/empresas#preise`,
+      success_url: `${baseUrl}/csr-partner/danke?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}/csr-partner#preise`,
       allow_promotion_codes: true,
       custom_fields: [
         {

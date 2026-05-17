@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useLanguage } from '@/lib/language-context';
-import EmpresasPage from '../empresas/page';
+import EmpresasPage from '../csr-partner/page';
 
 export default function UnternehmenPage() {
   const { language, setLanguage } = useLanguage();

@@ -339,7 +339,7 @@ function Navbar({ tx }: { tx: typeof txt.de }) {
             </a>
           ))}
           <div className="w-px h-5 mx-2 bg-white/20 rounded-full" />
-          <a href="/empresas" className="px-3.5 py-2 text-sm font-medium text-white/60 hover:text-white rounded-lg hover:bg-white/10 transition-all duration-200">
+          <a href="/csr-partner" className="px-3.5 py-2 text-sm font-medium text-white/60 hover:text-white rounded-lg hover:bg-white/10 transition-all duration-200">
             CSR-Abo
           </a>
         </div>

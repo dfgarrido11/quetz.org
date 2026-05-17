@@ -8,7 +8,7 @@ const staticRoutes: MetadataRoute.Sitemap = [
   { url: SITE_URL, lastModified: new Date(), changeFrequency: 'daily', priority: 1.0 },
   { url: `${SITE_URL}/shop`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.9 },
   { url: `${SITE_URL}/transparencia`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.8 },
-  { url: `${SITE_URL}/empresas`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
+  { url: `${SITE_URL}/csr-partner`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
   { url: `${SITE_URL}/regalar`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.7 },
   { url: `${SITE_URL}/carrito`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
   { url: `${SITE_URL}/agb`, lastModified: new Date(), changeFrequency: 'yearly', priority: 0.2 },

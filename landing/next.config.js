@@ -1,6 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
+  async redirects() {
+    return [
+      { source: '/empresas', destination: '/csr-partner', permanent: true },
+      { source: '/empresas/:path*', destination: '/csr-partner/:path*', permanent: true },
+    ];
+  },
   typescript: {
     ignoreBuildErrors: true,
   },

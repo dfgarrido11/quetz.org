@@ -108,7 +108,7 @@ export default function Header({ onOpenModal }: HeaderProps) {
 
               {/* For Companies */}
               <Link
-                href="/empresas"
+                href="/csr-partner"
                 className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
                   scrolled
                     ? 'text-gray-600 hover:text-quetz-green hover:bg-green-50/70'
@@ -285,7 +285,7 @@ export default function Header({ onOpenModal }: HeaderProps) {
               <div className="h-px bg-gray-100 !my-3" />
 
               <Link
-                href="/empresas"
+                href="/csr-partner"
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center gap-2 text-gray-700 font-medium py-2.5 px-3 rounded-xl hover:bg-green-50 hover:text-quetz-green transition-colors"
               >
