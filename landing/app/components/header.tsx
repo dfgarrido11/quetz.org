@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
-import { Menu, X, User, Leaf, ShoppingCart, ShoppingBag, Building2, TreePine } from 'lucide-react';
+import { Menu, X, User, Leaf, ShoppingCart, ShoppingBag, Building2, TreePine, Gift } from 'lucide-react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '@/lib/language-context';
@@ -117,6 +117,19 @@ export default function Header({ onOpenModal }: HeaderProps) {
               >
                 <Building2 className="w-3.5 h-3.5" />
                 {t('header.forCompanies')}
+              </Link>
+
+              {/* Firmengeschenk */}
+              <Link
+                href="/firmengeschenk"
+                className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                  scrolled
+                    ? 'text-gray-600 hover:text-quetz-green hover:bg-green-50/70'
+                    : 'text-white/90 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                <Gift className="w-3.5 h-3.5" />
+                Firmengeschenk
               </Link>
 
               {/* Separator */}
@@ -278,6 +291,15 @@ export default function Header({ onOpenModal }: HeaderProps) {
               >
                 <Building2 className="w-4 h-4 text-quetz-green" />
                 {t('header.forCompanies')}
+              </Link>
+
+              <Link
+                href="/firmengeschenk"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-2 text-gray-700 font-medium py-2.5 px-3 rounded-xl hover:bg-green-50 hover:text-quetz-green transition-colors"
+              >
+                <Gift className="w-4 h-4 text-quetz-green" />
+                Firmengeschenk
               </Link>
 
               <Link
