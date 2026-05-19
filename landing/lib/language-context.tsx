@@ -56,11 +56,11 @@ function detectBrowserLanguage(): Language {
     }
   }
   
-  return 'es'; // Default to Spanish
+  return 'de'; // Default to German for DACH market
 }
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguageState] = useState<Language>('es');
+  const [language, setLanguageState] = useState<Language>('de');
   const [isInitialized, setIsInitialized] = useState(false);
 
   // Initialize language on mount

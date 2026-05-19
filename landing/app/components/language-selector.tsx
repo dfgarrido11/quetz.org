@@ -7,7 +7,7 @@ import { useLanguage } from '@/lib/language-context';
 import { languages, Language } from '@/lib/translations';
 
 export default function LanguageSelector() {
-  const { language, setLanguage, isRTL } = useLanguage();
+  const { language, setLanguage, isRTL, t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -34,7 +34,7 @@ export default function LanguageSelector() {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg hover:bg-white/10 transition-colors text-sm"
-        aria-label="Select language"
+        aria-label={t('common.selectLanguage')}
       >
         <Globe className="w-4 h-4" />
         <span className="hidden sm:inline">{currentLang.flag}</span>

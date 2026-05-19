@@ -34,7 +34,7 @@ export default function QuetzitoChatbot() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { language, isRTL } = useLanguage();
+  const { language, isRTL, t } = useLanguage();
 
   const welcomeMessages: Record<string, string> = {
     es: '¡Hola! Soy Quetzito, guardián de las historias de Zacapa. ¿Quieres elegir un plan mensual, hacer una donación o regalar árboles? 🌳',
@@ -118,7 +118,7 @@ export default function QuetzitoChatbot() {
                     <button
                       onClick={(e) => { e.stopPropagation(); setIsDismissed(true); }}
                       className="absolute -top-2 -right-2 w-7 h-7 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center shadow-md transition-colors z-10"
-                      aria-label="Cerrar Quetzito"
+                      aria-label={t('chat.closeAriaLabel')}
                     >
                       <X className="w-4 h-4 text-gray-600" />
                     </button>

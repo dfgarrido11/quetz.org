@@ -168,7 +168,10 @@ export const translations: Record<Language, Record<string, string>> = {
     'mascot.help': 'Ayuda a construir nuestra escuela',
     'mascot.together': 'Juntos hacemos la diferencia',
     'mascot.thanks': '¡Gracias por tu apoyo! 💚',
-    
+    'chat.openAriaLabel': 'Abrir chat con Quetzito',
+    'chat.closeAriaLabel': 'Cerrar Quetzito',
+    'common.selectLanguage': 'Seleccionar idioma',
+
     // Footer
     'footer.madeWith': 'Hecho con',
     'footer.inGuatemala': 'en Guatemala',
@@ -698,7 +701,10 @@ export const translations: Record<Language, Record<string, string>> = {
     'mascot.help': 'Hilf unsere Schule zu bauen',
     'mascot.together': 'Zusammen machen wir den Unterschied',
     'mascot.thanks': 'Danke für deine Unterstützung! 💚',
-    
+    'chat.openAriaLabel': 'Chat mit Quetzito öffnen',
+    'chat.closeAriaLabel': 'Quetzito schließen',
+    'common.selectLanguage': 'Sprache auswählen',
+
     // Footer
     'footer.madeWith': 'Gemacht mit',
     'footer.inGuatemala': 'in Guatemala',
@@ -1223,7 +1229,10 @@ export const translations: Record<Language, Record<string, string>> = {
     'mascot.help': 'Help build our school',
     'mascot.together': 'Together we make the difference',
     'mascot.thanks': 'Thank you for your support! 💚',
-    
+    'chat.openAriaLabel': 'Open chat with Quetzito',
+    'chat.closeAriaLabel': 'Close Quetzito',
+    'common.selectLanguage': 'Select language',
+
     // Footer
     'footer.madeWith': 'Made with',
     'footer.inGuatemala': 'in Guatemala',
@@ -1771,7 +1780,10 @@ export const translations: Record<Language, Record<string, string>> = {
     'mascot.help': 'Aide à construire notre école',
     'mascot.together': 'Ensemble, nous faisons la différence',
     'mascot.thanks': 'Merci pour ton soutien ! 💚',
-    
+    'chat.openAriaLabel': 'Ouvrir le chat avec Quetzito',
+    'chat.closeAriaLabel': 'Fermer Quetzito',
+    'common.selectLanguage': 'Sélectionner la langue',
+
     // Footer
     'footer.madeWith': 'Fait avec',
     'footer.inGuatemala': 'au Guatemala',
@@ -2315,7 +2327,10 @@ export const translations: Record<Language, Record<string, string>> = {
     'mascot.help': 'ساعد في بناء مدرستنا',
     'mascot.together': 'معاً نصنع الفرق',
     'mascot.thanks': 'شكراً لدعمك! 💚',
-    
+    'chat.openAriaLabel': 'افتح الدردشة مع كيتزيتو',
+    'chat.closeAriaLabel': 'إغلاق كيتزيتو',
+    'common.selectLanguage': 'اختر اللغة',
+
     // Footer
     'footer.madeWith': 'صنع بـ',
     'footer.inGuatemala': 'في غواتيمالا',

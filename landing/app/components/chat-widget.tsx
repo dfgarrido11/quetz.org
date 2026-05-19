@@ -66,7 +66,7 @@ function browserLang(): Lang {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function ChatWidget() {
-  const { language: siteLanguage } = useLanguage();
+  const { language: siteLanguage, t } = useLanguage();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -349,7 +349,7 @@ export default function ChatWidget() {
         transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
-        aria-label="Abrir chat con Quetzito"
+        aria-label={t('chat.openAriaLabel')}
       >
         {/* Glow ring */}
         <motion.div
