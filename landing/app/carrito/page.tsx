@@ -695,7 +695,7 @@ function GiftToggle({
                   value={item.giftRecipient?.name || ''}
                   onChange={(e) => onUpdateRecipient({ ...item.giftRecipient, name: e.target.value, email: item.giftRecipient?.email || '' })}
                   className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-quetz-green"
-                  placeholder="María García"
+                  placeholder="Max Mustermann"
                 />
               </div>
               <div>
@@ -705,7 +705,7 @@ function GiftToggle({
                   value={item.giftRecipient?.email || ''}
                   onChange={(e) => onUpdateRecipient({ ...item.giftRecipient, name: item.giftRecipient?.name || '', email: e.target.value })}
                   className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-quetz-green"
-                  placeholder="maria@email.com"
+                  placeholder="max@beispiel.de"
                 />
               </div>
               <div>

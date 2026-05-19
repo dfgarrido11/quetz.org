@@ -119,7 +119,7 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
       if (data.url) {
         window.location.href = data.url;
       } else {
-        throw new Error('No se recibió URL de pago');
+        throw new Error(t('payment.noPaymentUrl'));
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : t('payment.connectionError'));

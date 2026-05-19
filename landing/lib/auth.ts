@@ -21,7 +21,7 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error('Email y contraseña son requeridos');
+          throw new Error('E-Mail und Passwort sind erforderlich');
         }
 
         const user = await prisma.user.findUnique({
@@ -29,13 +29,13 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (!user || !user.passwordHash) {
-          throw new Error('Credenciales inválidas');
+          throw new Error('Ungültige Anmeldedaten');
         }
 
         const isValid = await bcrypt.compare(credentials.password, user.passwordHash);
 
         if (!isValid) {
-          throw new Error('Credenciales inválidas');
+          throw new Error('Ungültige Anmeldedaten');
         }
 
         return {

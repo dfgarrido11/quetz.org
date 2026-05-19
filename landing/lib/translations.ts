@@ -143,6 +143,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'donation.invalidAmount': 'Monto inválido',
     'payment.processingError': 'Error al procesar',
     'payment.connectionError': 'Error al conectar con el sistema de pago',
+    'payment.noPaymentUrl': 'No se recibió URL de pago. Por favor inténtelo de nuevo.',
 
     // Payment
     'payment.secureStripe': 'Pago seguro con Stripe',
@@ -672,6 +673,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'donation.invalidAmount': 'Ungültiger Betrag',
     'payment.processingError': 'Verarbeitungsfehler',
     'payment.connectionError': 'Fehler beim Verbinden mit dem Zahlungssystem',
+    'payment.noPaymentUrl': 'Zahlungs-URL nicht empfangen. Bitte versuchen Sie es erneut.',
 
     // Payment
     'payment.secureStripe': 'Sichere Zahlung mit Stripe',
@@ -1196,6 +1198,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'donation.invalidAmount': 'Invalid amount',
     'payment.processingError': 'Processing error',
     'payment.connectionError': 'Error connecting to the payment system',
+    'payment.noPaymentUrl': 'Payment URL not received. Please try again.',
 
     // Payment
     'payment.secureStripe': 'Secure payment with Stripe',
@@ -1743,6 +1746,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'donation.invalidAmount': 'Montant invalide',
     'payment.processingError': 'Erreur de traitement',
     'payment.connectionError': 'Erreur de connexion au système de paiement',
+    'payment.noPaymentUrl': 'URL de paiement non reçue. Veuillez réessayer.',
 
     // Payment
     'payment.secureStripe': 'Paiement sécurisé avec Stripe',
@@ -2286,6 +2290,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'donation.invalidAmount': 'مبلغ غير صالح',
     'payment.processingError': 'خطأ في المعالجة',
     'payment.connectionError': 'خطأ في الاتصال بنظام الدفع',
+    'payment.noPaymentUrl': 'لم يتم استلام رابط الدفع. يرجى المحاولة مرة أخرى.',
 
     // Payment
     'payment.secureStripe': 'دفع آمن عبر Stripe',
