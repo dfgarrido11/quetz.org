@@ -86,7 +86,7 @@ export default function QuetzitoChatbot() {
     } catch {
       setMessages((prev) => [
         ...prev,
-        { role: 'assistant', content: language === 'de' ? 'Entschuldigung, ein Fehler ist aufgetreten. Bitte versuche es erneut.' : 'Lo siento, ocurrió un error. Por favor intenta de nuevo.' },
+        { role: 'assistant', content: t('chat.error') },
       ]);
     } finally {
       setIsLoading(false);

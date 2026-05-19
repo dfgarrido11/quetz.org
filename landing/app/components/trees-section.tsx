@@ -245,7 +245,7 @@ export default function TreesSection({ onSelectTree, isGiftMode = false }: Trees
                   <div className="relative w-24 h-28 drop-shadow-xl">
                     <Image
                       src="/mascot/quetzito-aventurero.png"
-                      alt="¡Celebración!"
+                      alt={t('mascot.celebrationAlt')}
                       fill
                       className="object-contain"
                       sizes="96px"

@@ -95,7 +95,7 @@ export default function TransparencySection() {
       <div className="absolute inset-0">
         <Image
           src="/photos/transparency.jpg"
-          alt="Fondo de transparencia"
+          alt={t('transparency.imageAlt')}
           fill
           className="object-cover blur-sm"
           sizes="100vw"

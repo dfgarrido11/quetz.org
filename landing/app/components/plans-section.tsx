@@ -204,7 +204,7 @@ export default function PlansSection({ onSelectPlan }: PlansSectionProps) {
                     <div className="relative w-24 md:w-32 h-28 md:h-36 drop-shadow-xl">
                       <Image
                         src="/mascot/quetzito-aventurero.png"
-                        alt="¡Celebración!"
+                        alt={t('mascot.celebrationAlt')}
                         fill
                         className="object-contain mascot-peek w-24 md:w-32 drop-shadow-lg"
                         sizes="(max-width: 768px) 96px, 128px"

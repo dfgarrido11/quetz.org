@@ -109,7 +109,7 @@ function LoginContent() {
             <div className="relative h-16 w-auto mx-auto mb-4">
               <Image
                 src="/logo-quetz-oficial.png"
-                alt="QUETZ - Raíces que cambian vidas"
+                alt={`QUETZ - ${t('brand.slogan')}`}
                 width={240}
                 height={64}
                 className="h-full w-auto object-contain mx-auto"

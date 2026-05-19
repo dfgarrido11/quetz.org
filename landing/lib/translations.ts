@@ -79,14 +79,16 @@ export const translations: Record<Language, Record<string, string>> = {
     'school.goal': 'Meta:',
     'school.raised': 'Recaudado:',
     'school.cta': 'PONER MI LADRILLO',
-    
+    'school.imageAlt': 'Terreno para la escuela en Zacapa',
+
     // Transparency
     'transparency.title': 'Transparencia Radical',
     'transparency.totalIncome': 'Ingresos Totales',
     'transparency.socialFund': 'Fondo Escuela Zacapa',
     'transparency.treesPlanted': 'Árboles Plantados',
     'transparency.familiesHelped': 'Familias Empleadas',
-    
+    'transparency.imageAlt': 'Fondo de transparencia',
+
     // Auth
     'auth.login': 'Iniciar Sesión',
     'auth.register': 'Crear Cuenta',
@@ -171,6 +173,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'chat.openAriaLabel': 'Abrir chat con Quetzito',
     'chat.closeAriaLabel': 'Cerrar Quetzito',
     'common.selectLanguage': 'Seleccionar idioma',
+    'chat.error': 'Lo siento, ocurrió un error. Por favor intenta de nuevo.',
+    'mascot.celebrationAlt': 'Quetzito celebrando',
 
     // Footer
     'footer.madeWith': 'Hecho con',
@@ -612,14 +616,16 @@ export const translations: Record<Language, Record<string, string>> = {
     'school.goal': 'Ziel:',
     'school.raised': 'Gesammelt:',
     'school.cta': 'MEINEN BAUSTEIN SETZEN',
-    
+    'school.imageAlt': 'Schulgrundstück in Zacapa, Guatemala',
+
     // Transparency
     'transparency.title': 'Radikale Transparenz',
     'transparency.totalIncome': 'Gesamteinnahmen',
     'transparency.socialFund': 'Schulfonds Zacapa',
     'transparency.treesPlanted': 'Gepflanzte Bäume',
     'transparency.familiesHelped': 'Beschäftigte Familien',
-    
+    'transparency.imageAlt': 'Transparenz-Hintergrundbild',
+
     // Auth
     'auth.login': 'Anmelden',
     'auth.register': 'Konto erstellen',
@@ -704,6 +710,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'chat.openAriaLabel': 'Chat mit Quetzito öffnen',
     'chat.closeAriaLabel': 'Quetzito schließen',
     'common.selectLanguage': 'Sprache auswählen',
+    'chat.error': 'Entschuldigung, ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.',
+    'mascot.celebrationAlt': 'Quetzito feiert',
 
     // Footer
     'footer.madeWith': 'Gemacht mit',
@@ -1140,6 +1148,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'school.goal': 'Goal:',
     'school.raised': 'Raised:',
     'school.cta': 'LAY MY BRICK',
+    'school.imageAlt': 'School land in Zacapa, Guatemala',
     
     // Transparency
     'transparency.title': 'Radical Transparency',
@@ -1147,7 +1156,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'transparency.socialFund': 'Zacapa School Fund',
     'transparency.treesPlanted': 'Trees Planted',
     'transparency.familiesHelped': 'Families Employed',
-    
+    'transparency.imageAlt': 'Transparency background image',
+
     // Auth
     'auth.login': 'Log In',
     'auth.register': 'Create Account',
@@ -1232,6 +1242,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'chat.openAriaLabel': 'Open chat with Quetzito',
     'chat.closeAriaLabel': 'Close Quetzito',
     'common.selectLanguage': 'Select language',
+    'chat.error': 'Sorry, an error occurred. Please try again.',
+    'mascot.celebrationAlt': 'Quetzito celebrating',
 
     // Footer
     'footer.madeWith': 'Made with',
@@ -1691,6 +1703,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'school.goal': 'Objectif :',
     'school.raised': 'Collecté :',
     'school.cta': 'POSER MA BRIQUE',
+    'school.imageAlt': 'Terrain de l\'école à Zacapa, Guatemala',
     
     // Transparency
     'transparency.title': 'Transparence Radicale',
@@ -1698,7 +1711,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'transparency.socialFund': 'Fonds École Zacapa',
     'transparency.treesPlanted': 'Arbres Plantés',
     'transparency.familiesHelped': 'Familles Employées',
-    
+    'transparency.imageAlt': 'Image de fond transparence',
+
     // Auth
     'auth.login': 'Connexion',
     'auth.register': 'Créer un compte',
@@ -1783,6 +1797,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'chat.openAriaLabel': 'Ouvrir le chat avec Quetzito',
     'chat.closeAriaLabel': 'Fermer Quetzito',
     'common.selectLanguage': 'Sélectionner la langue',
+    'chat.error': 'Désolé, une erreur s\'est produite. Veuillez réessayer.',
+    'mascot.celebrationAlt': 'Quetzito en fête',
 
     // Footer
     'footer.madeWith': 'Fait avec',
@@ -2238,6 +2254,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'school.goal': 'الهدف:',
     'school.raised': 'تم جمعه:',
     'school.cta': 'ضع لبنتك',
+    'school.imageAlt': 'أرض المدرسة في زاكابا، غواتيمالا',
     
     // Transparency
     'transparency.title': 'شفافية جذرية',
@@ -2245,7 +2262,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'transparency.socialFund': 'صندوق مدرسة زاكابا',
     'transparency.treesPlanted': 'الأشجار المزروعة',
     'transparency.familiesHelped': 'العائلات العاملة',
-    
+    'transparency.imageAlt': 'صورة خلفية الشفافية',
+
     // Auth
     'auth.login': 'تسجيل الدخول',
     'auth.register': 'إنشاء حساب',
@@ -2330,6 +2348,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'chat.openAriaLabel': 'افتح الدردشة مع كيتزيتو',
     'chat.closeAriaLabel': 'إغلاق كيتزيتو',
     'common.selectLanguage': 'اختر اللغة',
+    'chat.error': 'عذراً، حدث خطأ. يرجى المحاولة مرة أخرى.',
+    'mascot.celebrationAlt': 'كيتزيتو يحتفل',
 
     // Footer
     'footer.madeWith': 'صنع بـ',

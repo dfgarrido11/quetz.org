@@ -125,7 +125,7 @@ export default function FloatingMascot({ onOpenModal }: FloatingMascotProps) {
             >
               <Image
                 src="/mascot/quetzito-heroe.png"
-                alt="Quetzito Héroe"
+                alt="Quetzito"
                 fill
                 className="object-cover object-top"
                 sizes="(max-width: 640px) 80px, 96px"

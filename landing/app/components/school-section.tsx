@@ -92,7 +92,7 @@ export default function SchoolSection({ onOpenDonation }: SchoolSectionProps) {
       <div className="absolute inset-0">
         <Image
           src="/photos/school.jpg"
-          alt="Terreno para la escuela en Zacapa"
+          alt={t('school.imageAlt')}
           fill
           className="object-cover"
           sizes="100vw"
