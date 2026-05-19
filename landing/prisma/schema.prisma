@@ -102,7 +102,7 @@ model Tree {
   // Location (GPS for individual plantation plot)
   latitude    Float?
   longitude   Float?
-  plotArea    String?   // e.g. "Sektor A — Finca Jumuzna"
+  plotArea    String?   // e.g. "Sektor A — Finca Zacapa"
 
   // Media
   image       String
@@ -199,7 +199,7 @@ model Stats {
 
 model SchoolProject {
   id              String   @id @default("zacapa")
-  name            String   @default("Escuela Jumuzna")
+  name            String   @default("Escuela en Zacapa")
   description     String?  @db.Text
   goalEur         Float    @default(50000)
   raisedEur       Float    @default(0)

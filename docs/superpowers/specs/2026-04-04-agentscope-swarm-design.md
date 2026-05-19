@@ -424,7 +424,7 @@ interface DailyDashboard {
 
 ### Business Model Clarification
 - **Tree Adoption Revenue**: €25/tree (70% operations + growth)
-- **School Construction**: €7.50/tree (30% dedicated to Jumuzna school)
+- **School Construction**: €7.50/tree (30% dedicated to Zacapa, Guatemala school)
 - **Impact per Client**: 50 trees average = €1,250 total, €375 to school
 
 ### ROI Calculation
