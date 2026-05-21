@@ -142,7 +142,7 @@ export default function PlansSection({ onSelectPlan }: PlansSectionProps) {
                         className="w-full py-3 px-4 rounded-xl bg-green-100 text-green-700 font-semibold flex items-center justify-center gap-2"
                       >
                         <Check className="w-5 h-5" />
-                        <span>¡Añadido al carrito!</span>
+                        <span>{t('shop.addedToCart')}</span>
                       </motion.div>
                     ) : (
                       <motion.button

@@ -1,8 +1,10 @@
 'use client';
 import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
+import { useLanguage } from '@/lib/language-context';
 
 export default function MascotScene() {
+  const { t } = useLanguage();
   const sceneRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -93,8 +95,8 @@ export default function MascotScene() {
         animate={{opacity:1, y:0}}
         transition={{duration:0.8, delay:0.1}}
       >
-        <h2 className="font-extrabold text-2xl md:text-4xl text-white" style={{textShadow:'0 4px 16px rgba(0,0,0,0.4)',fontFamily:'Montserrat,sans-serif',letterSpacing:'-0.5px'}}>Guardianes del Bosque</h2>
-        <p className="text-sm md:text-base text-[#B7E4C7] mt-2" style={{textShadow:'0 2px 8px rgba(0,0,0,0.3)',fontFamily:'Montserrat,sans-serif'}}>Cada árbol cuenta una historia</p>
+        <h2 className="font-extrabold text-2xl md:text-4xl text-white" style={{textShadow:'0 4px 16px rgba(0,0,0,0.4)',fontFamily:'Montserrat,sans-serif',letterSpacing:'-0.5px'}}>{t('mascot.guardiansTitle')}</h2>
+        <p className="text-sm md:text-base text-[#B7E4C7] mt-2" style={{textShadow:'0 2px 8px rgba(0,0,0,0.3)',fontFamily:'Montserrat,sans-serif'}}>{t('mascot.guardiansSubtitle')}</p>
       </motion.div>
 
       <div className="ms-fireflies absolute inset-0 pointer-events-none z-3" />

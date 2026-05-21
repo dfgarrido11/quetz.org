@@ -91,7 +91,7 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
 
     const amountEur = getAmountInEur();
     if (amountEur <= 0) {
-      setError(t('donation.invalidAmount') || 'Monto inválido');
+      setError(t('donation.invalidAmount'));
       return;
     }
 

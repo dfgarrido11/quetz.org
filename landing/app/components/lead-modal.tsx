@@ -57,11 +57,11 @@ export function LeadModal({ open, onOpenChange }: LeadModalProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Solicita tu demo personalizada</DialogTitle>
+          <DialogTitle>{t('lead.demoTitle')}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="nombre">Nombre completo *</Label>
+            <Label htmlFor="nombre">{t('lead.fullName')} *</Label>
             <Input
               id="nombre"
               name="nombre"
@@ -82,7 +82,7 @@ export function LeadModal({ open, onOpenChange }: LeadModalProps) {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="pais">País *</Label>
+            <Label htmlFor="pais">{t('lead.country')} *</Label>
             <Input
               id="pais"
               name="pais"
@@ -92,7 +92,7 @@ export function LeadModal({ open, onOpenChange }: LeadModalProps) {
             />
           </div>
           <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? "Enviando..." : "Enviar solicitud"}
+            {isLoading ? t('lead.sending') : t('lead.submitRequest')}
           </Button>
         </form>
       </DialogContent>

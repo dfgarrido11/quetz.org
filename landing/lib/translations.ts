@@ -64,6 +64,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'trees.limon.name': 'Limón',
     'trees.limon.desc': 'Frescura entre piedras. Versatilidad cítrica de uso diario e ingreso constante.',
     'trees.limon.impact': 'Produce frutos 3 veces al año, ingreso constante.',
+    'trees.cipres.name': 'Ciprés',
     'trees.cactus.name': 'Pino',
     'trees.cactus.desc': 'El árbol de la reforestación guatemalteca. Vital para la recuperación de los bosques de las sierras mayas.',
     'trees.cactus.impact': 'Captura CO₂ y protege cuencas hídricas durante décadas.',
@@ -273,6 +274,15 @@ export const translations: Record<Language, Record<string, string>> = {
     'cart.giftMessage': 'Mensaje (opcional)',
     'cart.remove': 'Eliminar',
     'cart.quantity': 'Cantidad',
+    'cart.families': 'familias',
+    // lead-modal demo form
+    'lead.demoTitle': 'Solicita tu demo personalizada',
+    'lead.fullName': 'Nombre completo',
+    'lead.sending': 'Enviando...',
+    'lead.submitRequest': 'Enviar solicitud',
+    // mascot-scene
+    'mascot.guardiansTitle': 'Guardianes del Bosque',
+    'mascot.guardiansSubtitle': 'Cada árbol cuenta una historia',
     // Auth extras
     'auth.orContinueWith': 'o continúa con',
     'auth.orSignUpWith': 'o regístrate con',
@@ -601,6 +611,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'trees.limon.name': 'Zitrone',
     'trees.limon.desc': 'Frische zwischen Steinen. Vielseitige Zitrusfrucht für den täglichen Gebrauch und stetiges Einkommen.',
     'trees.limon.impact': 'Produziert 3 mal pro Jahr Früchte, konstantes Einkommen.',
+    'trees.cipres.name': 'Zypresse',
     'trees.cactus.name': 'Pino',
     'trees.cactus.desc': 'Der Baum der guatemaltekischen Aufforstung. Unverzichtbar für die Wiederherstellung der Wälder der Maya-Berge.',
     'trees.cactus.impact': 'Speichert CO₂ und schützt jahrzehntelang Wassereinzugsgebiete.',
@@ -811,6 +822,15 @@ export const translations: Record<Language, Record<string, string>> = {
     'cart.giftMessage': 'Nachricht (optional)',
     'cart.remove': 'Entfernen',
     'cart.quantity': 'Menge',
+    'cart.families': 'Familien',
+    // lead-modal demo form
+    'lead.demoTitle': 'Persönliche Demo anfragen',
+    'lead.fullName': 'Vollständiger Name',
+    'lead.sending': 'Senden...',
+    'lead.submitRequest': 'Anfrage senden',
+    // mascot-scene
+    'mascot.guardiansTitle': 'Waldhüter',
+    'mascot.guardiansSubtitle': 'Jeder Baum erzählt eine Geschichte',
     'auth.orContinueWith': 'oder weiter mit',
     'auth.orSignUpWith': 'oder registriere dich mit',
     'auth.googleError': 'Fehler bei der Google-Anmeldung',
@@ -1133,6 +1153,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'trees.limon.name': 'Lemon',
     'trees.limon.desc': 'Freshness among stones. Citrus versatility for daily use and constant income.',
     'trees.limon.impact': 'Produces fruit 3 times a year, constant income.',
+    'trees.cipres.name': 'Cypress',
     'trees.cactus.name': 'Pine',
     'trees.cactus.desc': 'The reforestation tree of Guatemala. Vital for the recovery of the Maya highlands forests.',
     'trees.cactus.impact': 'Captures CO₂ and protects water basins for decades.',
@@ -1343,6 +1364,15 @@ export const translations: Record<Language, Record<string, string>> = {
     'cart.giftMessage': 'Message (optional)',
     'cart.remove': 'Remove',
     'cart.quantity': 'Quantity',
+    'cart.families': 'families',
+    // lead-modal demo form
+    'lead.demoTitle': 'Request your personalised demo',
+    'lead.fullName': 'Full name',
+    'lead.sending': 'Sending...',
+    'lead.submitRequest': 'Send request',
+    // mascot-scene
+    'mascot.guardiansTitle': 'Forest Guardians',
+    'mascot.guardiansSubtitle': 'Every tree tells a story',
 
     // Trees section
     'trees.quantity': 'Quantity:',
@@ -1688,6 +1718,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'trees.limon.name': 'Citron',
     'trees.limon.desc': 'Fraîcheur parmi les pierres. Polyvalence des agrumes pour usage quotidien et revenu constant.',
     'trees.limon.impact': 'Produit des fruits 3 fois par an, revenu constant.',
+    'trees.cipres.name': 'Cyprès',
     'trees.cactus.name': 'Pin',
     'trees.cactus.desc': "L'arbre de reboisement guatémaltèque. Essentiel pour la récupération des forêts des hauts plateaux mayas.",
     'trees.cactus.impact': 'Capture le CO₂ et protège les bassins versants pendant des décennies.',
@@ -1898,6 +1929,15 @@ export const translations: Record<Language, Record<string, string>> = {
     'cart.giftMessage': 'Message (optionnel)',
     'cart.remove': 'Supprimer',
     'cart.quantity': 'Quantité',
+    'cart.families': 'familles',
+    // lead-modal demo form
+    'lead.demoTitle': 'Demandez votre démo personnalisée',
+    'lead.fullName': 'Nom complet',
+    'lead.sending': 'Envoi...',
+    'lead.submitRequest': 'Envoyer la demande',
+    // mascot-scene
+    'mascot.guardiansTitle': 'Gardiens de la Forêt',
+    'mascot.guardiansSubtitle': 'Chaque arbre raconte une histoire',
 
     // Trees section
     'trees.quantity': 'Quantité :',
@@ -2239,6 +2279,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'trees.limon.name': 'الليمون',
     'trees.limon.desc': 'انتعاش بين الصخور. تنوع الحمضيات للاستخدام اليومي والدخل الثابت.',
     'trees.limon.impact': 'ينتج ثماراً 3 مرات في السنة، دخل ثابت.',
+    'trees.cipres.name': 'سرو',
     'trees.cactus.name': 'صنوبر',
     'trees.cactus.desc': 'شجرة التشجير الغواتيمالية. أساسية لاستعادة غابات المرتفعات المايا.',
     'trees.cactus.impact': 'يمتص ثاني أكسيد الكربون ويحمي أحواض المياه لعقود.',
@@ -2449,6 +2490,15 @@ export const translations: Record<Language, Record<string, string>> = {
     'cart.giftMessage': 'رسالة (اختياري)',
     'cart.remove': 'حذف',
     'cart.quantity': 'الكمية',
+    'cart.families': 'أسرة',
+    // lead-modal demo form
+    'lead.demoTitle': 'اطلب عرضك التجريبي المخصص',
+    'lead.fullName': 'الاسم الكامل',
+    'lead.sending': 'جارٍ الإرسال...',
+    'lead.submitRequest': 'إرسال الطلب',
+    // mascot-scene
+    'mascot.guardiansTitle': 'حراس الغابة',
+    'mascot.guardiansSubtitle': 'كل شجرة تحكي قصة',
 
     // Trees section
     'trees.quantity': 'الكمية:',
