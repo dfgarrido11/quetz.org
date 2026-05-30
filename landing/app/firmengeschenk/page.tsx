@@ -34,14 +34,21 @@ const IMAGES = {
     "https://d2xsxph8kpxj0f.cloudfront.net/310419663030501357/hWt6Qa2JAiXm9muvwfCGAp/forest-floor-roots-4HVX5t3CGzqRnqYzdrThsP.webp",
 };
 
-/* ─── Local tree images from /public/trees ─── */
+/* ─── Local tree images from /public/trees
+     Add the file to /public/trees/ then uncomment the matching entry.  ─── */
 const TREE_IMAGES: Record<string, string> = {
+  // Currently live — real Zacapa photos available
   cafe: "/trees/cafe.jpg",
   pino: "/trees/pino.jpg",
   cipres: "/trees/cipres.jpg",
   aguacate: "/trees/aguacate.jpg",
   mango: "/trees/mango.jpg",
   limon: "/trees/limon.jpg",
+  // Pending photos — add file to /public/trees/ then uncomment in VALLEY_SPECIES
+  // maracuja: "/trees/maracuja.jpg",
+  // jocote:   "/trees/jocote.jpg",
+  // banane:   "/trees/banane.jpg",
+  // papaya:   "/trees/papaya.jpg",
 };
 
 /* ─── Translations ─── */
@@ -68,7 +75,7 @@ const txt = {
     gruendungTitle: "Werden Sie Grundungspartner.",
     gruendungSub:
       "Die ersten 5 Unternehmen, die einsteigen, erhalten exklusive Vorteile ohne Laufzeit oder Bedingungen.",
-    gruendungUrgency: "Noch 5 Platze verfugbar",
+    gruendungUrgency: "Limitiert auf 5 Grundungspartner 2026",
     gruendungBenefit1: "Logo auf quetz.org",
     gruendungBenefit2: "Erwahnung auf LinkedIn",
     gruendungBenefit3: "Namensgebung im Schulprojekt",
@@ -211,7 +218,7 @@ const txt = {
     gruendungTitle: "Become a founding partner.",
     gruendungSub:
       "The first 5 companies to join receive exclusive benefits with no commitment or conditions.",
-    gruendungUrgency: "5 spots remaining",
+    gruendungUrgency: "Limited to 5 founding partners 2026",
     gruendungBenefit1: "Logo on quetz.org",
     gruendungBenefit2: "LinkedIn mention",
     gruendungBenefit3: "Naming rights for school project",
@@ -353,7 +360,7 @@ const txt = {
     gruendungTitle: "Conviertase en socio fundador.",
     gruendungSub:
       "Las primeras 5 empresas que se unan reciben ventajas exclusivas sin permanencia ni condiciones.",
-    gruendungUrgency: "Quedan 5 plazas",
+    gruendungUrgency: "Limitado a 5 socios fundadores 2026",
     gruendungBenefit1: "Logo en quetz.org",
     gruendungBenefit2: "Mencion en LinkedIn",
     gruendungBenefit3: "Nombrar el proyecto escuela",
@@ -477,6 +484,38 @@ const txt = {
 
 type Lang = "de" | "en" | "es";
 type TxType = typeof txt.de;
+
+/* ─── Gründungspartner availability
+     Update TAKEN_SPOTS (0-5) whenever a new partner joins.
+     At 0 the bar shows all slots open; at 5 it shows full.        ─── */
+const TAKEN_SPOTS = 0; // <-- update this number when a partner signs up
+
+function GruendungspartnerAvailability({
+  totalSpots,
+  takenSpots,
+}: {
+  totalSpots: number;
+  takenSpots: number;
+}) {
+  const available = totalSpots - takenSpots;
+  return (
+    <div className="mt-6 pt-6 border-t border-[#52B788]/15">
+      <div className="flex items-center gap-2">
+        {Array.from({ length: totalSpots }).map((_, n) => (
+          <div
+            key={n}
+            className={`h-3 flex-1 rounded-full ${
+              n < takenSpots ? "bg-[#E9C46A]" : "bg-white/10"
+            }`}
+          />
+        ))}
+      </div>
+      <p className="text-white/40 text-xs mt-2">
+        {available} von {totalSpots} Platzen noch frei
+      </p>
+    </div>
+  );
+}
 
 /* ─── Pricing Data ─── */
 const PACKAGES = [
@@ -765,19 +804,8 @@ function GruendungspartnerSection({ tx }: { tx: TxType }) {
                 </li>
               ))}
             </ul>
-            <div className="mt-6 pt-6 border-t border-[#52B788]/15">
-              <div className="flex items-center gap-2">
-                {[1, 2, 3, 4, 5].map((n) => (
-                  <div
-                    key={n}
-                    className={`h-3 flex-1 rounded-full ${
-                      n <= 3 ? "bg-[#E9C46A]" : "bg-white/10"
-                    }`}
-                  />
-                ))}
-              </div>
-              <p className="text-white/40 text-xs mt-2">3 von 5 Platzen vergeben</p>
-            </div>
+            {/* Availability indicator — update TAKEN_SPOTS when a partner joins */}
+            <GruendungspartnerAvailability totalSpots={5} takenSpots={TAKEN_SPOTS} />
           </div>
         </div>
       </div>
@@ -1012,10 +1040,11 @@ const VALLEY_SPECIES = [
   { key: "aguacate", image: TREE_IMAGES.aguacate, labelDe: "Avocado", labelEn: "Avocado", labelEs: "Aguacate" },
   { key: "mango", image: TREE_IMAGES.mango, labelDe: "Mango", labelEn: "Mango", labelEs: "Mango" },
   { key: "limon", image: TREE_IMAGES.limon, labelDe: "Limette", labelEn: "Lime", labelEs: "Limon" },
-  { key: "maracuja", image: null, labelDe: "Maracuja", labelEn: "Passion fruit", labelEs: "Maracuya" },
-  { key: "jocote", image: null, labelDe: "Jocote", labelEn: "Jocote", labelEs: "Jocote" },
-  { key: "banane", image: null, labelDe: "Banane", labelEn: "Banana", labelEs: "Platano" },
-  { key: "papaya", image: null, labelDe: "Papaya", labelEn: "Papaya", labelEs: "Papaya" },
+  // ── Pending real Zacapa photos — uncomment each entry once a photo is added to /public/trees/
+  // { key: "maracuja", image: TREE_IMAGES.maracuja, labelDe: "Maracuja", labelEn: "Passion fruit", labelEs: "Maracuya" },
+  // { key: "jocote",   image: TREE_IMAGES.jocote,   labelDe: "Jocote",   labelEn: "Jocote",        labelEs: "Jocote"   },
+  // { key: "banane",   image: TREE_IMAGES.banane,   labelDe: "Banane",   labelEn: "Banana",        labelEs: "Platano"  },
+  // { key: "papaya",   image: TREE_IMAGES.papaya,   labelDe: "Papaya",   labelEn: "Papaya",        labelEs: "Papaya"   },
 ];
 
 type SpeciesItem = {
