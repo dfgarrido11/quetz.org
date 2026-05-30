@@ -138,7 +138,7 @@ export default function QuetzitoChatbot() {
               <button
                 onClick={(e) => { e.stopPropagation(); setIsDismissed(true); }}
                 className="absolute -top-1 -right-1 w-6 h-6 bg-white hover:bg-gray-100 rounded-full flex items-center justify-center shadow-lg transition-colors z-10 border border-gray-200"
-                aria-label="Cerrar Quetzito"
+                aria-label={t('chat.closeAriaLabel')}
               >
                 <X className="w-3.5 h-3.5 text-gray-600" />
               </button>

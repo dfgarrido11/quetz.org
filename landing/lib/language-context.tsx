@@ -39,7 +39,7 @@ function setCookie(name: string, value: string, days: number = 365): void {
 
 // Detect language from browser
 function detectBrowserLanguage(): Language {
-  if (typeof navigator === 'undefined') return 'es';
+  if (typeof navigator === 'undefined') return 'de';
   
   // Check navigator.languages first (ordered by preference)
   const browserLanguages = navigator.languages || [navigator.language];

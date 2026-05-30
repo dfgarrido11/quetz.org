@@ -29,16 +29,16 @@ import { metaPixel } from '@/app/components/meta-pixel';
 import { useCartAbandonment } from '@/lib/use-cart-abandonment';
 
 const ALL_TREE_SPECIES = [
-  { id: 'pino', name: 'Pino', image: '/trees/pino.jpg' },
-  { id: 'cipres', name: 'Ciprés', image: '/trees/cipres.jpg' },
-  { id: 'cafe', name: 'Café', image: '/trees/cafe.jpg' },
-  { id: 'aguacate', name: 'Aguacate', image: '/trees/aguacate.jpg' },
-  { id: 'caoba', name: 'Caoba', image: '/trees/caoba.jpg' },
-  { id: 'mango', name: 'Mango', image: '/trees/mango.jpg' },
-  { id: 'cacao', name: 'Cacao', image: '/trees/cacao.jpg' },
-  { id: 'cedro', name: 'Cedro', image: '/trees/cedro.jpg' },
-  { id: 'naranja', name: 'Naranja', image: '/trees/naranja.jpg' },
-  { id: 'limon', name: 'Limón', image: '/trees/limon.jpg' },
+  { id: 'pino', name: 'Pino', translationKey: 'trees.cactus.name', image: '/trees/pino.jpg' },
+  { id: 'cipres', name: 'Ciprés', translationKey: 'trees.cipres.name', image: '/trees/cipres.jpg' },
+  { id: 'cafe', name: 'Café', translationKey: 'trees.cafe.name', image: '/trees/cafe.jpg' },
+  { id: 'aguacate', name: 'Aguacate', translationKey: 'trees.aguacate.name', image: '/trees/aguacate.jpg' },
+  { id: 'caoba', name: 'Caoba', translationKey: 'trees.caoba.name', image: '/trees/caoba.jpg' },
+  { id: 'mango', name: 'Mango', translationKey: 'trees.rambutan.name', image: '/trees/mango.jpg' },
+  { id: 'cacao', name: 'Cacao', translationKey: 'trees.cacao.name', image: '/trees/cacao.jpg' },
+  { id: 'cedro', name: 'Cedro', translationKey: 'trees.cedro.name', image: '/trees/cedro.jpg' },
+  { id: 'naranja', name: 'Naranja', translationKey: 'trees.naranja.name', image: '/trees/naranja.jpg' },
+  { id: 'limon', name: 'Limón', translationKey: 'trees.limon.name', image: '/trees/limon.jpg' },
 ];
 
 // Plan Café solo permite Pino o Ciprés
@@ -401,8 +401,8 @@ export default function CartPage() {
                 <p className="text-sm font-medium text-gray-900 mb-2">{t('cart.impact')}</p>
                 <div className="space-y-1 text-sm text-gray-600">
                   <p>🌳 {totalItems} {t('cart.trees')}</p>
-                  <p>🌍 ~{(totalItems * 25).toLocaleString()} kg CO₂/año</p>
-                  <p>👨‍🌾 ~{Math.ceil(totalItems / 10)} familias</p>
+                  <p>🌍 ~{(totalItems * 25).toLocaleString()} {t('myForest.co2Year')}</p>
+                  <p>👨‍🌾 ~{Math.ceil(totalItems / 10)} {t('cart.families')}</p>
                 </div>
               </div>
             </div>
@@ -512,9 +512,9 @@ function SubscriptionCard({
                   qty > 0 ? 'border-quetz-green bg-green-50' : 'border-gray-200'
                 }`}>
                   <div className="relative w-10 h-10 mx-auto mb-1 rounded-full overflow-hidden">
-                    <Image src={tree.image} alt={tree.name} fill className="object-cover" />
+                    <Image src={tree.image} alt={t(tree.translationKey)} fill className="object-cover" />
                   </div>
-                  <p className="text-xs font-medium truncate">{tree.name}</p>
+                  <p className="text-xs font-medium truncate">{t(tree.translationKey)}</p>
                   <div className="flex items-center justify-center gap-1 mt-1">
                     <button
                       onClick={() => updateSpecies(tree.id, -1)}
