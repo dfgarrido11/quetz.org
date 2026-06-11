@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Datenschutz | QUETZ",
+  title: "Datenschutz",
   alternates: { canonical: "/datenschutz" },
   openGraph: {
     url: "https://quetz.org/datenschutz",

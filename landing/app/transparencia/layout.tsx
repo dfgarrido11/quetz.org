@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Transparenz | QUETZ",
+  title: "Transparenz",
   description: "Vollständiger Geldfluss in Echtzeit. Jeder Cent dokumentiert. Stripe-Gebühren inklusive.",
   alternates: { canonical: "/transparencia" },
   openGraph: {

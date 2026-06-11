@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Verschenken | QUETZ",
+  title: "Verschenken",
   alternates: { canonical: "/regalar" },
   openGraph: {
     url: "https://quetz.org/regalar",
