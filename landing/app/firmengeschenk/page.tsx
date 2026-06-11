@@ -67,9 +67,8 @@ const txt = {
     proofTitle: "Unternehmen, die bereits schenken",
     proofQuote: "Ein Geschenk, das bei unseren Mitarbeitern wirklich angekommen ist. Einfacher Prozess, schöne Zertifikate.",
     proofCompany: "Leyton Deutschland",
-    proofStat1Label: "Bäume gepflanzt",
-    proofStat2Label: "Familien unterstützt",
-    proofStat3Label: "Schule finanziert",
+    proofClaim1: "Jeder Baum mit GPS und Foto verifiziert",
+    proofClaim2: "30% der Nettoeinnahmen für den Schulfonds",
     founderTag: "Unsere Wurzeln",
     founderTitle: "Warum ich das mache.",
     founderText: "Ich bin deutsch-guatemaltekisch und lebe in Düsseldorf. In Zacapa habe ich gesehen, wie Aufforstung Arbeitsplätze schafft und Familien eine Perspektive gibt. Mit quetz.org verbinde ich deutsche Unternehmen direkt mit diesen Familien.",
@@ -147,9 +146,8 @@ const txt = {
     proofTitle: "Companies already gifting",
     proofQuote: "A gift that truly resonated with our employees. Simple process, beautiful certificates.",
     proofCompany: "Leyton Deutschland",
-    proofStat1Label: "Trees planted",
-    proofStat2Label: "Families supported",
-    proofStat3Label: "School funded",
+    proofClaim1: "Every tree verified with GPS and photo",
+    proofClaim2: "30% of net proceeds go to the school fund",
     founderTag: "Our Roots",
     founderTitle: "Why I do this.",
     founderText: "I am German-Guatemalan and live in Düsseldorf. In Zacapa I saw how reforestation creates jobs and gives families a future. With quetz.org I connect German companies directly with these families.",
@@ -227,9 +225,8 @@ const txt = {
     proofTitle: "Empresas que ya regalan",
     proofQuote: "Un regalo que realmente conectó con nuestros empleados. Proceso sencillo, certificados bonitos.",
     proofCompany: "Leyton Deutschland",
-    proofStat1Label: "Árboles plantados",
-    proofStat2Label: "Familias apoyadas",
-    proofStat3Label: "Escuela financiada",
+    proofClaim1: "Cada árbol verificado con GPS y foto",
+    proofClaim2: "30% de los ingresos netos para el fondo escolar",
     founderTag: "Nuestras Raíces",
     founderTitle: "Por qué hago esto.",
     founderText: "Soy alemán-guatemalteco y vivo en Düsseldorf. En Zacapa vi cómo la reforestación crea empleos y da perspectiva a las familias. Con quetz.org conecto empresas alemanas directamente con estas familias.",
@@ -610,16 +607,14 @@ function SocialProofSection({ tx }: { tx: typeof txt.de }) {
           <p className="text-[#52B788] font-[Montserrat] font-semibold">{tx.proofCompany}</p>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-6 text-center">
-          {[
-            { value: "500+", label: tx.proofStat1Label },
-            { value: "12", label: tx.proofStat2Label },
-            { value: "30%", label: tx.proofStat3Label },
-          ].map((stat, i) => (
-            <div key={i}>
-              <p className="font-[Montserrat] font-900 text-3xl md:text-4xl text-[#52B788]">{stat.value}</p>
-              <p className="text-white/50 text-sm mt-1">{stat.label}</p>
+        {/* Verifiable claims */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          {[tx.proofClaim1, tx.proofClaim2].map((claim, i) => (
+            <div key={i} className="flex items-center justify-center gap-3 bg-[#0D2818]/60 border border-[#52B788]/10 rounded-2xl px-6 py-5">
+              <svg className="w-5 h-5 text-[#52B788] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+              <p className="text-white/80 font-[Montserrat] font-semibold text-sm md:text-base">{claim}</p>
             </div>
           ))}
         </div>
