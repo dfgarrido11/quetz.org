@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "AGB | QUETZ",
+  title: "AGB",
   alternates: { canonical: "/agb" },
   openGraph: {
     url: "https://quetz.org/agb",

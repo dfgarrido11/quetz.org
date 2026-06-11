@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "CSR Partner | QUETZ — Aufforstung für Unternehmen",
+  title: "CSR Partner | Aufforstung für Unternehmen",
   description: "Nachhaltige Baumpatenschaften für deutsche Unternehmen. GPS-getrackt, CSRD-konform, steuerlich absetzbar.",
   alternates: { canonical: "/csr-partner" },
   openGraph: {

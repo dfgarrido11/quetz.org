@@ -758,8 +758,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'gift.cta': 'Bäume verschenken',
     
     // CSR Teaser Section
-    'csr.title': 'Bist du ein Unternehmen? Erstelle einen Unternehmenswald',
-    'csr.text': 'Ein einfacher CSR-Plan: Bäume für dein Team, Impact-Dashboard und Updates für transparente Kommunikation.',
+    'csr.title': 'Sind Sie ein Unternehmen? Erstellen Sie Ihren Unternehmenswald',
+    'csr.text': 'Ein einfacher CSR-Plan: Bäume für Ihr Team, Impact-Dashboard und Updates für transparente Kommunikation.',
     'csr.cta': 'Programm für Unternehmen ansehen',
     
     // FAQ Section
