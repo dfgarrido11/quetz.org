@@ -55,7 +55,7 @@ export default function HomeClient({ stats }: { stats: ImpactStats }) {
       <GiftTeaserSection />
       <TestimonialsSection />
       <FaqSection />
-      <NewsletterSection />
+      <NewsletterSection stats={stats} />
       <Footer />
       <LeadModal open={isLeadModalOpen} onOpenChange={closeLeadModal} />
       <AdoptionModal isOpen={isAdoptionModalOpen} onClose={closeAdoptionModal} tree={selectedTree} />

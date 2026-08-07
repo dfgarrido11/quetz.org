@@ -31,7 +31,6 @@ export const IMPACT_FALLBACK = {
   socialFund: 1626.06,
   treesPlanted: 847,
   familiesHelped: 23,
-  schoolRaised: 5420.2,
   schoolGoal: 50000,
 } as const;
 
@@ -51,24 +50,29 @@ function buildStats(
   const socialFund = orFallback(raw.socialFund, IMPACT_FALLBACK.socialFund);
   const treesPlanted = orFallback(raw.treesPlanted, IMPACT_FALLBACK.treesPlanted);
   const familiesHelped = orFallback(raw.familiesHelped, IMPACT_FALLBACK.familiesHelped);
-  const schoolRaised = orFallback(raw.schoolRaised, IMPACT_FALLBACK.schoolRaised);
   const schoolGoal = orFallback(raw.schoolGoal, IMPACT_FALLBACK.schoolGoal);
+
+  // The school bar tracks the school fund, NOT total income. `SchoolProject.raisedEur`
+  // used to mirror total income, which made the bar read ~11% when only the 30%
+  // school share — 1.626,06 € of 50.000 €, i.e. 3,3% — has actually been set aside.
+  // Deriving it from socialFund keeps the bar and the "Schulfonds Zacapa" tile
+  // showing the same euro figure by construction.
+  const schoolRaised = socialFund.value;
 
   return {
     totalIncome: totalIncome.value,
     socialFund: socialFund.value,
     treesPlanted: Math.round(treesPlanted.value),
     familiesHelped: Math.round(familiesHelped.value),
-    schoolRaised: schoolRaised.value,
+    schoolRaised,
     schoolGoal: schoolGoal.value,
-    schoolProgress: Math.min(100, (schoolRaised.value / schoolGoal.value) * 100),
+    schoolProgress: Math.min(100, (schoolRaised / schoolGoal.value) * 100),
     usedFallback:
       dbUnreachable ||
       totalIncome.usedFallback ||
       socialFund.usedFallback ||
       treesPlanted.usedFallback ||
       familiesHelped.usedFallback ||
-      schoolRaised.usedFallback ||
       schoolGoal.usedFallback,
   };
 }
@@ -85,7 +89,8 @@ export async function getImpactStats(): Promise<ImpactStats> {
       socialFund: stats?.socialFund,
       treesPlanted: stats?.treesPlanted,
       familiesHelped: stats?.familiesHelped,
-      schoolRaised: school?.raisedEur,
+      // `school.raisedEur` is deliberately not read — see buildStats. Only the
+      // goal comes from SchoolProject.
       schoolGoal: school?.goalEur,
     });
   } catch (error: unknown) {

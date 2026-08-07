@@ -225,7 +225,7 @@ const schoolProject = {
   name: 'Escuela en Zacapa',
   description: 'La escuela se construirá en una aldea en Zacapa. Actualmente estamos en la fase de compra del terreno. Tu donación se destina directamente a los materiales y la mano de obra local.',
   goalEur: 50000,
-  raisedEur: 5420.20,
+  raisedEur: 1626.06,
   phase: 'terreno',
   history: [
     { date: '2025-09-15', text: 'Inicio del proyecto. Identificación del terreno.', photoUrl: null },
@@ -243,8 +243,9 @@ const initialStats = {
   treesPlanted: 623,
   familiesHelped: 23,
   co2CapturedKg: 15575,
-  schoolFunding: 5420.20,
-  schoolProgress: 10.84, // 5420.20 / 50000 * 100
+  // The school fund is the 30% social share, not total income.
+  schoolFunding: 1626.06,
+  schoolProgress: 3.25, // 1626.06 / 50000 * 100
 };
 
 async function main() {

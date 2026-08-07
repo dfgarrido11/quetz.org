@@ -5,8 +5,10 @@ import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { Mail, Gift, Check, Loader2, TreePine, Users, TrendingUp } from 'lucide-react';
 import { useLanguage } from '@/lib/language-context';
+import { formatNumber } from '@/lib/translations';
+import type { ImpactStats } from '@/lib/impact-stats';
 
-export default function NewsletterSection() {
+export default function NewsletterSection({ stats }: { stats: ImpactStats }) {
   const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.1 });
   const { language, isRTL } = useLanguage();
   const [email, setEmail] = useState('');
@@ -162,18 +164,27 @@ export default function NewsletterSection() {
                 ))}
               </ul>
               
+              {/* Sourced from `stats` rather than typed out: these used to be
+                  hardcoded, and the school figure was still showing the old
+                  10,8% reading of total income instead of the school fund. */}
               <div className="mt-8 flex items-center gap-4 text-sm text-gray-500">
                 <div className="flex items-center gap-1.5">
                   <TreePine className="w-4 h-4" />
-                  <span>847+</span>
+                  <span>{formatNumber(stats.treesPlanted, language)}+</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Users className="w-4 h-4" />
-                  <span>23</span>
+                  <span>{formatNumber(stats.familiesHelped, language)}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <TrendingUp className="w-4 h-4" />
-                  <span>10.8%</span>
+                  <span>
+                    {stats.schoolProgress.toLocaleString(language === 'en' ? 'en-US' : 'de-DE', {
+                      minimumFractionDigits: 1,
+                      maximumFractionDigits: 1,
+                    })}
+                    %
+                  </span>
                 </div>
               </div>
             </div>

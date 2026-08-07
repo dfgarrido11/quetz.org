@@ -21,8 +21,9 @@ const IMPACT = {
   treesPlanted: 847,
   familiesHelped: 23,
   co2CapturedKg: 847 * 25,
-  schoolFunding: 5420.2,
-  schoolProgress: 10.84,
+  // The school fund is the 30% social share, not total income.
+  schoolFunding: 1626.06,
+  schoolProgress: 3.25, // 1626.06 / 50000 * 100
 };
 
 const SCHOOL = {
@@ -30,7 +31,7 @@ const SCHOOL = {
   description:
     'Construcción de escuela primaria para 120 niños en Zacapa, Guatemala. Financiada con el fondo social de cada adopción.',
   goalEur: 50000,
-  raisedEur: 5420.2,
+  raisedEur: 1626.06,
   phase: 'terreno',
 };
 

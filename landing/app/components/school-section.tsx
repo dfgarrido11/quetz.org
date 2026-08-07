@@ -8,6 +8,7 @@ import { School, Heart } from 'lucide-react';
 import { useLanguage } from '@/lib/language-context';
 import { formatCurrency, Language } from '@/lib/translations';
 import type { ImpactStats } from '@/lib/impact-stats';
+import { allocationPercent } from '@/lib/allocation';
 
 function CountUpNumber({ target, language }: { target: number; language: Language }) {
   const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.1 });
@@ -42,6 +43,14 @@ function CountUpNumber({ target, language }: { target: number; language: Languag
   }, [target, inView, shouldReduceMotion]);
 
   return <span ref={ref}>{formatCurrency(count, language, true)}</span>;
+}
+
+/** "3,3%" in DE/ES/FR/AR, "3.3%" in EN. */
+function formatPercent(value: number, language: Language): string {
+  return `${value.toLocaleString(language === 'en' ? 'en-US' : 'de-DE', {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  })}%`;
 }
 
 interface SchoolSectionProps {
@@ -124,7 +133,8 @@ export default function SchoolSection({ stats, onOpenDonation }: SchoolSectionPr
           >
             <div className={`flex items-center justify-between mb-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
               <span className="text-white font-medium">{t('miBosque.progress')}</span>
-              <span className="text-quetz-green font-bold">{progress.toFixed(0)}%</span>
+              {/* One decimal: the fund sits at 3,3%, which rounds to a bare "3%". */}
+              <span className="text-quetz-green font-bold">{formatPercent(progress, language)}</span>
             </div>
             <div className="w-full bg-white/20 rounded-full h-4 overflow-hidden">
               {/* width is set inline so the bar is correct in the server HTML too */}
@@ -133,6 +143,12 @@ export default function SchoolSection({ stats, onOpenDonation }: SchoolSectionPr
                 className={`bg-gradient-to-r ${isRTL ? 'from-green-400 to-quetz-green' : 'from-quetz-green to-green-400'} h-full rounded-full transition-[width] duration-1000 ease-out`}
               />
             </div>
+            {/* Names the mechanism behind the bar: this tracks the 30% school
+                share, not total income. */}
+            <p className="mt-3 text-sm text-quetz-green font-medium">
+              {t('school.fundShare').split('{share}').join(`${allocationPercent('school')}%`)}
+            </p>
+
             <div className={`flex items-center justify-between mt-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
               <div>
                 <span className="text-gray-300 text-sm">{t('school.raised')}</span>
