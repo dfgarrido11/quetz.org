@@ -4,49 +4,48 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Cookie, X, Settings, Check } from 'lucide-react';
 import Link from 'next/link';
-
-type ConsentSettings = {
-  necessary: boolean;
-  analytics: boolean;
-  marketing: boolean;
-};
+import {
+  CONSENT_REOPEN_EVENT,
+  DENIED_CONSENT,
+  readConsent,
+  writeConsent,
+  type ConsentSettings,
+} from '@/lib/consent';
 
 export default function CookieBanner() {
   const [showBanner, setShowBanner] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [consent, setConsent] = useState<ConsentSettings>({
-    necessary: true,
-    analytics: false,
-    marketing: false,
-  });
+  const [consent, setConsent] = useState<ConsentSettings>(DENIED_CONSENT);
 
   useEffect(() => {
-    const savedConsent = localStorage.getItem('quetz_cookie_consent');
-    if (!savedConsent) {
-      setTimeout(() => setShowBanner(true), 1500);
+    const saved = readConsent();
+    if (saved) {
+      setConsent(saved);
     } else {
-      const parsed = JSON.parse(savedConsent);
-      setConsent(parsed);
-      if (parsed.analytics && typeof window !== 'undefined' && window.gtag) {
-        window.gtag('consent', 'update', {
-          analytics_storage: 'granted',
-        });
-      }
+      const timer = setTimeout(() => setShowBanner(true), 1500);
+      return () => clearTimeout(timer);
     }
   }, []);
 
+  // Visitors must be able to withdraw consent as easily as they gave it
+  // (Art. 7(3) DSGVO) — the footer link dispatches this.
+  useEffect(() => {
+    const reopen = () => {
+      setConsent(readConsent() ?? DENIED_CONSENT);
+      setShowSettings(true);
+      setShowBanner(true);
+    };
+    window.addEventListener(CONSENT_REOPEN_EVENT, reopen);
+    return () => window.removeEventListener(CONSENT_REOPEN_EVENT, reopen);
+  }, []);
+
   const saveConsent = (settings: ConsentSettings) => {
-    localStorage.setItem('quetz_cookie_consent', JSON.stringify(settings));
     setConsent(settings);
     setShowBanner(false);
     setShowSettings(false);
-    
-    if (typeof window !== 'undefined' && window.gtag) {
-      window.gtag('consent', 'update', {
-        analytics_storage: settings.analytics ? 'granted' : 'denied',
-        ad_storage: settings.marketing ? 'granted' : 'denied',
-      });
-    }
+    // Persists and notifies <GoogleAnalytics /> / <MetaPixel />, which mount
+    // only once the matching category is granted.
+    writeConsent(settings);
   };
 
   const acceptAll = () => {
@@ -158,7 +157,7 @@ export default function CookieBanner() {
                 <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                   <div>
                     <p className="font-medium text-gray-900">Marketing-Cookies</p>
-                    <p className="text-sm text-gray-500">Für personalisierte Werbung (derzeit nicht verwendet)</p>
+                    <p className="text-sm text-gray-500">Meta-Pixel für Werbung auf Facebook und Instagram</p>
                   </div>
                   <button
                     onClick={() => setConsent(c => ({ ...c, marketing: !c.marketing }))}

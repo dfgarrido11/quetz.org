@@ -89,6 +89,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'transparency.familiesHelped': 'Familias Empleadas',
     'transparency.imageAlt': 'Fondo de transparencia',
     'transparency.updatedNote': 'Actualizado mensualmente. Todas las cifras provienen de nuestra contabilidad y son verificables a petición.',
+    'footer.cookieSettings': 'Configuración de cookies',
 
     // Farmers / allocation / CO2 permanence (Block 5) + testimonials (Block 6)
     'farmers.title': 'Así se benefician las familias de Zacapa',
@@ -662,6 +663,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'transparency.familiesHelped': 'Beschäftigte Familien',
     'transparency.imageAlt': 'Transparenz-Hintergrundbild',
     'transparency.updatedNote': 'Monatlich aktualisiert. Alle Zahlen stammen aus unserer Buchhaltung und sind auf Anfrage belegbar.',
+    'footer.cookieSettings': 'Cookie-Einstellungen',
 
     // Farmers / allocation / CO2 permanence (Block 5) + testimonials (Block 6)
     'farmers.title': 'So profitieren die Familien in Zacapa',
@@ -1230,6 +1232,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'transparency.familiesHelped': 'Families Employed',
     'transparency.imageAlt': 'Transparency background image',
     'transparency.updatedNote': 'Updated monthly. All figures come from our own bookkeeping and can be evidenced on request.',
+    'footer.cookieSettings': 'Cookie settings',
 
     // Farmers / allocation / CO2 permanence (Block 5) + testimonials (Block 6)
     'farmers.title': 'How the families in Zacapa actually benefit',
@@ -1821,6 +1824,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'transparency.familiesHelped': 'Familles Employées',
     'transparency.imageAlt': 'Image de fond transparence',
     'transparency.updatedNote': 'Mis à jour mensuellement. Tous les chiffres proviennent de notre comptabilité et sont justifiables sur demande.',
+    'footer.cookieSettings': 'Paramètres des cookies',
 
     // Farmers / allocation / CO2 permanence (Block 5) + testimonials (Block 6)
     'farmers.title': 'Comment les familles de Zacapa en profitent',
@@ -2408,6 +2412,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'transparency.familiesHelped': 'العائلات العاملة',
     'transparency.imageAlt': 'صورة خلفية الشفافية',
     'transparency.updatedNote': 'يتم التحديث شهرياً. جميع الأرقام مأخوذة من دفاترنا المحاسبية ويمكن إثباتها عند الطلب.',
+    'footer.cookieSettings': 'إعدادات ملفات تعريف الارتباط',
 
     // Farmers / allocation / CO2 permanence (Block 5) + testimonials (Block 6)
     'farmers.title': 'كيف تستفيد العائلات في زاكابا',

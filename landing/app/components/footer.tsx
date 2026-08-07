@@ -2,8 +2,23 @@
 
 import { Heart, Mail, Instagram, Facebook, Linkedin, Shield } from 'lucide-react';
 import { useLanguage } from '@/lib/language-context';
+import { reopenConsentBanner } from '@/lib/consent';
 import Image from 'next/image';
 import Link from 'next/link';
+
+const CONTACT_EMAIL = 'admin@quetz.org';
+
+/**
+ * Verified 2026-08-07: Instagram and Facebook return 200.
+ * TODO-DANIEL: https://www.linkedin.com/company/quetz returns 404 to an
+ * anonymous request. Confirm the real company-page slug and update it here
+ * *and* in `organizationJsonLd.sameAs` in app/page.tsx, or remove both.
+ */
+const SOCIAL_LINKS = [
+  { href: 'https://instagram.com/quetzorg', label: 'Instagram', icon: Instagram },
+  { href: 'https://facebook.com/quetz.org', label: 'Facebook', icon: Facebook },
+  { href: 'https://www.linkedin.com/company/quetz', label: 'LinkedIn', icon: Linkedin },
+] as const;
 
 export default function Footer() {
   const { t, isRTL, language } = useLanguage();
@@ -71,21 +86,30 @@ export default function Footer() {
 
           <div className={`flex flex-col items-center gap-4 ${isRTL ? 'md:items-start' : 'md:items-end'}`}>
             <div className={`flex items-center gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
-              <a href="https://instagram.com/quetzorg" target="_blank" rel="noopener noreferrer" className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors">
-                <Instagram className="w-5 h-5" />
-              </a>
-              <a href="https://facebook.com/quetz.org" target="_blank" rel="noopener noreferrer" className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors">
-                <Facebook className="w-5 h-5" />
-              </a>
-              <a href="https://www.linkedin.com/company/quetz" target="_blank" rel="noopener noreferrer" className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors">
-                <Linkedin className="w-5 h-5" />
-              </a>
-              <a href="mailto:admin@quetz.org" className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors">
+              {SOCIAL_LINKS.map(({ href, label, icon: Icon }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="me noopener noreferrer"
+                  aria-label={label}
+                  title={label}
+                  className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors"
+                >
+                  <Icon className="w-5 h-5" />
+                </a>
+              ))}
+              <a
+                href={`mailto:${CONTACT_EMAIL}`}
+                aria-label="E-Mail"
+                title="E-Mail"
+                className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors"
+              >
                 <Mail className="w-5 h-5" />
               </a>
             </div>
-            <a href="mailto:admin@quetz.org" className="text-gray-400 hover:text-white transition-colors text-sm">
-              admin@quetz.org
+            <a href={`mailto:${CONTACT_EMAIL}`} className="text-gray-400 hover:text-white transition-colors text-sm">
+              {CONTACT_EMAIL}
             </a>
           </div>
         </div>
@@ -102,6 +126,13 @@ export default function Footer() {
                 {link.label}
               </Link>
             ))}
+            <button
+              type="button"
+              onClick={reopenConsentBanner}
+              className="text-gray-400 hover:text-white transition-colors text-sm underline-offset-2 hover:underline"
+            >
+              {t('footer.cookieSettings')}
+            </button>
           </div>
         </div>
 

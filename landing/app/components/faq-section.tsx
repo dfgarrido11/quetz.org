@@ -2,8 +2,7 @@
 
 import { ChevronDown, HelpCircle } from 'lucide-react';
 import { useLanguage } from '@/lib/language-context';
-
-export const FAQ_KEYS = ['1', '2', '3', '4', '5', '6'] as const;
+import { FAQ_KEYS } from '@/lib/faq';
 
 /**
  * Native <details>/<summary> accordion.

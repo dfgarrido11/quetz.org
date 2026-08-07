@@ -1,17 +1,44 @@
 'use client';
 
 import Script from 'next/script';
+import { useConsent } from '@/lib/consent';
 
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
+/**
+ * Loads Google Analytics only after the visitor grants analytics consent.
+ * Consent Mode v2 defaults are declared denied before `config` runs, so even
+ * the granted path never writes storage the visitor did not agree to.
+ */
 export default function GoogleAnalytics() {
-  // Don't render in development or if no measurement ID
+  const consent = useConsent();
+
   if (process.env.NODE_ENV !== 'production' || !GA_MEASUREMENT_ID) {
+    return null;
+  }
+  if (!consent.analytics) {
     return null;
   }
 
   return (
     <>
+      <Script
+        id="google-analytics-consent-default"
+        strategy="beforeInteractive"
+        dangerouslySetInnerHTML={{
+          __html: `
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('consent', 'default', {
+              ad_storage: 'denied',
+              ad_user_data: 'denied',
+              ad_personalization: 'denied',
+              analytics_storage: 'denied',
+              wait_for_update: 500
+            });
+          `,
+        }}
+      />
       <Script
         strategy="afterInteractive"
         src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
@@ -24,8 +51,10 @@ export default function GoogleAnalytics() {
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
+            gtag('consent', 'update', { analytics_storage: 'granted' });
             gtag('config', '${GA_MEASUREMENT_ID}', {
               page_path: window.location.pathname,
+              anonymize_ip: true,
             });
           `,
         }}
