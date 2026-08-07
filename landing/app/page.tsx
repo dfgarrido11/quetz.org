@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import HomeClient from "./_components/HomeClient";
 import JsonLd from "./components/json-ld";
+import { getImpactStats } from "@/lib/impact-stats";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
@@ -17,11 +18,13 @@ const organizationJsonLd = {
   sameAs: ["https://www.linkedin.com/company/quetz"],
 };
 
-export default function Home() {
+export default async function Home() {
+  const stats = await getImpactStats();
+
   return (
     <>
       <JsonLd data={organizationJsonLd} />
-      <HomeClient />
+      <HomeClient stats={stats} />
     </>
   );
 }

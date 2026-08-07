@@ -1,29 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { useEffect, useRef, useState } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import Image from 'next/image';
 import { Euro, TreePine, Users, PiggyBank } from 'lucide-react';
 import { useLanguage } from '@/lib/language-context';
 import { formatCurrency, formatNumber, Language } from '@/lib/translations';
-
-interface Stats {
-  totalIncome: number;
-  socialFund: number;
-  treesPlanted: number;
-  familiesHelped: number;
-}
-
-// Base exact values - SYNCHRONIZED with school-section.tsx
-// Total Income = School Funding Base = 5,420.20 €
-// School Fund contribution
-const BASE_STATS = {
-  totalIncome: 5420.20,
-  socialFund: 1626.06,
-  treesPlanted: 847,
-  familiesHelped: 23,
-};
+import type { ImpactStats } from '@/lib/impact-stats';
 
 interface CountUpNumberProps {
   target: number;
@@ -32,17 +16,33 @@ interface CountUpNumberProps {
   language: Language;
 }
 
+/**
+ * Renders `target` immediately (so it is present in the server HTML) and only
+ * replays the count-up animation once, when the section scrolls into view.
+ * It must never render 0 as a resting state.
+ */
 function CountUpNumber({ target, isCurrency, inView, language }: CountUpNumberProps) {
-  const [count, setCount] = useState(0);
+  const [count, setCount] = useState(target);
+  const hasAnimated = useRef(false);
+  const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
-    if (!inView) return;
-    
+    if (!inView || hasAnimated.current) {
+      setCount(target);
+      return;
+    }
+    hasAnimated.current = true;
+
+    if (shouldReduceMotion) {
+      setCount(target);
+      return;
+    }
+
     const duration = 2000;
     const steps = 60;
     const increment = target / steps;
     let current = 0;
-    
+
     const timer = setInterval(() => {
       current += increment;
       if (current >= target) {
@@ -53,8 +53,11 @@ function CountUpNumber({ target, isCurrency, inView, language }: CountUpNumberPr
       }
     }, duration / steps);
 
-    return () => clearInterval(timer);
-  }, [target, inView]);
+    return () => {
+      clearInterval(timer);
+      setCount(target);
+    };
+  }, [target, inView, shouldReduceMotion]);
 
   if (isCurrency) {
     return <span>{formatCurrency(count, language, true)}</span>;
@@ -62,26 +65,9 @@ function CountUpNumber({ target, isCurrency, inView, language }: CountUpNumberPr
   return <span>{formatNumber(Math.floor(count), language)}</span>;
 }
 
-export default function TransparencySection() {
+export default function TransparencySection({ stats }: { stats: ImpactStats }) {
   const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.1 });
   const { t, isRTL, language } = useLanguage();
-  const [stats, setStats] = useState<Stats>(BASE_STATS);
-
-  useEffect(() => {
-    fetch('/api/public-stats')
-      .then(res => res.json())
-      .then(data => {
-        setStats({
-          totalIncome: data.totalIncome || BASE_STATS.totalIncome,
-          socialFund: data.socialFund || BASE_STATS.socialFund,
-          treesPlanted: data.treesPlanted || BASE_STATS.treesPlanted,
-          familiesHelped: data.familiesHelped || BASE_STATS.familiesHelped,
-        });
-      })
-      .catch(() => {
-        // On error, keep BASE_STATS as fallback
-      });
-  }, []);
 
   const metrics = [
     { id: 'ingresos', label: t('transparency.totalIncome'), value: stats.totalIncome, isCurrency: true, icon: Euro },
@@ -117,36 +103,40 @@ export default function TransparencySection() {
         </motion.div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          {metrics?.map?.((metric, index) => {
-            const IconComponent = metric?.icon;
+          {metrics.map((metric, index) => {
+            const IconComponent = metric.icon;
             return (
               <motion.div
-                key={metric?.id ?? index}
+                key={metric.id}
                 initial={{ opacity: 0, y: 30 }}
                 animate={inView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 className="bg-white rounded-xl p-5 sm:p-6 shadow-lg hover:shadow-xl transition-shadow"
               >
                 <div className="flex items-center justify-center w-12 h-12 bg-quetz-green/10 rounded-full mb-4 mx-auto">
-                  {IconComponent && <IconComponent className="w-6 h-6 text-quetz-green" />}
+                  <IconComponent className="w-6 h-6 text-quetz-green" />
                 </div>
                 <div className="text-center">
                   <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">
                     <CountUpNumber
-                      target={metric?.value ?? 0}
-                      isCurrency={metric?.isCurrency ?? false}
+                      target={metric.value}
+                      isCurrency={metric.isCurrency}
                       inView={inView}
                       language={language}
                     />
                   </div>
                   <div className="mt-2 text-sm sm:text-base text-gray-600">
-                    {metric?.label ?? ''}
+                    {metric.label}
                   </div>
                 </div>
               </motion.div>
             );
-          }) ?? null}
+          })}
         </div>
+
+        <p className="mt-8 text-center text-xs sm:text-sm text-gray-600">
+          {t('transparency.updatedNote')}
+        </p>
       </div>
     </section>
   );

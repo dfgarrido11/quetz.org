@@ -18,8 +18,9 @@ import AdoptionModal from "../components/adoption-modal";
 import DonationModal from "../components/donation-modal";
 import ChatWidget from "../components/chat-widget";
 import Footer from "../components/footer";
+import type { ImpactStats } from "@/lib/impact-stats";
 
-export default function HomeClient() {
+export default function HomeClient({ stats }: { stats: ImpactStats }) {
   const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
   const [isAdoptionModalOpen, setIsAdoptionModalOpen] = useState(false);
   const [isDonationModalOpen, setIsDonationModalOpen] = useState(false);
@@ -43,10 +44,10 @@ export default function HomeClient() {
       <HeroSection onLeadModalOpen={openLeadModal} />
       <PlansSection />
       <HowItWorksSection />
-      <TransparencySection />
+      <TransparencySection stats={stats} />
       <GallerySection />
       <TreesSection onAdopt={openAdoptionModal} />
-      <SchoolSection />
+      <SchoolSection stats={stats} onOpenDonation={openDonationModal} />
       <CsrTeaserSection />
       <GiftTeaserSection />
       <FaqSection />

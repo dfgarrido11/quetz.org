@@ -88,6 +88,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'transparency.treesPlanted': 'Árboles Plantados',
     'transparency.familiesHelped': 'Familias Empleadas',
     'transparency.imageAlt': 'Fondo de transparencia',
+    'transparency.updatedNote': 'Actualizado mensualmente. Todas las cifras provienen de nuestra contabilidad y son verificables a petición.',
 
     // Auth
     'auth.login': 'Iniciar Sesión',
@@ -625,6 +626,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'transparency.treesPlanted': 'Gepflanzte Bäume',
     'transparency.familiesHelped': 'Beschäftigte Familien',
     'transparency.imageAlt': 'Transparenz-Hintergrundbild',
+    'transparency.updatedNote': 'Monatlich aktualisiert. Alle Zahlen stammen aus unserer Buchhaltung und sind auf Anfrage belegbar.',
 
     // Auth
     'auth.login': 'Anmelden',
@@ -1157,6 +1159,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'transparency.treesPlanted': 'Trees Planted',
     'transparency.familiesHelped': 'Families Employed',
     'transparency.imageAlt': 'Transparency background image',
+    'transparency.updatedNote': 'Updated monthly. All figures come from our own bookkeeping and can be evidenced on request.',
 
     // Auth
     'auth.login': 'Log In',
@@ -1712,6 +1715,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'transparency.treesPlanted': 'Arbres Plantés',
     'transparency.familiesHelped': 'Familles Employées',
     'transparency.imageAlt': 'Image de fond transparence',
+    'transparency.updatedNote': 'Mis à jour mensuellement. Tous les chiffres proviennent de notre comptabilité et sont justifiables sur demande.',
 
     // Auth
     'auth.login': 'Connexion',
@@ -2263,6 +2267,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'transparency.treesPlanted': 'الأشجار المزروعة',
     'transparency.familiesHelped': 'العائلات العاملة',
     'transparency.imageAlt': 'صورة خلفية الشفافية',
+    'transparency.updatedNote': 'يتم التحديث شهرياً. جميع الأرقام مأخوذة من دفاترنا المحاسبية ويمكن إثباتها عند الطلب.',
 
     // Auth
     'auth.login': 'تسجيل الدخول',

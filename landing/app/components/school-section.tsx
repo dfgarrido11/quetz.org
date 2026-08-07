@@ -1,23 +1,27 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import Image from 'next/image';
 import { School, Heart } from 'lucide-react';
 import { useLanguage } from '@/lib/language-context';
 import { formatCurrency, Language } from '@/lib/translations';
+import type { ImpactStats } from '@/lib/impact-stats';
 
 function CountUpNumber({ target, language }: { target: number; language: Language }) {
   const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.1 });
-  const [count, setCount] = useState(0);
+  // Starts at `target` so the real figure is in the server HTML, never 0.
+  const [count, setCount] = useState(target);
+  const hasAnimated = useRef(false);
   const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
-    if (!inView || shouldReduceMotion) {
+    if (!inView || shouldReduceMotion || hasAnimated.current) {
       setCount(target);
       return;
     }
+    hasAnimated.current = true;
     const duration = 2000;
     const steps = 60;
     const increment = target / steps;
@@ -31,55 +35,28 @@ function CountUpNumber({ target, language }: { target: number; language: Languag
         setCount(current);
       }
     }, duration / steps);
-    return () => clearInterval(timer);
+    return () => {
+      clearInterval(timer);
+      setCount(target);
+    };
   }, [target, inView, shouldReduceMotion]);
 
   return <span ref={ref}>{formatCurrency(count, language, true)}</span>;
 }
 
 interface SchoolSectionProps {
-  onOpenDonation: () => void;
+  stats: ImpactStats;
+  onOpenDonation?: () => void;
 }
 
-interface SchoolData {
-  raisedEur: number;
-  goalEur: number;
-  progress: number;
-}
-
-// Fallback values (same as DB seed)
-const FALLBACK_RAISED = 5420.20;
-const FALLBACK_GOAL = 50000;
-
-export default function SchoolSection({ onOpenDonation }: SchoolSectionProps) {
+export default function SchoolSection({ stats, onOpenDonation }: SchoolSectionProps) {
   const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.1 });
-  const shouldReduceMotion = useReducedMotion();
-  const [schoolData, setSchoolData] = useState<SchoolData>({ 
-    raisedEur: FALLBACK_RAISED, 
-    goalEur: FALLBACK_GOAL,
-    progress: (FALLBACK_RAISED / FALLBACK_GOAL) * 100
-  });
   const { t, isRTL, language } = useLanguage();
 
-  useEffect(() => {
-    fetch('/api/public-stats')
-      .then(res => res.json())
-      .then(data => {
-        const raised = data.schoolRaised || FALLBACK_RAISED;
-        const goal = data.schoolGoal || FALLBACK_GOAL;
-        setSchoolData({
-          raisedEur: raised,
-          goalEur: goal,
-          progress: Math.min(100, (raised / goal) * 100),
-        });
-      })
-      .catch(() => {});
-  }, []);
-
-  // Use data from API directly (already includes base + dynamic)
-  const currentAmount = schoolData.raisedEur;
-  const goalAmount = schoolData.goalEur;
-  const progress = schoolData.progress;
+  // Server-provided; `getImpactStats` already guarantees non-zero values.
+  const currentAmount = stats.schoolRaised;
+  const goalAmount = stats.schoolGoal;
+  const progress = stats.schoolProgress;
 
   // Split school title for styling
   const schoolTitle = t('school.title');
@@ -150,11 +127,10 @@ export default function SchoolSection({ onOpenDonation }: SchoolSectionProps) {
               <span className="text-quetz-green font-bold">{progress.toFixed(0)}%</span>
             </div>
             <div className="w-full bg-white/20 rounded-full h-4 overflow-hidden">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={inView ? { width: `${progress}%` } : {}}
-                transition={{ duration: 1, delay: 0.5 }}
-                className={`bg-gradient-to-r ${isRTL ? 'from-green-400 to-quetz-green' : 'from-quetz-green to-green-400'} h-full rounded-full`}
+              {/* width is set inline so the bar is correct in the server HTML too */}
+              <div
+                style={{ width: `${progress}%` }}
+                className={`bg-gradient-to-r ${isRTL ? 'from-green-400 to-quetz-green' : 'from-quetz-green to-green-400'} h-full rounded-full transition-[width] duration-1000 ease-out`}
               />
             </div>
             <div className={`flex items-center justify-between mt-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
