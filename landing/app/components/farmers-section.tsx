@@ -4,6 +4,7 @@ import { Users, Coins, Sprout, MapPin, Repeat, Camera, FileSignature } from 'luc
 import { useLanguage } from '@/lib/language-context';
 import { formatCurrency, formatNumber } from '@/lib/translations';
 import { ALLOCATION_ORDER, allocationPercent, FARMER_ECONOMICS, type AllocationKey } from '@/lib/allocation';
+import { Language } from '@/lib/translations';
 
 /**
  * "How the farmers actually benefit" — answers the KUER.NRW jury's direct
@@ -27,13 +28,39 @@ const CO2_GUARANTEES = [
   { key: 'monitor', icon: Camera },
 ] as const;
 
+/** Substitutes {placeholders} so each language keeps its own sentence order. */
+function fill(template: string, values: Record<string, string>): string {
+  return Object.entries(values).reduce(
+    (text, [key, value]) => text.split(`{${key}}`).join(value),
+    template
+  );
+}
+
+/**
+ * "18,90–27,00 €" / "€18.90–€27.00" — one range, formatted per locale rather
+ * than gluing two independently formatted amounts together.
+ */
+function formatMoneyRange(min: number, max: number, language: Language): string {
+  if (language === 'en') {
+    return `${formatCurrency(min, language)}–${formatCurrency(max, language)}`;
+  }
+  const minPlain = min.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return `${minPlain}–${formatCurrency(max, language)}`;
+}
+
 export default function FarmersSection() {
   const { t, isRTL, language } = useLanguage();
 
-  const { payPerTreePlantedEur, payPerTreeCarePerYearEur, familiesEmployed } = FARMER_ECONOMICS;
+  const {
+    payPerTreePlantedEur,
+    schoolFundPerTreePlantedEur,
+    carePerTreePerYearEur,
+    familiesEmployed,
+    singleTreePriceEur,
+  } = FARMER_ECONOMICS;
 
-  const money = (value: number | null): string =>
-    value === null ? t('farmers.pending') : formatCurrency(value, language, false);
+  const money = (value: number): string => formatCurrency(value, language);
+  const careRange = formatMoneyRange(carePerTreePerYearEur.min, carePerTreePerYearEur.max, language);
 
   const stats = [
     {
@@ -48,14 +75,21 @@ export default function FarmersSection() {
       icon: Coins,
       value: money(payPerTreePlantedEur),
       label: t('farmers.stat.perTree'),
-      hint: t('farmers.stat.perTreeHint'),
+      hint: fill(t('farmers.stat.perTreeHint'), {
+        price: formatCurrency(singleTreePriceEur, language, false),
+        wage: money(payPerTreePlantedEur),
+        school: money(schoolFundPerTreePlantedEur),
+      }),
     },
     {
       id: 'care',
       icon: Sprout,
-      value: money(payPerTreeCarePerYearEur),
+      value: careRange,
       label: t('farmers.stat.care'),
-      hint: t('farmers.stat.careHint'),
+      hint: fill(t('farmers.stat.careHint'), {
+        range: careRange,
+        share: `${allocationPercent('planting')}%`,
+      }),
     },
   ];
 
@@ -91,7 +125,12 @@ export default function FarmersSection() {
           <h3 className="text-xl sm:text-2xl font-bold text-gray-900 text-center">
             {t('farmers.allocation.title')}
           </h3>
-          <p className="mt-2 text-sm sm:text-base text-gray-600 text-center max-w-2xl mx-auto">
+          <p className="mt-3 text-center">
+            <span className="inline-block rounded-full bg-white px-3 py-1 text-xs font-semibold text-gray-700 border border-gray-200">
+              {t('farmers.allocation.asOf')}
+            </span>
+          </p>
+          <p className="mt-3 text-sm sm:text-base text-gray-600 text-center max-w-2xl mx-auto">
             {t('farmers.allocation.subtitle')}
           </p>
 
