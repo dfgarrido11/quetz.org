@@ -12,9 +12,10 @@ const staticRoutes: MetadataRoute.Sitemap = [
   { url: `${SITE_URL}/gedenkbaum`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
   { url: `${SITE_URL}/transparencia`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.8 },
   { url: `${SITE_URL}/csr-partner`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
+  { url: `${SITE_URL}/unternehmen`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
   { url: `${SITE_URL}/blog`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
   { url: `${SITE_URL}/regalar`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.7 },
-  { url: `${SITE_URL}/carrito`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
+  // /carrito is deliberately absent: it is noindex (personal, transactional).
   { url: `${SITE_URL}/agb`, lastModified: new Date(), changeFrequency: 'yearly', priority: 0.2 },
   { url: `${SITE_URL}/datenschutz`, lastModified: new Date(), changeFrequency: 'yearly', priority: 0.2 },
   { url: `${SITE_URL}/impressum`, lastModified: new Date(), changeFrequency: 'yearly', priority: 0.2 },
