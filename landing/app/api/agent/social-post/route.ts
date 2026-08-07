@@ -47,6 +47,14 @@ function normalizeIntegration(raw: RawIntegration): Integration {
 /** Postiz rejects a schedule further out than this, and it is well past any sane use. */
 const MAX_SCHEDULE_DAYS = 90;
 
+/**
+ * Required per-platform fields in Postiz's `settings` object. Instagram rejects
+ * a post outright without `post_type`, so this is not optional decoration.
+ */
+const PLATFORM_SETTINGS: Record<string, Record<string, unknown>> = {
+  instagram: { post_type: "post" },
+};
+
 async function validate(body: unknown): Promise<{ data: Payload } | { error: string }> {
   if (typeof body !== "object" || body === null) return { error: "Body must be a JSON object" };
   const b = body as Record<string, unknown>;
@@ -121,10 +129,12 @@ async function publish(apiKey: string, targets: Integration[], p: Payload) {
         value: [
           {
             content: p.content,
-            ...(p.imageUrl ? { image: [{ id: p.imageUrl, path: p.imageUrl }] } : {}),
+            // Always an array — Postiz rejects the field being absent, even
+            // for a text-only post.
+            image: p.imageUrl ? [{ id: p.imageUrl, path: p.imageUrl }] : [],
           },
         ],
-        settings: { __type: t.platform },
+        settings: { __type: t.platform, ...(PLATFORM_SETTINGS[t.platform] ?? {}) },
       })),
     }),
   });
