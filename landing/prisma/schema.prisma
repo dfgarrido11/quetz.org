@@ -679,3 +679,36 @@ model SystemHealthLog {
   resolvedAt   DateTime?
   metadata     Json?
 }
+
+// ========== AGENT API (external agent: cold email + social) ==========
+
+model AgentEmailLog {
+  id        String   @id @default(cuid())
+  to        String
+  subject   String
+  status    String   // "sent" | "sending" | "failed" | "blocked"
+  provider  String?  // "resend"
+  messageId String?
+  fromUsed  String?  // which From address actually delivered
+  error     String?  @db.Text
+  ip        String?
+  createdAt DateTime @default(now())
+
+  @@index([to, createdAt])
+  @@index([createdAt])
+  @@map("agent_email_log")
+}
+
+model SocialQueue {
+  id          String    @id @default(cuid())
+  content     String    @db.Text
+  imageUrl    String?
+  platforms   String[]  @default([])
+  status      String    @default("queued") // "queued" | "published" | "failed"
+  error       String?   @db.Text
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([status, createdAt])
+  @@map("social_queue")
+}
