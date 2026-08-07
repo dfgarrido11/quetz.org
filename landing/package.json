@@ -8,6 +8,7 @@
     "lint": "next lint",
     "postinstall": "prisma generate",
     "seed:impact": "tsx --require dotenv/config scripts/seed-impact-stats.ts",
+    "check:i18n": "tsx scripts/check-translations.ts",
     "outreach:create": "tsx --require dotenv/config scripts/sendOutreach.ts create",
     "outreach:send": "tsx --require dotenv/config scripts/sendOutreach.ts send",
     "outreach:status": "tsx --require dotenv/config scripts/sendOutreach.ts status",

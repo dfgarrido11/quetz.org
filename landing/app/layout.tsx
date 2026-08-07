@@ -75,6 +75,17 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* framer-motion inlines `opacity: 0` into the server HTML, so every
+            animated section stays invisible until React hydrates — without JS
+            the whole page renders blank. This restores it for no-JS visitors
+            and crawlers. See `.reveal` in globals.css for the per-section fix. */}
+        <noscript>
+          <style
+            dangerouslySetInnerHTML={{
+              __html: '[style*="opacity:0"],[style*="opacity: 0"]{opacity:1!important;transform:none!important}',
+            }}
+          />
+        </noscript>
       </head>
       <body className="bg-quetz-cream">
         <Providers>{children}</Providers>
