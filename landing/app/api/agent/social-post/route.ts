@@ -16,9 +16,36 @@ type Payload = {
   content: string;
   imageUrl?: string;
   platforms: string[];
+  scheduleAt?: string;
 };
 
-type Integration = { id: string; providerIdentifier?: string; name?: string };
+/**
+ * Postiz 2.x returns the platform under `identifier` ("instagram", "x", …).
+ * `providerIdentifier` is accepted too because other Postiz versions use that
+ * name — reading only one of them is what previously made a connected channel
+ * look like no channel at all.
+ */
+type RawIntegration = {
+  id: string;
+  name?: string;
+  identifier?: string;
+  providerIdentifier?: string;
+  disabled?: boolean;
+};
+
+type Integration = { id: string; platform: string; name: string; disabled: boolean };
+
+function normalizeIntegration(raw: RawIntegration): Integration {
+  return {
+    id: raw.id,
+    platform: (raw.identifier ?? raw.providerIdentifier ?? "").toLowerCase(),
+    name: raw.name ?? raw.id,
+    disabled: raw.disabled === true,
+  };
+}
+
+/** Postiz rejects a schedule further out than this, and it is well past any sane use. */
+const MAX_SCHEDULE_DAYS = 90;
 
 async function validate(body: unknown): Promise<{ data: Payload } | { error: string }> {
   if (typeof body !== "object" || body === null) return { error: "Body must be a JSON object" };
@@ -46,25 +73,47 @@ async function validate(body: unknown): Promise<{ data: Payload } | { error: str
     platforms = (b.platforms as string[]).map((p) => p.trim().toLowerCase()).filter(Boolean);
   }
 
-  return { data: { content, imageUrl, platforms } };
+  let scheduleAt: string | undefined;
+  if (b.scheduleAt !== undefined && b.scheduleAt !== null) {
+    if (typeof b.scheduleAt !== "string") return { error: "'scheduleAt' must be an ISO date string" };
+    const when = new Date(b.scheduleAt);
+    if (Number.isNaN(when.getTime())) return { error: "'scheduleAt' is not a valid date" };
+    if (when.getTime() <= Date.now()) return { error: "'scheduleAt' must be in the future" };
+    if (when.getTime() - Date.now() > MAX_SCHEDULE_DAYS * 86_400_000) {
+      return { error: `'scheduleAt' must be within ${MAX_SCHEDULE_DAYS} days` };
+    }
+    scheduleAt = when.toISOString();
+  }
+
+  return { data: { content, imageUrl, platforms, scheduleAt } };
 }
 
+/**
+ * Always fetched fresh: a channel connected in Postiz must be visible to the
+ * very next request, and a stale empty list silently downgrades a publish into
+ * a queue insert.
+ */
 async function listIntegrations(apiKey: string): Promise<Integration[]> {
   const res = await fetch(`${POSTIZ_BASE}/integrations`, {
     headers: { Authorization: apiKey },
     cache: "no-store",
+    next: { revalidate: 0 },
   });
   if (!res.ok) throw new Error(`integrations ${res.status}`);
   const data = await res.json();
-  return Array.isArray(data) ? (data as Integration[]) : [];
+  if (!Array.isArray(data)) return [];
+  return (data as RawIntegration[]).map(normalizeIntegration).filter((i) => !i.disabled);
 }
 
 async function publish(apiKey: string, targets: Integration[], p: Payload) {
   const res = await fetch(`${POSTIZ_BASE}/posts`, {
     method: "POST",
     headers: { Authorization: apiKey, "Content-Type": "application/json" },
+    cache: "no-store",
     body: JSON.stringify({
-      type: "now",
+      // Postiz wants a date either way; for an immediate post it just uses now.
+      type: p.scheduleAt ? "schedule" : "now",
+      date: p.scheduleAt ?? new Date().toISOString(),
       shortLink: false,
       tags: [],
       posts: targets.map((t) => ({
@@ -75,13 +124,20 @@ async function publish(apiKey: string, targets: Integration[], p: Payload) {
             ...(p.imageUrl ? { image: [{ id: p.imageUrl, path: p.imageUrl }] } : {}),
           },
         ],
-        settings: { __type: t.providerIdentifier ?? "generic" },
+        settings: { __type: t.platform },
       })),
     }),
   });
 
-  const detail = redactSecrets(await res.text()).slice(0, 300);
-  return { ok: res.ok, status: res.status, detail };
+  const raw = redactSecrets(await res.text());
+  let parsed: unknown = null;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    // Non-JSON error page — `detail` still carries the text.
+  }
+
+  return { ok: res.ok, status: res.status, detail: raw.slice(0, 300), body: parsed };
 }
 
 export async function POST(req: NextRequest) {
@@ -130,9 +186,7 @@ export async function POST(req: NextRequest) {
     }
 
     const targets = payload.platforms.length
-      ? integrations.filter((i) =>
-          payload.platforms.includes((i.providerIdentifier ?? "").toLowerCase())
-        )
+      ? integrations.filter((i) => payload.platforms.includes(i.platform))
       : integrations;
 
     if (targets.length === 0) {
@@ -146,7 +200,7 @@ export async function POST(req: NextRequest) {
         queued: true,
         id: row.id,
         reason: integrations.length === 0 ? "no_channels_connected" : "no_matching_channel",
-        availablePlatforms: integrations.map((i) => i.providerIdentifier).filter(Boolean),
+        availablePlatforms: integrations.map((i) => i.platform).filter(Boolean),
       });
     }
 
@@ -170,18 +224,22 @@ export async function POST(req: NextRequest) {
       data: {
         content: payload.content,
         imageUrl: payload.imageUrl ?? null,
-        platforms: targets.map((t) => t.providerIdentifier ?? t.id),
-        status: "published",
-        publishedAt: new Date(),
+        platforms: targets.map((t) => t.platform),
+        // A scheduled post is accepted by Postiz but not out yet, so it is not
+        // "published" — leaving publishedAt null keeps that distinction honest.
+        status: payload.scheduleAt ? "scheduled" : "published",
+        publishedAt: payload.scheduleAt ? null : new Date(),
       },
     });
 
     return NextResponse.json({
       ok: true,
       queued: false,
-      published: true,
+      published: !payload.scheduleAt,
+      scheduledAt: payload.scheduleAt ?? null,
       id: row.id,
-      channels: targets.map((t) => t.providerIdentifier ?? t.id),
+      channels: targets.map((t) => t.platform),
+      provider: result.body,
     });
   } catch (err) {
     console.error("[agent/social-post] unexpected failure", {
