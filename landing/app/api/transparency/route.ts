@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { ALLOCATION } from '@/lib/allocation';
 
 type TransparencyResponse = {
   // Raw gross
@@ -42,12 +43,6 @@ type TransparencyResponse = {
   lastUpdated: string;
 };
 
-const ALLOCATION = {
-  planting: 0.40,
-  school: 0.30,
-  operations: 0.20,
-  reserve: 0.10,
-} as const;
 
 const CO2_PER_TREE = 25;
 const TREES_PER_HECTARE = 1000;

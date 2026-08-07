@@ -9,6 +9,8 @@ import TransparencySection from "../components/transparency-section";
 import GallerySection from "../components/gallery-section";
 import TreesSection from "../components/trees-section";
 import SchoolSection from "../components/school-section";
+import FarmersSection from "../components/farmers-section";
+import TestimonialsSection from "../components/testimonials-section";
 import CsrTeaserSection from "../components/csr-teaser-section";
 import GiftTeaserSection from "../components/gift-teaser-section";
 import FaqSection from "../components/faq-section";
@@ -47,9 +49,11 @@ export default function HomeClient({ stats }: { stats: ImpactStats }) {
       <TransparencySection stats={stats} />
       <GallerySection />
       <TreesSection onAdopt={openAdoptionModal} />
+      <FarmersSection />
       <SchoolSection stats={stats} onOpenDonation={openDonationModal} />
       <CsrTeaserSection />
       <GiftTeaserSection />
+      <TestimonialsSection />
       <FaqSection />
       <NewsletterSection />
       <Footer />
