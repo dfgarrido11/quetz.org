@@ -82,8 +82,8 @@ const PRODUCTS: Product[] = [
     mascotLabel: 'Quetzito Aventurero',
     ref: 'camiseta',
     badge: 'Quetz Pick',
-    mockupFront: '/shop-mockups/mockup-camiseta.png',
-    mockupBack: '/shop-mockups/mockup-camiseta-back.png',
+    mockupFront: '/shop-mockups/mockup-camiseta.webp',
+    mockupBack: '/shop-mockups/mockup-camiseta-back.webp',
     sizes: [
       { label: 'XS', gelatoCode: 'xs' },
       { label: 'S', gelatoCode: 's' },
@@ -111,8 +111,8 @@ const PRODUCTS: Product[] = [
     mascotLabel: 'Quetzito Héroe',
     ref: 'hoodie',
     badge: 'Bestseller',
-    mockupFront: '/shop-mockups/mockup-hoodie.png',
-    mockupBack: '/shop-mockups/mockup-hoodie-back.png',
+    mockupFront: '/shop-mockups/mockup-hoodie.webp',
+    mockupBack: '/shop-mockups/mockup-hoodie-back.webp',
     sizes: [
       { label: 'S', gelatoCode: 's' },
       { label: 'M', gelatoCode: 'm' },
@@ -138,8 +138,8 @@ const PRODUCTS: Product[] = [
     mascot: 'quetzito-maestro',
     mascotLabel: 'Quetzito Maestro',
     ref: 'taza',
-    mockupFront: '/shop-mockups/mockup-taza.png',
-    mockupBack: '/shop-mockups/mockup-taza.png',
+    mockupFront: '/shop-mockups/mockup-taza.webp',
+    mockupBack: '/shop-mockups/mockup-taza.webp',
     sizes: [
       { label: '11oz', gelatoCode: '11-oz' },
     ],
@@ -160,8 +160,8 @@ const PRODUCTS: Product[] = [
     mascotLabel: 'Quetzito Aventurero',
     ref: 'totebag',
     badge: 'Eco',
-    mockupFront: '/shop-mockups/mockup-totebag.png',
-    mockupBack: '/shop-mockups/mockup-totebag.png',
+    mockupFront: '/shop-mockups/mockup-totebag.webp',
+    mockupBack: '/shop-mockups/mockup-totebag.webp',
     sizes: [
       { label: 'shop.size.oneSize', gelatoCode: 'std-t' },
     ],
@@ -601,7 +601,9 @@ export default function ShopPage() {
               i.selectedColor.gelatoCode
             ),
             mascot: i.mascot,
-            imageUrl: `https://www.quetz.org${i.mockupFront}`,
+            // Stripe Checkout renders this and does not document WebP support,
+            // so keep pointing it at the PNG we still ship alongside.
+            imageUrl: `https://www.quetz.org${i.mockupFront.replace(/\.webp$/, '.png')}`,
           })),
         }),
       })
@@ -695,7 +697,7 @@ export default function ShopPage() {
           <div className="relative w-72 h-72 md:w-96 md:h-96 shrink-0">
             <div className="absolute inset-0 z-10 rounded-2xl overflow-hidden shadow-2xl border-2 border-white/20">
               <Image
-                src="/shop-mockups/mockup-camiseta.png"
+                src="/shop-mockups/mockup-camiseta.webp"
                 alt={t('shop.prod.camiseta.name')}
                 fill
                 className="object-cover"
@@ -705,7 +707,7 @@ export default function ShopPage() {
             </div>
             <div className="absolute -bottom-4 -right-4 w-32 h-32 md:w-40 md:h-40 z-20 rounded-xl overflow-hidden shadow-xl border-2 border-white/30">
               <Image
-                src="/shop-mockups/mockup-hoodie.png"
+                src="/shop-mockups/mockup-hoodie.webp"
                 alt={t('shop.prod.hoodie.name')}
                 fill
                 className="object-cover"
@@ -715,7 +717,7 @@ export default function ShopPage() {
             </div>
             <div className="absolute -top-2 -right-2 w-24 h-24 md:w-28 md:h-28 z-20 rounded-xl overflow-hidden shadow-xl border-2 border-white/30">
               <Image
-                src="/shop-mockups/mockup-taza.png"
+                src="/shop-mockups/mockup-taza.webp"
                 alt={t('shop.prod.taza.name')}
                 fill
                 className="object-cover"
