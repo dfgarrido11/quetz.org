@@ -1,6 +1,6 @@
 'use client';
 
-import { Heart, Mail, Instagram, Facebook, Linkedin, Shield } from 'lucide-react';
+import { Heart, Mail, Instagram, Facebook, Shield } from 'lucide-react';
 import { useLanguage } from '@/lib/language-context';
 import { reopenConsentBanner } from '@/lib/consent';
 import Image from 'next/image';
@@ -10,14 +10,13 @@ const CONTACT_EMAIL = 'admin@quetz.org';
 
 /**
  * Verified 2026-08-07: Instagram and Facebook return 200.
- * TODO-DANIEL: https://www.linkedin.com/company/quetz returns 404 to an
- * anonymous request. Confirm the real company-page slug and update it here
- * *and* in `organizationJsonLd.sameAs` in app/page.tsx, or remove both.
+ * LinkedIn was removed — https://www.linkedin.com/company/quetz 404s for
+ * anonymous visitors. Re-add it here *and* in `organizationJsonLd.sameAs`
+ * in app/page.tsx once a real company page exists.
  */
 const SOCIAL_LINKS = [
   { href: 'https://instagram.com/quetzorg', label: 'Instagram', icon: Instagram },
   { href: 'https://facebook.com/quetz.org', label: 'Facebook', icon: Facebook },
-  { href: 'https://www.linkedin.com/company/quetz', label: 'LinkedIn', icon: Linkedin },
 ] as const;
 
 export default function Footer() {

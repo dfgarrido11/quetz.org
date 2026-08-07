@@ -21,12 +21,12 @@ const organizationJsonLd = {
   email: "admin@quetz.org",
   description:
     "QUETZ verbindet Menschen und Unternehmen in Deutschland mit Aufforstung in Zacapa, Guatemala. Echte Bäume mit GPS-Koordinaten, Arbeit für lokale Familien und eine Schule für 120 Kinder.",
-  // TODO-DANIEL: the LinkedIn URL 404s for anonymous requests — confirm the
-  // real slug or drop it. Mirrored in SOCIAL_LINKS in app/components/footer.tsx.
+  // LinkedIn omitted on purpose: the company URL 404s for anonymous requests,
+  // and a sameAs that dead-ends weakens entity matching rather than helping it.
+  // Mirrored in SOCIAL_LINKS in app/components/footer.tsx.
   sameAs: [
     "https://instagram.com/quetzorg",
     "https://facebook.com/quetz.org",
-    "https://www.linkedin.com/company/quetz",
   ],
 };
 
