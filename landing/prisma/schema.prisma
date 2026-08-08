@@ -704,11 +704,23 @@ model SocialQueue {
   content     String    @db.Text
   imageUrl    String?
   platforms   String[]  @default([])
-  status      String    @default("queued") // "queued" | "published" | "failed"
+  status      String    @default("queued") // "queued" | "sending" | "scheduled" | "published" | "failed" | "duplicate"
   error       String?   @db.Text
   publishedAt DateTime?
   createdAt   DateTime  @default(now())
 
+  /// sha256 of `content` — dedupe key, so identical text cannot go out twice.
+  contentHash    String
+  /// Postiz post id, so a row can be traced to what actually got created.
+  providerPostId String?
+  /// UTC calendar day (YYYY-MM-DD) the post was dispatched on. Null until dispatch.
+  publishedOn    String?
+
   @@index([status, createdAt])
+  @@index([contentHash])
+  // NOTE: a PARTIAL unique index on (contentHash, publishedOn) WHERE status IN
+  // ('published','scheduled') is created in the migration. Prisma cannot express
+  // a WHERE clause on an index, so it is invisible here — do not "fix" drift by
+  // dropping it, that is the guard against double-publishing.
   @@map("social_queue")
 }

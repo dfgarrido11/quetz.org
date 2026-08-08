@@ -1,3 +1,4 @@
+import { createHash } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { authorizeAgent, redactSecrets } from "@/lib/agent-auth";
@@ -55,6 +56,22 @@ const PLATFORM_SETTINGS: Record<string, Record<string, unknown>> = {
   instagram: { post_type: "post" },
 };
 
+/** UTC calendar day, the granularity the per-day dedupe guard works at. */
+function utcDay(date: Date): string {
+  return date.toISOString().slice(0, 10);
+}
+
+/** Postiz answers with [{postId, integration}]; keep the first id for tracing. */
+function extractPostId(body: unknown): string | null {
+  if (!Array.isArray(body) || body.length === 0) return null;
+  const first = body[0] as { postId?: unknown };
+  return typeof first?.postId === "string" ? first.postId : null;
+}
+
+function isUniqueViolation(err: unknown): boolean {
+  return typeof err === "object" && err !== null && (err as { code?: string }).code === "P2002";
+}
+
 async function validate(body: unknown): Promise<{ data: Payload } | { error: string }> {
   if (typeof body !== "object" || body === null) return { error: "Body must be a JSON object" };
   const b = body as Record<string, unknown>;
@@ -105,7 +122,6 @@ async function listIntegrations(apiKey: string): Promise<Integration[]> {
   const res = await fetch(`${POSTIZ_BASE}/integrations`, {
     headers: { Authorization: apiKey },
     cache: "no-store",
-    next: { revalidate: 0 },
   });
   if (!res.ok) throw new Error(`integrations ${res.status}`);
   const data = await res.json();
@@ -167,6 +183,9 @@ export async function POST(req: NextRequest) {
   }
   const payload = checked.data;
 
+  const contentHash = createHash("sha256").update(payload.content).digest("hex");
+  const dispatchDay = utcDay(payload.scheduleAt ? new Date(payload.scheduleAt) : new Date());
+
   const queue = async (reason: string) =>
     prisma.socialQueue.create({
       data: {
@@ -175,10 +194,36 @@ export async function POST(req: NextRequest) {
         platforms: payload.platforms,
         status: "queued",
         error: reason,
+        contentHash,
       },
     });
 
   try {
+    // Idempotency: identical content already dispatched for this day is a
+    // repeat call, not a new post. Answer from the database and never touch
+    // Postiz — this is what stops a caller in a retry loop from filling the
+    // feed with the same thing.
+    const alreadyOut = await prisma.socialQueue.findFirst({
+      where: {
+        contentHash,
+        publishedOn: dispatchDay,
+        status: { in: ["published", "scheduled"] },
+      },
+      select: { id: true, status: true, providerPostId: true, publishedAt: true },
+    });
+
+    if (alreadyOut) {
+      return NextResponse.json({
+        ok: true,
+        deduped: true,
+        reason: "already_dispatched_today",
+        id: alreadyOut.id,
+        status: alreadyOut.status,
+        providerPostId: alreadyOut.providerPostId,
+        publishedAt: alreadyOut.publishedAt,
+      });
+    }
+
     const apiKey = process.env.POSTIZ_API_KEY;
 
     if (!apiKey) {
@@ -214,33 +259,75 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    const result = await publish(apiKey, targets, payload);
-
-    if (!result.ok) {
-      const row = await prisma.socialQueue.create({
-        data: {
-          content: payload.content,
-          imageUrl: payload.imageUrl ?? null,
-          platforms: payload.platforms,
-          status: "failed",
-          error: `postiz ${result.status}: ${result.detail}`,
-        },
-      });
-      console.error("[agent/social-post] Postiz rejected the post", { id: row.id });
-      return NextResponse.json({ error: "Social provider rejected the request", id: row.id }, { status: 502 });
-    }
-
+    // Write the row first, then claim it. Postiz is only ever called on behalf
+    // of a row this request successfully moved out of "queued", so two
+    // concurrent requests cannot both reach the publish call.
     const row = await prisma.socialQueue.create({
       data: {
         content: payload.content,
         imageUrl: payload.imageUrl ?? null,
         platforms: targets.map((t) => t.platform),
-        // A scheduled post is accepted by Postiz but not out yet, so it is not
-        // "published" — leaving publishedAt null keeps that distinction honest.
-        status: payload.scheduleAt ? "scheduled" : "published",
-        publishedAt: payload.scheduleAt ? null : new Date(),
+        status: "queued",
+        contentHash,
       },
     });
+
+    const claimed = await prisma.socialQueue.updateMany({
+      where: { id: row.id, status: "queued" },
+      data: { status: "sending" },
+    });
+
+    if (claimed.count !== 1) {
+      return NextResponse.json(
+        { ok: true, deduped: true, reason: "already_in_progress", id: row.id },
+        { status: 409 }
+      );
+    }
+
+    const result = await publish(apiKey, targets, payload);
+
+    if (!result.ok) {
+      await prisma.socialQueue.update({
+        where: { id: row.id },
+        data: { status: "failed", error: `postiz ${result.status}: ${result.detail}` },
+      });
+      console.error("[agent/social-post] Postiz rejected the post", { id: row.id });
+      return NextResponse.json({ error: "Social provider rejected the request", id: row.id }, { status: 502 });
+    }
+
+    const providerPostId = extractPostId(result.body);
+
+    try {
+      await prisma.$transaction(async (tx) => {
+        await tx.socialQueue.update({
+          where: { id: row.id },
+          data: {
+            // Scheduled is accepted by Postiz but not out yet, so it is not
+            // "published" — leaving publishedAt null keeps that honest.
+            status: payload.scheduleAt ? "scheduled" : "published",
+            publishedAt: payload.scheduleAt ? null : new Date(),
+            publishedOn: dispatchDay,
+            providerPostId,
+            error: null,
+          },
+        });
+      });
+    } catch (err) {
+      // The partial unique index fired: another request published this exact
+      // content for the same day while Postiz was being called.
+      if (isUniqueViolation(err)) {
+        await prisma.socialQueue.update({
+          where: { id: row.id },
+          data: { status: "duplicate", providerPostId, error: "same content already dispatched today" },
+        });
+        console.error("[agent/social-post] duplicate dispatch blocked", { id: row.id });
+        return NextResponse.json(
+          { ok: true, deduped: true, reason: "duplicate_blocked", id: row.id, providerPostId },
+          { status: 409 }
+        );
+      }
+      throw err;
+    }
 
     return NextResponse.json({
       ok: true,
@@ -248,6 +335,7 @@ export async function POST(req: NextRequest) {
       published: !payload.scheduleAt,
       scheduledAt: payload.scheduleAt ?? null,
       id: row.id,
+      providerPostId,
       channels: targets.map((t) => t.platform),
       provider: result.body,
     });
