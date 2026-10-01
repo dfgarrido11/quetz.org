@@ -1,5 +1,5 @@
 /**
- * Zentrale rechtliche Stammdaten für Impressum (§ 5 TMG / § 18 MStV)
+ * Zentrale rechtliche Stammdaten für Impressum (§ 5 DDG / § 18 MStV)
  * und Datenschutzerklärung (Art. 13/14 DSGVO).
  *
  * WICHTIG: Diese Datei ist die EINZIGE Quelle der Wahrheit. /impressum und
@@ -23,7 +23,7 @@ export interface LegalEntity {
    *  (z.B. "Einzelunternehmen", "GmbH", "eingetragener Verein", "gGmbH"). Sonst leer lassen. */
   legalForm: string;
   /** TODO-DANIEL: Ladungsfähige Anschrift — Straße und Hausnummer.
-   *  Postfach ist NICHT zulässig (§ 5 Abs. 1 Nr. 1 TMG). */
+   *  Postfach ist NICHT zulässig (§ 5 Abs. 1 Nr. 1 DDG). */
   street: string;
   /** TODO-DANIEL: PLZ (z.B. "10115") */
   postalCode: string;
@@ -55,7 +55,7 @@ export interface LegalEntity {
   /** TODO-DANIEL: Anschrift des/der inhaltlich Verantwortlichen, falls abweichend
    *  von der Firmenanschrift. Sonst leer lassen. */
   contentResponsibleAddress: string;
-  /** Kontakt — bereits belegt, § 5 Abs. 1 Nr. 2 TMG erfüllt */
+  /** Kontakt — bereits belegt, § 5 Abs. 1 Nr. 2 DDG erfüllt */
   email: string;
   /** TODO-DANIEL: OPTIONAL. Telefonnummer ist keine Pflicht, solange eine
    *  schnelle elektronische Kontaktaufnahme möglich ist (EuGH C-298/07).
@@ -67,17 +67,17 @@ export interface LegalEntity {
 
 export const LEGAL: LegalEntity = {
   brandName: 'QUETZ',
-  legalName: '',
-  legalForm: '',
-  street: '',
-  postalCode: '',
-  city: '',
-  country: '',
+  legalName: 'Daniel Fernando Garrido Liere',
+  legalForm: 'Einzelunternehmen',
+  street: 'Brinellstraße 26',
+  postalCode: '40627',
+  city: 'Düsseldorf',
+  country: 'Deutschland',
   represented: '',
   registerCourt: '',
   registerNumber: '',
   vatId: '',
-  isSmallBusiness: false,
+  isSmallBusiness: true,
   contentResponsible: '',
   contentResponsibleAddress: '',
   email: 'admin@quetz.org',
@@ -120,13 +120,14 @@ export const PRIVACY: PrivacyConfig = {
   dpoRequired: false,
   dpoName: '',
   dpoEmail: '',
-  supervisoryAuthority: '',
-  supervisoryAuthorityUrl: '',
+  supervisoryAuthority:
+    'Landesbeauftragte für Datenschutz und Informationsfreiheit Nordrhein-Westfalen (LDI NRW), Kavalleriestraße 2–4, 40213 Düsseldorf',
+  supervisoryAuthorityUrl: 'https://www.ldi.nrw.de',
   privacyContactEmail: 'admin@quetz.org',
 };
 
 /** Stand-Datum, das auf beiden Rechtsseiten angezeigt wird. */
-export const LEGAL_LAST_UPDATED = 'August 2026';
+export const LEGAL_LAST_UPDATED = 'Oktober 2026';
 
 /** Hinweis, der anstelle eines noch nicht hinterlegten Pflichtfelds erscheint. */
 export const LEGAL_PENDING_REQUIRED =
